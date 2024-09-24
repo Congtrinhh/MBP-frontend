@@ -1,0 +1,11 @@
+#region Questions to clarify
+
+Is this the minial version of clean architecture yet easily scalable?
+I also want to store and get log so that I'm able to trace error and exception when the app is running
+What is the best way to design paging solution, so that in the back-end I have a dynamic base paging api endpoint that can handle paging for every entity (of course except some exceptional cases),give me flow from front-end to back-end.
+the api endpoint has to be flexible in terms of fields data, master-detail data can be fetched or not based on mode param from front-end (fe),
+easily sort data based on multiple field names, search data using  operation with multiple fields combined with search data using OR operation with multiple fields
+
+#endregion
+
+Login with Google diagram: https://www.npmjs.com/package/vue-google-oauth2
