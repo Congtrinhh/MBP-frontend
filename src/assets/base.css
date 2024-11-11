@@ -70,6 +70,11 @@ body {
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+
+	font-family: "Open Sans", serif;
+	font-optical-sizing: auto;
+	font-weight: normal;
+	font-style: normal;
 }
 
 img {

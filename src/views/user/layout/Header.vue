@@ -5,6 +5,10 @@
 		</div>
 		<div class="logo-wrapper">MBP</div>
 		<div class="functional-buttons">
+			<div class="mc-group-button" @click="toggleMCGroupMenu" aria-haspopup="true" aria-controls="mcGroupMenu">
+				<i class="pi pi-users" style="font-size: 1.5rem"></i>
+			</div>
+
 			<div class="search-button" @click="isDialogSearchVisible = true">
 				<i class="pi pi-search" style="font-size: 1.5rem"></i>
 			</div>
@@ -13,6 +17,8 @@
 			</div>
 
 			<Menu ref="userMenu" id="userMenu" :model="userMenuItems" :popup="true" />
+
+			<Menu ref="mcGroupMenu" id="mcGroupMenu" :model="mcGroupMenuItems" :popup="true" />
 
 			<Dialog v-model:visible="isDialogSearchVisible" modal header="Tìm MC" :style="{ width: '25rem' }">
 				<Form
@@ -49,18 +55,32 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
+//#endregion Sidebar
 const isSidebarVisible = ref(false);
+//#endregion
 
+//#region User Menu
 const userMenuItems = ref([
 	{ label: "Quản lý tài khoản", icon: "pi pi-user" },
 	{ label: "Hợp đồng", icon: "pi pi-history" },
 	{ label: "Đăng xuất", icon: "pi pi-sign-out" },
 ]);
+
 const userMenu = ref();
 const toggleUserMenu = (event: Event) => {
 	userMenu.value.toggle(event);
 };
+//#endregion
 
+//#region MC Group Menu
+const mcGroupMenu = ref();
+const toggleMCGroupMenu = (event: Event) => {
+	mcGroupMenu.value.toggle(event);
+};
+const mcGroupMenuItems = ref([{ label: "Nhóm MC mới" }, { label: "Nhóm MC chung" }]);
+//#endregion
+
+//#region Search Dialog
 const isDialogSearchVisible = ref(false);
 
 const initialValues = ref({
@@ -94,6 +114,7 @@ const handleSearch = ({ valid }) => {
 		isDialogSearchVisible.value = false;
 	}
 };
+//#endregion
 </script>
 <style scoped lang="scss">
 #header {
