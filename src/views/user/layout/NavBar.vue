@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 
 const items = ref([
 	{ name: "posts", route: "/posts", label: "", icon: "pi pi-home" },
@@ -24,6 +24,17 @@ const items = ref([
 	{ name: "notifications", route: "/notifications", label: "", icon: "pi pi-bell" },
 	{ name: "setting", route: "/setting", label: "", icon: "pi pi-bars" },
 ]);
+
+/**
+ * khi component được render, đang ở route của tab nào thì tab đó sẽ được active,
+ * làm tương tự khi bấm next/back trên trình duyệt
+ */
+onMounted(() => {
+	// const currentRoute = window.location.pathname;
+	// items.value.forEach((item) => {
+	// 	item.active = item.route === currentRoute;
+	// });
+});
 
 const handleTabClick = (item) => {
 	items.value.forEach((i) => (i.active = false));
