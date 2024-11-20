@@ -17,32 +17,32 @@ const router = createRouter({
 			children: [
 				{
 					path: "",
-					name: "mc-list",
+					name: "user-home",
 					component: () => import("@/views/user/MCList.vue"),
 				},
 				{
 					path: "mcs",
-					name: "mc-list",
+					name: "user-mc-list",
 					component: () => import("@/views/user/MCList.vue"),
 				},
 				{
 					path: "posts",
-					name: "post-list",
+					name: "user-post-list",
 					component: () => import("@/views/user/PostList.vue"),
 				},
 				{
 					path: "messages",
-					name: "message-list",
+					name: "user-message-list",
 					component: () => import("@/views/user/MessageList.vue"),
 				},
 				{
 					path: "notifications",
-					name: "notification-list",
+					name: "user-notification-list",
 					component: () => import("@/views/user/NotificationList.vue"),
 				},
 				{
 					path: "setting",
-					name: "setting",
+					name: "user-setting",
 					component: () => import("@/views/user/Setting.vue"),
 				},
 				{

@@ -1,5 +1,5 @@
 <template>
-	<main class="main-container">posts</main>
+	<main class="main-container"></main>
 </template>
 
 <script setup lang="ts">
