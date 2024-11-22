@@ -80,3 +80,23 @@ body {
 img {
 	max-width: 100%;
 }
+
+.img-parent {
+	overflow: hidden;
+}
+.img-parent.rounded {
+	border-radius: 50%;
+}
+
+.center-header {
+	height: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	font-weight: bold;
+	font-size: 1.05rem;
+
+	border-bottom: 1px solid #c1c1c1;
+	background: #fff;
+}

@@ -9,3 +9,7 @@ easily sort data based on multiple field names, search data using  operation wit
 #endregion
 
 Login with Google diagram: https://www.npmjs.com/package/vue-google-oauth2
+
+** Checklist vấn đề **
+font-size theo rem
+dùng đúng icon

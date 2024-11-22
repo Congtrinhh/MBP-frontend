@@ -40,19 +40,6 @@ import { ref } from "vue";
 	flex-direction: column;
 }
 
-.center-header {
-	height: 60px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
-	font-weight: bold;
-	font-size: 1.1rem;
-
-	border-bottom: 1px solid #c1c1c1;
-	background: #fff;
-}
-
 .account-wrapper {
 	display: flex;
 	gap: 24px;
@@ -73,12 +60,20 @@ import { ref } from "vue";
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
-	padding-top: 24px;
+	padding-top: 16px;
 }
 .option-item {
 	display: flex;
 	align-items: center;
 	gap: 24px;
-	padding: 0 24px;
+	padding: 6px 24px;
+	cursor: pointer;
+
+	.icon {
+		font-size: 1.2rem;
+	}
+}
+.option-item:focus {
+	background: #333;
 }
 </style>
