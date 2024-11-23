@@ -42,7 +42,7 @@ import { ref } from "vue";
 
 .account-wrapper {
 	display: flex;
-	gap: 24px;
+	gap: 16px;
 	padding: 16px 24px;
 	background: #fff;
 	margin-bottom: 12px;

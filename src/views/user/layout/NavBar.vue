@@ -62,14 +62,14 @@ const handleTabClick = (item) => {
 		justify-content: center;
 		border-radius: 6px;
 		i.pi {
-			font-size: 1.3rem;
+			font-size: 1.5rem;
 			color: #000;
 		}
 
 		.label {
 			font-weight: bold;
 			color: #000;
-			font-size: 1.1rem;
+			font-size: 1.2rem;
 		}
 	}
 

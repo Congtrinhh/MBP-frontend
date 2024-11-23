@@ -177,7 +177,7 @@ const initialValues = ref({
 	padding: 0 4px;
 
 	.logo {
-		font-size: 1.1rem;
+		font-size: 1.3rem;
 		font-weight: bold;
 	}
 
