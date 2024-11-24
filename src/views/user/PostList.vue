@@ -6,7 +6,16 @@
 			<div class="create-post-button">Đăng bài</div>
 		</header>
 		<div class="post-list">
-			<Card class="post-item" v-for="post in posts" :key="post.id">
+			<Card
+				class="post-item"
+				v-for="post in posts"
+				:key="post.id"
+				:pt="{
+					body: {
+						style: 'padding: 0',
+					},
+				}"
+			>
 				<template #header>
 					<div class="post-header">
 						<div class="avatar img-parent rounded">
@@ -44,7 +53,7 @@
 					</div>
 				</template>
 				<template #footer>
-					<Divider />
+					<div class="divider"></div>
 					<div class="reaction-wrapper">
 						<div class="icon pi pi-thumbs-up-fill"></div>
 						<div class="info">{{ getReactionInfo(post.reactions) }}</div>
@@ -157,6 +166,10 @@ header.header {
 	padding: 8px 16px;
 	display: flex;
 	flex-direction: column;
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	border-bottom: 1px solid #ddd;
 
 	.logo {
 		font-weight: bold;
@@ -208,6 +221,7 @@ header.header {
 		display: flex;
 		flex-direction: column;
 		gap: 6px;
+		padding: 12px 16px 0;
 	}
 
 	.reaction-wrapper {
@@ -215,12 +229,16 @@ header.header {
 		gap: 12px;
 		align-items: center;
 		margin-bottom: 14px;
+		padding: 0 16px;
+		margin-top: 12px;
 	}
 
 	.reaction-buttons {
 		display: flex;
 		align-items: center;
 		gap: 36px;
+		padding: 0 16px;
+		margin-bottom: 12px;
 
 		.reaction-button {
 			display: flex;
@@ -229,5 +247,11 @@ header.header {
 			cursor: pointer;
 		}
 	}
+}
+
+.divider {
+	height: 1px;
+	background: #ddd;
+	margin: 12px 0;
 }
 </style>

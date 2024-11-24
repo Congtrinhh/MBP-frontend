@@ -26,6 +26,11 @@ const router = createRouter({
 					component: () => import("@/views/user/MCList.vue"),
 				},
 				{
+					path: "mcs/:id",
+					name: "uc-mc",
+					component: () => import("@/views/user/MC.vue"),
+				},
+				{
 					path: "posts",
 					name: "user-post-list",
 					component: () => import("@/views/user/PostList.vue"),

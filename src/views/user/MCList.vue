@@ -166,7 +166,6 @@ const initialValues = ref({
 <style lang="scss" scoped>
 .main-container {
 	padding: 0 12px 12px;
-	margin-bottom: 60px;
 }
 
 .header {

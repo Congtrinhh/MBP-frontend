@@ -1,7 +1,6 @@
 <template>
 	<main class="main-container">
 		<header class="center-header">Thiết lập</header>
-
 		<div class="account-wrapper">
 			<div class="avatar img-parent">
 				<img src="https://picsum.photos/200" alt="avatar" />
