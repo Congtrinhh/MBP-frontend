@@ -3,7 +3,7 @@
 		<section class="top">
 			<div class="overview-info">
 				<div class="avatar-wrapper">
-					<div class="avatar img-parent rounded"><img src="https://picsum.photos/200" alt="" /></div>
+					<div class="avatar img-parent rounded"><img :src="user.avatarUrl" alt="user avatar" /></div>
 					<div class="choose-avatar-icon pi pi-camera"></div>
 				</div>
 				<div class="info">
@@ -55,21 +55,39 @@
 					<TabPanel value="0">
 						<div class="tab-content-wrapper">
 							<div class="top">
-								<div class="text-lg font-bold">Thông tin chung</div>
-								<div v-if="editingMode == EditingMode.Update" @click="saveGeneralInfo" class="">Ok</div>
-								<div v-else @click="editingMode = EditingMode.Update" class="edit-button underline">
-									Sửa
-								</div>
+								<Button
+									type="button"
+									label="Gửi offer"
+									severity="secondary"
+									v-if="editingMode == EditingMode.Update"
+									@click="saveGeneralInfo"
+									class=""
+									width="80px"
+								>
+									Hủy
+								</Button>
+								<Button v-if="editingMode == EditingMode.Update" @click="saveGeneralInfo" class="">
+									Lưu
+								</Button>
+
+								<Button
+									v-if="editingMode == EditingMode.None"
+									@click="editingMode = EditingMode.Update"
+									icon="pi pi-pencil"
+									aria-label="Filter"
+									label="Sửa"
+								/>
 							</div>
 
 							<Form
 								class="flex flex-col gap-4 w-full sm:w-56"
 								:resolver="formInitialValues"
 								:initialValues="formInitialValues"
+								v-if="editingMode == EditingMode.Update"
 							>
 								<FormField name="nickname" class="flex flex-col gap-1">
 									<label for="nickname" class="form-label">Nghệ danh</label>
-									<InputText readonly type="text" placeholder="Nhập nghệ danh" />
+									<InputText type="text" placeholder="Nhập nghệ danh" />
 								</FormField>
 								<FormField name="hostingStyles" class="flex flex-col gap-1">
 									<label for="hostingStyles" class="form-label">Phong cách dẫn</label>
@@ -126,16 +144,70 @@
 									<InputNumber placeholder="Nhập cân nặng" />
 								</FormField>
 							</Form>
+
+							<div v-else class="general-info-wrapper">
+								<div class="info-item">
+									<i class="icon pi pi-map-marker"></i>
+									<div class="label">Nghệ danh</div>
+									<div class="value line-clamp-3">{{ user.nickname }}</div>
+								</div>
+								<div class="info-item">
+									<i class="icon pi pi-map-marker"></i>
+									<div class="label">Phong cách dẫn</div>
+									<div class="value line-clamp-3">
+										{{ user.hostingStyles.map((style) => style.name).join(", ") }}
+									</div>
+								</div>
+								<div class="info-item">
+									<i class="icon pi pi-pen-to-square"></i>
+									<div class="label">Mô tả về bản thân</div>
+									<div class="value line-clamp-3">{{ user.description }}</div>
+								</div>
+								<div class="info-item">
+									<i class="icon pi pi-map-marker"></i>
+									<div class="label">Giới tính</div>
+									<div class="value line-clamp-3">{{ user.gender }}</div>
+								</div>
+								<div class="info-item">
+									<i class="icon pi pi-map-marker"></i>
+									<div class="label">Tuổi</div>
+									<div class="value line-clamp-3">{{ user.age }}</div>
+								</div>
+								<div class="info-item">
+									<i class="icon pi pi-map-marker"></i>
+									<div class="label">Khu vực hoạt động</div>
+									<div class="value line-clamp-3">
+										{{ user.areas.map((style) => style.name).join(", ") }}
+									</div>
+								</div>
+								<div class="info-item">
+									<i class="icon pi pi-graduation-cap"></i>
+									<div class="label">Học vấn</div>
+									<div class="value line-clamp-3">{{ user.education }}</div>
+								</div>
+								<div class="info-item">
+									<i class="icon pi pi-map-marker"></i>
+									<div class="label">Chiều cao</div>
+									<div class="value line-clamp-3">{{ user.height }}</div>
+								</div>
+								<div class="info-item">
+									<i class="icon pi pi-map-marker"></i>
+									<div class="label">Cân nặng</div>
+									<div class="value line-clamp-3">{{ user.weight }}</div>
+								</div>
+							</div>
 						</div>
 					</TabPanel>
 					<TabPanel value="1">
-						<p class="m-0">
-							Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
-							laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi
-							architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit
-							aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione
-							voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non numquam eius modi.
-						</p>
+						<div class="gallery row gx-2 gy-2">
+							<div
+								class="gallery-item img-parent col-6"
+								v-for="galleryItem in galleryItems"
+								:key="galleryItem.id"
+							>
+								<img :src="galleryItem.url" alt="" />
+							</div>
+						</div>
 					</TabPanel>
 					<TabPanel value="2">
 						<p class="m-0">
@@ -215,6 +287,7 @@ const user = ref<User>({
 	height: 168,
 	weight: 58,
 	description: "Yêu đời, yêu cái đẹp",
+	avatarUrl: "https://picsum.photos/200",
 });
 
 const editingMode = ref<EditingMode>(EditingMode.None);
@@ -224,6 +297,47 @@ const formInitialValues = user;
 const saveGeneralInfo = () => {
 	editingMode.value = EditingMode.None;
 };
+
+const galleryItems = ref([
+	{
+		id: 1,
+		url: getRandomImageLink(),
+	},
+	{
+		id: 2,
+		url: getRandomImageLink(),
+	},
+	{
+		id: 3,
+		url: getRandomImageLink(),
+	},
+	{
+		id: 4,
+		url: getRandomImageLink(),
+	},
+	{
+		id: 5,
+		url: getRandomImageLink(),
+	},
+	{
+		id: 6,
+		url: getRandomImageLink(),
+	},
+]);
+
+function getRandomImageLink(): string {
+	// Define common image sizes
+	const commonWidths = [200, 300, 400, 500, 600, 700, 800];
+	const commonHeights = [200, 300, 400, 500, 600, 700, 800];
+
+	// Get random width and height from the common sizes
+	const randomWidth = commonWidths[Math.floor(Math.random() * commonWidths.length)];
+	const randomHeight = commonHeights[Math.floor(Math.random() * commonHeights.length)];
+
+	// Generate the link with random sizes
+	const link = `https://picsum.photos/${randomWidth}/${randomHeight}`;
+	return link;
+}
 </script>
 <style lang="scss" scoped>
 .main-container {
@@ -294,9 +408,38 @@ section.top {
 
 	.top {
 		display: flex;
-		justify-content: space-between;
+		justify-content: flex-end;
+		gap: 16px;
 		margin-bottom: 12px;
 		align-items: center;
+	}
+}
+
+.general-info-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+
+	.info-item {
+		display: flex;
+		align-items: baseline;
+
+		.label {
+			width: 10rem;
+			flex-shrink: 0;
+			margin-left: 10px;
+		}
+		.value {
+			font-size: 1.1rem;
+			font-weight: 600;
+		}
+	}
+}
+
+//anh & video
+.gallery-item {
+	img {
+		border-radius: 4px;
 	}
 }
 </style>

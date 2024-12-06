@@ -118,3 +118,7 @@ img {
 main.main-container {
 	margin-bottom: 60px;
 }
+
+.p-button {
+	min-width: 68px;
+}
