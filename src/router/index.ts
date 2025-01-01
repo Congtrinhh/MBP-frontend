@@ -17,8 +17,7 @@ const router = createRouter({
 			children: [
 				{
 					path: "",
-					name: "user-home",
-					component: () => import("@/views/user/MCList.vue"),
+					redirect: "/mcs",
 				},
 				{
 					path: "mcs",

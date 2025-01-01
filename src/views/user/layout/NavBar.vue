@@ -5,7 +5,7 @@
 			v-for="item in items"
 			:key="item.name"
 			@click="handleTabClick(item)"
-			:class="{ active: item.active }"
+			:class="{ active: item.route === currentRoute.path }"
 			:to="item.route"
 		>
 			<i :class="item.icon"></i>
@@ -15,30 +15,30 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+
+const route = useRoute();
+const router = useRouter();
 
 const items = ref([
 	{ name: "posts", route: "/posts", label: "", icon: "pi pi-home" },
 	{ name: "messages", route: "/messages", label: "", icon: "pi pi-comment" },
-	{ name: "mcs", route: "/mcs", label: "MC", active: true },
+	{ name: "mcs", route: "/mcs", label: "MC" },
 	{ name: "notifications", route: "/notifications", label: "", icon: "pi pi-bell" },
 	{ name: "setting", route: "/setting", label: "", icon: "pi pi-bars" },
 ]);
 
-/**
- * khi component được render, đang ở route của tab nào thì tab đó sẽ được active,
- * làm tương tự khi bấm next/back trên trình duyệt
- */
-onMounted(() => {
-	// const currentRoute = window.location.pathname;
-	// items.value.forEach((item) => {
-	// 	item.active = item.route === currentRoute;
-	// });
+const currentRoute = ref(route);
+
+watch(route, (newRoute) => {
+	currentRoute.value = newRoute;
 });
 
 const handleTabClick = (item) => {
 	items.value.forEach((i) => (i.active = false));
 	item.active = true;
+	router.push(item.route);
 };
 </script>
 

@@ -13,9 +13,10 @@
   "dependencies": {
     "@primevue/forms": "^4.2.1",
     "@primevue/themes": "^4.2.1",
-    "axios": "^1.7.7",
+    "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
-    "pinia": "^2.1.7",
+    "lodash": "^4.17.21",
+    "pinia": "^2.3.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.2.1",
     "vue": "^3.4.29",

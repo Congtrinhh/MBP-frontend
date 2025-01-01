@@ -1,44 +1,43 @@
 <template>
-	<main class="main-container">
+	<main class="main-container" @scroll="handleScroll" style="overflow-y: auto; max-height: 99vh">
 		<header class="header">
 			<div class="logo">MBP</div>
+			<InputText
+				v-model="searchText"
+				placeholder="Tìm kiếm MC"
+				class="search-input"
+				@input="debouncedSearchInput"
+			/>
 			<div class="filter-button" @click="showFilterDialog">Lọc</div>
 		</header>
 
 		<div class="row gy-3">
-			<div class="col-6">
-				<MMCItem></MMCItem>
-			</div>
-			<div class="col-6">
-				<MMCItem></MMCItem>
-			</div>
-			<div class="col-6">
-				<MMCItem></MMCItem>
-			</div>
-			<div class="col-6">
-				<MMCItem></MMCItem>
-			</div>
-			<div class="col-6">
-				<MMCItem></MMCItem>
-			</div>
-			<div class="col-6">
-				<MMCItem></MMCItem>
-			</div>
-			<div class="col-6">
-				<MMCItem></MMCItem>
-			</div>
-			<div class="col-6">
-				<MMCItem></MMCItem>
+			<div class="col-6" v-for="user in users" :key="user.id">
+				<MMCItem :-m-c="user" @click="redirectToMC(user.id)"></MMCItem>
 			</div>
 		</div>
 
 		<Dialog v-model:visible="isVisibleFilterDialog" modal header="Tìm kiếm MC" :style="{ width: '96vw' }">
-			<Form :resolver @submit="onFormSubmit" :initialValues class="flex flex-col gap-4 w-full sm:w-56">
-				<FormField v-slot="$field" name="hostingStyle" class="flex flex-col gap-1">
-					<label for="hostingStyle">Lối dẫn</label>
+			<Form
+				:resolver="resolver"
+				:ref="formRef"
+				@submit="onFormSubmit"
+				:initialValues="filter"
+				class="flex flex-col gap-4 w-full sm:w-56"
+			>
+				<FormField v-slot="$field" name="searchText" class="flex flex-col gap-1">
+					<label for="searchText">Nghệ danh MC</label>
+					<InputText v-model="searchText" placeholder="Nhập nghệ danh MC" class="w-full md:w-80" autofocus />
+					<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+						$field.error?.message
+					}}</Message>
+				</FormField>
+
+				<FormField v-slot="$field" name="hostingStyles" class="flex flex-col gap-1">
+					<label for="hostingStyles">Lối dẫn</label>
 					<MultiSelect
 						:options="hostingStyles"
-						optionLabel="name"
+						optionLabel="label"
 						placeholder="Chọn lối dẫn"
 						class="w-full md:w-80"
 					/>
@@ -47,8 +46,21 @@
 					}}</Message>
 				</FormField>
 
-				<FormField v-slot="$field" name="area" class="flex flex-col gap-1">
-					<label for="area">Khu vực hoạt động</label>
+				<FormField v-slot="$field" name="mcTypes" class="flex flex-col gap-1">
+					<label for="mcTypes">Loại MC</label>
+					<MultiSelect
+						:options="mcTypes"
+						optionLabel="label"
+						placeholder="Chọn loại MC"
+						class="w-full md:w-80"
+					/>
+					<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+						$field.error?.message
+					}}</Message>
+				</FormField>
+
+				<FormField v-slot="$field" name="areas" class="flex flex-col gap-1">
+					<label for="areas">Khu vực hoạt động</label>
 					<MultiSelect
 						:options="areas"
 						optionLabel="name"
@@ -60,9 +72,14 @@
 					}}</Message>
 				</FormField>
 
-				<FormField v-slot="$field" name="gender" class="flex flex-col gap-1">
-					<label for="gender">Giới tính</label>
-					<Select :options="genders" optionLabel="name" placeholder="Chọn giới tính" class="w-full md:w-56" />
+				<FormField v-slot="$field" name="genders" class="flex flex-col gap-1">
+					<label for="genders">Giới tính</label>
+					<MultiSelect
+						:options="genders"
+						optionLabel="name"
+						placeholder="Chọn giới tính"
+						class="w-full md:w-56"
+					/>
 					<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
 						$field.error?.message
 					}}</Message>
@@ -70,21 +87,34 @@
 
 				<FormField v-slot="$field" name="ageRange" class="flex flex-col gap-1">
 					<label for="ageRange">Độ tuổi</label>
-					<Select :options="ageRanges" optionLabel="name" placeholder="Chọn độ tuổi" class="w-full md:w-56" />
+
+					<div class="flex items-center gap-5">
+						<div>{{ ageRange[0] }}</div>
+						<Slider v-model="ageRange" range class="age-slider" />
+						<div>{{ ageRange[1] }}</div>
+					</div>
+
 					<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
 						$field.error?.message
 					}}</Message>
 				</FormField>
 
-				<FormField v-slot="$field" name="ageRange" class="flex gap-1">
-					<Checkbox name="isNewbieOnly" binary />
-					<label for="isNewbieOnly">Chỉ tìm MC mới vào nghề</label>
+				<FormField v-slot="$field" name="isNewbie" class="flex gap-1">
+					<Checkbox name="isNewbie" binary />
+					<label for="isNewbie">Chỉ tìm MC mới vào nghề</label>
 					<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
 						$field.error?.message
 					}}</Message>
 				</FormField>
 
 				<div class="flex justify-end gap-2">
+					<Button
+						type="button"
+						label="Reset"
+						severity="secondary"
+						@click="resetFilter"
+						class="reset-button"
+					></Button>
 					<Button
 						type="button"
 						label="Hủy"
@@ -99,11 +129,22 @@
 </template>
 
 <script setup lang="ts">
+import { userApi } from "@/apis/userApi";
 import MMCItem from "@/components/MMCItem.vue";
+import type { User } from "@/entities/user/user";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { useToast } from "primevue/usetoast";
-import { ref } from "vue";
+import { onMounted, ref, nextTick } from "vue";
 import { z } from "zod";
+import { useRouter } from "vue-router";
+import type { PagedRequest } from "@/entities/user/paging/pagedRequest";
+import { useProvinceStore } from "@/stores/provinceStore";
+import { useMcTypeStore } from "@/stores/mcTypeStore";
+import { useHostingStyleStore } from "@/stores/hostingStyleStore";
+import { Gender, getGenderText } from "@/enums/gender";
+import InputText from "primevue/inputtext";
+import { debounce } from "lodash";
+import type { UserPagedRequest } from "@/entities/user/paging/UserPagedRequest";
 
 const isVisibleFilterDialog = ref(false);
 const showFilterDialog = () => {
@@ -113,56 +154,161 @@ const showFilterDialog = () => {
 //#region Form
 const toast = useToast();
 
+const formRef = ref();
+
 const resolver = zodResolver(
 	z.object({
-		hostingStyle: z.any(),
-		area: z.any(),
-		gender: z.any(),
-		ageRange: z.any(),
-		isNewbieOnly: z.boolean(),
+		searchText: z.string().optional(),
+		hostingStyles: z.array(z.any()),
+		mcTypes: z.array(z.any()),
+		areas: z.array(z.any()),
+		genders: z.array(z.any()),
+		ageRange: z.array(z.number()),
+		isNewbie: z.boolean(),
 	})
 );
 
 const onFormSubmit = (formInfo) => {
-	const { valid } = formInfo;
+	const { valid, values } = formInfo;
 	if (valid) {
+		filter.value = values;
+		clearUsers();
+		rebuildPagedRequest();
+		loadMoreUsers();
 		toast.add({ severity: "success", summary: "Form is submitted.", life: 3000 });
-		console.log("Form is submitted.", formInfo);
 		isVisibleFilterDialog.value = false;
 	}
 };
 
 const genders = ref([
-	{ name: "Nam", code: "male" },
-	{ name: "Nữ", code: "female" },
-	{ name: "Khác", code: "other" },
+	{ name: getGenderText(Gender.Male), code: Gender.Male },
+	{ name: getGenderText(Gender.Female), code: Gender.Female },
+	{ name: getGenderText(Gender.Other), code: Gender.Other },
 ]);
 
-const areas = ref([
-	{ name: "Hà Nội", code: "han" },
-	{ name: "TP HCM", code: "hcm" },
-	{ name: "Khác", code: "other" },
-]);
+const ageRange = ref([18, 80]);
 
-const ageRanges = ref([
-	{ name: "18-25", code: "18-25" },
-	{ name: "25-30", code: "25-30" },
-	{ name: "30-40", code: "30-40" },
-	{ name: "> 40", code: "40-80" },
-]);
-const hostingStyles = ref([
-	{ name: "Nhẹ nhàng", code: "nhenhang" },
-	{ name: "Nhiệt huyết", code: "nhiethuyet" },
-	{ name: "Nhanh", code: "nhanh" },
-	{ name: "Tốc độ vừa phải", code: "tocdovuaphai" },
-]);
+const provinceStore = useProvinceStore();
+const areas = ref(provinceStore.provinces);
 
-const initialValues = ref({
-	gender: genders.value[0],
-	isNewbieOnly: false,
+const hostingStyleStore = useHostingStyleStore();
+const hostingStyles = ref(hostingStyleStore.hostingStyles);
+
+const mcTypeStore = useMcTypeStore();
+const mcTypes = ref(mcTypeStore.mcTypes);
+
+//#endregion
+
+//#region Filter
+const initialFilter = {
+	searchText: "",
+	genders: [],
+	areas: [],
+	hostingStyles: [],
+	mcTypes: [],
+	isNewbie: false,
+	ageRange: [18, 80],
+};
+
+const filter = ref({ ...initialFilter });
+
+const resetFilter = async () => {
+	filter.value = { ...initialFilter };
+	await nextTick();
+	ageRange.value = [18, 80];
+	searchText.value = "";
+	// formRef.value.reset();
+};
+//#endregion
+
+//#region Search
+const searchText = ref("");
+const debouncedSearchInput = debounce(() => {
+	pagedRequest.pageIndex = 0;
+	clearUsers();
+	rebuildPagedRequest();
+	loadMoreUsers();
+}, 500);
+//#endregion
+
+//#region Pagination and Data Loading
+const clearUsers = () => {
+	users.value = [];
+};
+
+const isLoading = ref(false);
+
+const rebuildPagedRequest = () => {
+	pagedRequest.pageIndex = 0;
+
+	const mcTypeIds = filter.value.mcTypes.map((mcType) => mcType.id).join(",");
+	const hostingStyleIds = filter.value.hostingStyles.map((style) => style.id).join(",");
+	const areaIds = filter.value.areas.map((area) => area.id).join(",");
+	const genders = filter.value.genders.map((gender) => gender.code).join(",");
+
+	const isNewbie = filter.value.isNewbie;
+
+	const ageRange = filter.value.ageRange;
+
+	pagedRequest = {
+		...pagedRequest,
+		nickName: searchText.value?.trim() || undefined,
+		mcTypeIds: mcTypeIds || undefined,
+		hostingStyleIds: hostingStyleIds || undefined,
+		provinceIds: areaIds || undefined,
+		genders: genders || undefined,
+		isNewbie: isNewbie === true ? isNewbie : undefined,
+		minAge: ageRange[0] || undefined,
+		maxAge: ageRange[1] || undefined,
+	};
+};
+
+const loadMoreUsers = async () => {
+	if (isLoading.value) return;
+	isLoading.value = true;
+
+	const pagedResponse = await userApi.getPaged(pagedRequest);
+
+	const newUsers = pagedResponse.items;
+	users.value.push(...newUsers);
+
+	pagedRequest.pageIndex++;
+	isLoading.value = false;
+};
+
+const handleScroll = (event: any) => {
+	console.log("even");
+	const bottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
+	if (bottom) {
+		loadMoreUsers();
+	}
+};
+
+let pagedRequest: UserPagedRequest = {
+	pageIndex: 0,
+	pageSize: 10,
+	sort: "credit DESC",
+	isMc: true,
+	isGetMcType: true,
+	isGetProvince: true,
+	isUseProc: true,
+};
+
+const users = ref<User[]>([]);
+onMounted(async () => {
+	await loadMoreUsers();
 });
 //#endregion
+
+//#region Navigation
+const router = useRouter();
+
+const redirectToMC = (id: number) => {
+	router.push({ name: "uc-mc", params: { id } });
+};
+//#endregion
 </script>
+
 <style lang="scss" scoped>
 .main-container {
 	padding: 0 12px 12px;
@@ -180,9 +326,25 @@ const initialValues = ref({
 		font-weight: bold;
 	}
 
+	.search-input {
+		flex: 1;
+		margin: 0 12px;
+		padding: 8px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+	}
+
 	.filter-button {
 		text-decoration: underline;
 		cursor: pointer;
 	}
+}
+.reset-button {
+	margin-right: auto;
+}
+
+.age-slider {
+	width: 70%;
+	flex: 1;
 }
 </style>

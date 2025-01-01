@@ -11,8 +11,10 @@ import Aura from "@primevue/themes/aura";
 import "primeicons/primeicons.css";
 import ToastService from "primevue/toastservice";
 import { definePreset } from "@primevue/themes";
+import { useAppStore } from "./stores/appStore";
 
 const app = createApp(App);
+const pinia = createPinia();
 
 const MyPreset = definePreset(Aura, {
 	semantic: {
@@ -32,7 +34,7 @@ const MyPreset = definePreset(Aura, {
 	},
 });
 
-app.use(createPinia());
+app.use(pinia);
 app.use(router);
 app.use(PrimeVue, {
 	theme: {
@@ -45,4 +47,8 @@ app.use(GoogleLogin, {
 	clientId: "354764772754-488i6o9djr7hala82gnremncgdrsstvn.apps.googleusercontent.com",
 });
 
-app.mount("#app");
+//	Initialize data
+const appStore = useAppStore();
+appStore.initializeApp().then(() => {
+	app.mount("#app");
+});

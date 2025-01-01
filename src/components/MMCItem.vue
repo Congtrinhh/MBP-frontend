@@ -1,36 +1,56 @@
 <script setup lang="ts">
-import { withDefaults } from "vue";
+import type { McType } from "@/entities/mcType";
+import type { Province } from "@/entities/province";
+import type { User } from "@/entities/user/user";
+import { computed, withDefaults } from "vue";
 
 interface Props {
-	MC: {
-		id: number;
-		name: string;
-		address: string;
-		types: string;
-		imageUrl: string;
-	};
+	MC: User;
 }
 const props = withDefaults(defineProps<Props>(), {
 	MC: () => ({
 		id: 0,
-		name: "Trịnh Quý Công",
-		address: "Hà Nội",
-		types: "Gala, Team building",
-		imageUrl: "https://picsum.photos/200",
+		fullName: "",
+		email: "",
+		phoneNumber: "",
+		isMc: false,
+		age: undefined,
+		nickName: "",
+		credit: 0,
+		gender: 0,
+		isNewbie: false,
+		workingArea: "",
+		isVerified: false,
+		description: "",
+		education: "",
+		height: undefined,
+		weight: undefined,
+		avatarUrl: "",
+		facebook: "",
+		zalo: "",
+		medias: [],
+		mcTypes: [],
+		provinces: [],
 	}),
 });
+
+const mcTypes = computed(() => props.MC.mcTypes.map((type: McType) => type.label).join(", "));
+const provinces = computed(() => props.MC.provinces.map((province: Province) => province.name).join(", "));
 </script>
 
 <template>
 	<div class="m-mc-container">
 		<div class="m-img-container">
-			<img :src="props.MC.imageUrl" alt="" />
+			<img :src="props.MC.avatarUrl" alt="user avatar" />
 		</div>
 		<div class="m-desc-container">
-			<div class="m-labels-container"></div>
-			<strong class="m-mc-name">{{ props.MC.name }}</strong>
-			<div class="m-mc-address">{{ props.MC.address }}</div>
-			<div class="m-mc-types">{{ props.MC.types }}</div>
+			<div class="m-labels-container">
+				<Tag v-if="props.MC.isNewbie" value="Mới"></Tag>
+				<Tag :value="props.MC.credit"></Tag>
+			</div>
+			<strong class="m-mc-name">{{ props.MC.nickName }}</strong>
+			<div class="m-mc-address line-clamp-1">{{ provinces }}</div>
+			<div class="m-mc-types line-clamp-1">{{ mcTypes }}</div>
 		</div>
 	</div>
 </template>

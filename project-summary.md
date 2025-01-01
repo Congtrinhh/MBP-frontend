@@ -1,6 +1,7 @@
 ## I'm starting to develop a new project, there requirements are as this md file below:
 
 ;don't do anything oke, just remember the information to provide me good response when I ask future questions.
+when showing me response, only show code snippets and changes that is new, not regenerate everything for every files.
 
 #region Project summary
 
@@ -8,8 +9,8 @@
 
 **Technology Stack**:
 
--   **Backend**: ASP.NET Web API with Clean Architecture, using dotnet version greater than 6.0
--   **Frontend**: Vue.js: Vue 3 with the Composition API, when writing vue code, remember to write in vue 3 composition api style. I use PrimeVue as an ui library
+-   **Backend**: ASP.NET Web API with Clean Architecture, using .net 8.0
+-   **Frontend**: Vue.js: Vue 3 with the Composition API, when writing vue code, remember to write in vue 3 composition api style. I use PrimeVue as an ui library. with pinia, I prefer option store style
 -   **Object Storage**: Google Cloud Platform
 -   **Authentication**: JWT combined with Google login
 -   **Database**: MySQL
@@ -49,3 +50,9 @@
     -   Implement search functionality using AND and OR operations with multiple fields.
 
 #endregion
+
+#backend:
+
+##
+
+next time, only show me method having code changes, don't show everything of every file, it is lengthy

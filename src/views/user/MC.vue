@@ -229,9 +229,9 @@ import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { useToast } from "primevue/usetoast";
 import { ref } from "vue";
 import { z } from "zod";
-import { User } from "@/entities/user/User";
-import { Gender } from "@/enums/Gender";
-import { EditingMode } from "@/enums/EditingMode";
+import { User } from "@/entities/user/user";
+import { Gender } from "@/enums/gender";
+import { EditingMode } from "@/enums/editingMode";
 
 const formResolver = ref(
 	zodResolver(

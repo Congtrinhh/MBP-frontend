@@ -1,51 +1,28 @@
-import { Gender } from "@/enums/Gender";
+import type { Media } from "./media";
+import type { McType } from "../mcType";
+import type { Gender } from "@/enums/gender";
+import type { Province } from "../province";
 
 export interface User {
-	// Full name - taken from Google account
 	fullName: string;
-
-	// Email - taken from Google account
 	email: string;
-
-	// Phone number - taken from Google account
 	phoneNumber: string;
-
-	// Indicates if the user is an MC
-	isMC: boolean;
-
-	// Age of the user (optional)
+	isMc: boolean;
 	age?: number;
-
-	// Nickname
-	nickname: string;
-
-	// Credit score
+	nickName: string;
 	credit: number;
-
-	// Gender of the user
 	gender: Gender;
-
-	// Indicates if the user is a newbie MC
 	isNewbie: boolean;
-
-	// Working area
 	workingArea: string;
-
-	// Indicates if the user's identity is verified
 	isVerified: boolean;
-
-	// Description of the user
 	description: string;
-
-	// Education of the user
 	education: string;
-
-	// Height of the user (optional)
 	height?: number;
-
-	// Weight of the user (optional)
 	weight?: number;
-
-	// URL of the user's avatar
 	avatarUrl: string;
+	facebook: string;
+	zalo: string;
+	medias: Media[];
+	mcTypes: McType[];
+	provinces: Province[];
 }
