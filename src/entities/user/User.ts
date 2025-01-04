@@ -3,8 +3,9 @@ import type { McType } from "../mcType";
 import type { Gender } from "@/enums/gender";
 import type { Province } from "../province";
 import type { HostingStyle } from "../hostingStyle";
+import type { BaseEntity } from "../baseEntity";
 
-export interface User {
+export interface User extends BaseEntity {
 	fullName: string;
 	email: string;
 	phoneNumber: string;

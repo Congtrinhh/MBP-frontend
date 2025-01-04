@@ -254,6 +254,11 @@ import { useMcTypeStore } from "@/stores/mcTypeStore";
 import type { BaseEntity } from "@/entities/baseEntity";
 import { EntityState } from "@/enums/entityState";
 import { useEntity } from "@/composables/useEntity";
+import type { HostingStyle } from "@/entities/hostingStyle";
+import type { McType } from "@/entities/mcType";
+import type { Province } from "@/entities/province";
+import { mediaApi } from "@/apis/mediaApi";
+import type { Media } from "@/entities/user/media";
 
 const toast = useToast();
 const route = useRoute();
@@ -265,20 +270,15 @@ const formResolver = ref(
 	zodResolver(
 		z.object({
 			age: z.number().optional(),
-			nickName: z.string().min(1, { message: "required" }),
+			nickName: z.string().min(1, { message: "Không được bỏ trống" }),
 			gender: z.number(),
-			// isNewbie: z.boolean(),
 			description: z.string().optional(),
 			education: z.string().optional(),
 			height: z.number().optional(),
 			weight: z.number().optional(),
-			// avatarUrl: z.string().url({ message: "Invalid URL" }),
-			// facebook: z.string().url({ message: "Invalid URL" }).optional(),
-			// zalo: z.string().optional(),
-			// medias: z.array(z.any()).optional(),
 			mcTypes: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
-			provinces: z.array(z.any()),
-			hostingStyles: z.array(z.any()),
+			provinces: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
+			hostingStyles: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
 		})
 	)
 );
@@ -295,15 +295,15 @@ const provinces = provinceStore.provinces;
 const genders = ref(getGenderDataSource());
 
 const hostingStylesText = computed(() => {
-	return user.value.hostingStyles?.map((style) => style.label).join(", ") || "";
+	return user.value.hostingStyles?.map((style: HostingStyle) => style.label).join(", ") || "";
 });
 
 const mcTypesText = computed(() => {
-	return user.value.mcTypes?.map((type) => type.label).join(", ") || "";
+	return user.value.mcTypes?.map((type: McType) => type.label).join(", ") || "";
 });
 
 const areasText = computed(() => {
-	return user.value.provinces?.map((province) => province.name).join(", ") || "";
+	return user.value.provinces?.map((province: Province) => province.name).join(", ") || "";
 });
 
 const editingMode = ref<EditingMode>(EditingMode.None);
@@ -320,12 +320,8 @@ const handleSaveGeneralInfo = async (user: User) => {
 	user.provinces = updateEntityState(user.provinces, formInitialValues.value.provinces);
 
 	// Save user logic here...
-	debugger;
 	const response = await userApi.update(userId, user);
-
-	if (response) {
-		editingMode.value = EditingMode.None;
-	}
+	editingMode.value = EditingMode.None;
 };
 
 const cancelEditGeneralInfo = () => {
@@ -333,46 +329,7 @@ const cancelEditGeneralInfo = () => {
 };
 
 const { updateEntityState } = useEntity();
-const galleryItems = ref([
-	{
-		id: 1,
-		url: getRandomImageLink(),
-	},
-	{
-		id: 2,
-		url: getRandomImageLink(),
-	},
-	{
-		id: 3,
-		url: getRandomImageLink(),
-	},
-	{
-		id: 4,
-		url: getRandomImageLink(),
-	},
-	{
-		id: 5,
-		url: getRandomImageLink(),
-	},
-	{
-		id: 6,
-		url: getRandomImageLink(),
-	},
-]);
-
-function getRandomImageLink(): string {
-	// Define common image sizes
-	const commonWidths = [200, 300, 400, 500, 600, 700, 800];
-	const commonHeights = [200, 300, 400, 500, 600, 700, 800];
-
-	// Get random width and height from the common sizes
-	const randomWidth = commonWidths[Math.floor(Math.random() * commonWidths.length)];
-	const randomHeight = commonHeights[Math.floor(Math.random() * commonHeights.length)];
-
-	// Generate the link with random sizes
-	const link = `https://picsum.photos/${randomWidth}/${randomHeight}`;
-	return link;
-}
+const galleryItems = ref<Media[]>([]);
 
 onMounted(async () => {
 	const userFromApi = await userApi.getById(userId);
@@ -380,6 +337,9 @@ onMounted(async () => {
 	formInitialValues.value = {
 		...userFromApi,
 	};
+
+	const medias = await mediaApi.getMediasByUserId(userId);
+	galleryItems.value = medias;
 });
 
 const onFormSubmit = (e) => {
