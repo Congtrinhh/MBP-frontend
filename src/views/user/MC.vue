@@ -313,6 +313,7 @@ const formInitialValues = ref({
 });
 
 const handleSaveGeneralInfo = async (user: User) => {
+	user.id = userId;
 	// Handle details' entity state
 	user.mcTypes = updateEntityState(user.mcTypes, formInitialValues.value.mcTypes);
 	user.hostingStyles = updateEntityState(user.hostingStyles, formInitialValues.value.hostingStyles);
