@@ -8,7 +8,7 @@
 				</div>
 				<div class="info">
 					<div class="name-wrapper">
-						<div class="name">{{ user.nickname }}</div>
+						<div class="name">{{ user.nickName }}</div>
 						<span v-if="user.isVerified" class="verified">checked</span>
 						<div v-else class="verify-identity">Xác thực danh tính</div>
 					</div>
@@ -56,21 +56,6 @@
 						<div class="tab-content-wrapper">
 							<div class="top">
 								<Button
-									type="button"
-									label="Gửi offer"
-									severity="secondary"
-									v-if="editingMode == EditingMode.Update"
-									@click="saveGeneralInfo"
-									class=""
-									width="80px"
-								>
-									Hủy
-								</Button>
-								<Button v-if="editingMode == EditingMode.Update" @click="saveGeneralInfo" class="">
-									Lưu
-								</Button>
-
-								<Button
 									v-if="editingMode == EditingMode.None"
 									@click="editingMode = EditingMode.Update"
 									icon="pi pi-pencil"
@@ -81,19 +66,46 @@
 
 							<Form
 								class="flex flex-col gap-4 w-full sm:w-56"
-								:resolver="formInitialValues"
+								:resolver="formResolver"
 								:initialValues="formInitialValues"
+								@submit="onFormSubmit"
 								v-if="editingMode == EditingMode.Update"
 							>
-								<FormField name="nickname" class="flex flex-col gap-1">
-									<label for="nickname" class="form-label">Nghệ danh</label>
+								<div class="top">
+									<Button
+										type="button"
+										label="Gửi offer"
+										severity="secondary"
+										v-if="editingMode == EditingMode.Update"
+										@click="cancelEditGeneralInfo"
+										class=""
+										width="80px"
+									>
+										Hủy
+									</Button>
+									<Button v-if="editingMode == EditingMode.Update" type="submit"> Lưu </Button>
+								</div>
+								<FormField name="nickName" class="flex flex-col gap-1">
+									<label for="nickName" class="form-label">Nghệ danh</label>
 									<InputText type="text" placeholder="Nhập nghệ danh" />
+								</FormField>
+								<FormField name="mcTypes" class="flex flex-col gap-1" v-slot="$field">
+									<label for="mcTypes" class="form-label">Loại MC</label>
+									<MultiSelect
+										:options="mcTypes"
+										optionLabel="label"
+										placeholder="Chọn loại MC"
+										class="w-full md:w-80"
+									/>
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
 								</FormField>
 								<FormField name="hostingStyles" class="flex flex-col gap-1">
 									<label for="hostingStyles" class="form-label">Phong cách dẫn</label>
 									<MultiSelect
 										:options="hostingStyles"
-										optionLabel="name"
+										optionLabel="label"
 										placeholder="Chọn phong cách dẫn"
 										class="w-full md:w-80"
 									/>
@@ -108,7 +120,8 @@
 									<label for="gender" class="form-label">Giới tính</label>
 									<Select
 										:options="genders"
-										optionLabel="name"
+										option-label="name"
+										option-value="code"
 										placeholder="Chọn giới tính"
 										class="w-full md:w-56"
 									/>
@@ -119,10 +132,10 @@
 									<InputNumber inputId="minmax" :min="0" :max="200" />
 								</FormField>
 
-								<FormField name="area" class="flex flex-col gap-1">
-									<label for="area" class="form-label">Địa bàn hoạt động</label>
+								<FormField name="provinces" class="flex flex-col gap-1">
+									<label for="provinces" class="form-label">Địa bàn hoạt động</label>
 									<MultiSelect
-										:options="areas"
+										:options="provinces"
 										optionLabel="name"
 										placeholder="Chọn địa bàn hoạt động"
 										class="w-full md:w-80"
@@ -149,14 +162,17 @@
 								<div class="info-item">
 									<i class="icon pi pi-map-marker"></i>
 									<div class="label">Nghệ danh</div>
-									<div class="value line-clamp-3">{{ user.nickname }}</div>
+									<div class="value line-clamp-3">{{ user.nickName }}</div>
+								</div>
+								<div class="info-item">
+									<i class="icon pi pi-map-marker"></i>
+									<div class="label">Loại MC</div>
+									<div class="value line-clamp-3">{{ mcTypesText }}</div>
 								</div>
 								<div class="info-item">
 									<i class="icon pi pi-map-marker"></i>
 									<div class="label">Phong cách dẫn</div>
-									<div class="value line-clamp-3">
-										{{ user.hostingStyles.map((style) => style.name).join(", ") }}
-									</div>
+									<div class="value line-clamp-3">{{ hostingStylesText }}</div>
 								</div>
 								<div class="info-item">
 									<i class="icon pi pi-pen-to-square"></i>
@@ -166,7 +182,7 @@
 								<div class="info-item">
 									<i class="icon pi pi-map-marker"></i>
 									<div class="label">Giới tính</div>
-									<div class="value line-clamp-3">{{ user.gender }}</div>
+									<div class="value line-clamp-3">{{ getGenderText(user.gender) }}</div>
 								</div>
 								<div class="info-item">
 									<i class="icon pi pi-map-marker"></i>
@@ -176,9 +192,7 @@
 								<div class="info-item">
 									<i class="icon pi pi-map-marker"></i>
 									<div class="label">Khu vực hoạt động</div>
-									<div class="value line-clamp-3">
-										{{ user.areas.map((style) => style.name).join(", ") }}
-									</div>
+									<div class="value line-clamp-3">{{ areasText }}</div>
 								</div>
 								<div class="info-item">
 									<i class="icon pi pi-graduation-cap"></i>
@@ -227,77 +241,97 @@
 <script setup lang="ts">
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { useToast } from "primevue/usetoast";
-import { ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { z } from "zod";
 import { User } from "@/entities/user/user";
-import { Gender } from "@/enums/gender";
+import { Gender, getGenderDataSource, getGenderText } from "@/enums/gender";
 import { EditingMode } from "@/enums/editingMode";
+import { userApi } from "@/apis/userApi";
+import { useRoute } from "vue-router";
+import { useHostingStyleStore } from "@/stores/hostingStyleStore";
+import { useProvinceStore } from "@/stores/provinceStore";
+import { useMcTypeStore } from "@/stores/mcTypeStore";
+import type { BaseEntity } from "@/entities/baseEntity";
+import { EntityState } from "@/enums/entityState";
+import { useEntity } from "@/composables/useEntity";
+
+const toast = useToast();
+const route = useRoute();
+const userId = Number(route.params.id);
+
+const user = ref<User>({});
 
 const formResolver = ref(
 	zodResolver(
 		z.object({
-			nickname: z.string().min(1, { message: "required" }),
-			gender: z.string(),
-			hostingStyles: z.array(
-				z.object({
-					name: z.string(),
-					code: z.string(),
-				})
-			),
-			areas: z.array(
-				z.object({
-					name: z.string(),
-					code: z.string(),
-				})
-			),
-			age: z.number(),
-			education: z.string(),
-			height: z.number(),
-			weight: z.number(),
+			age: z.number().optional(),
+			nickName: z.string().min(1, { message: "required" }),
+			gender: z.number(),
+			// isNewbie: z.boolean(),
+			description: z.string().optional(),
+			education: z.string().optional(),
+			height: z.number().optional(),
+			weight: z.number().optional(),
+			// avatarUrl: z.string().url({ message: "Invalid URL" }),
+			// facebook: z.string().url({ message: "Invalid URL" }).optional(),
+			// zalo: z.string().optional(),
+			// medias: z.array(z.any()).optional(),
+			mcTypes: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
+			provinces: z.array(z.any()),
+			hostingStyles: z.array(z.any()),
 		})
 	)
 );
 
-const hostingStyles = ref([
-	{ name: "Nhẹ nhàng", code: "nhenhang" },
-	{ name: "Nhiệt huyết", code: "nhiethuyet" },
-	{ name: "Nhanh", code: "nhanh" },
-	{ name: "Tốc độ vừa phải", code: "tocdovuaphai" },
-]);
+const hostingStyleStore = useHostingStyleStore();
+const hostingStyles = hostingStyleStore.hostingStyles;
 
-const areas = ref([
-	{ name: "Hà Nội", code: "han" },
-	{ name: "TP HCM", code: "hcm" },
-	{ name: "Khác", code: "other" },
-]);
+const mcTypesStore = useMcTypeStore();
+const mcTypes = mcTypesStore.mcTypes;
 
-const genders = ref([
-	{ name: "Nam", code: "male" },
-	{ name: "Nữ", code: "female" },
-	{ name: "Khác", code: "other" },
-]);
+const provinceStore = useProvinceStore();
+const provinces = provinceStore.provinces;
 
-const user = ref<User>({
-	nickname: "MC Quý Công",
-	hostingStyles: [hostingStyles.value[0], hostingStyles.value[1]],
-	areas: [areas.value[0], areas.value[1]],
-	age: 20,
-	gender: Gender.Male,
-	education: "Đại học",
-	height: 168,
-	weight: 58,
-	description: "Yêu đời, yêu cái đẹp",
-	avatarUrl: "https://picsum.photos/200",
+const genders = ref(getGenderDataSource());
+
+const hostingStylesText = computed(() => {
+	return user.value.hostingStyles?.map((style) => style.label).join(", ") || "";
+});
+
+const mcTypesText = computed(() => {
+	return user.value.mcTypes?.map((type) => type.label).join(", ") || "";
+});
+
+const areasText = computed(() => {
+	return user.value.provinces?.map((province) => province.name).join(", ") || "";
 });
 
 const editingMode = ref<EditingMode>(EditingMode.None);
 
-const formInitialValues = user;
+const formInitialValues = ref({
+	...user.value,
+});
 
-const saveGeneralInfo = () => {
+const handleSaveGeneralInfo = async (user: User) => {
+	// Handle details' entity state
+	user.mcTypes = updateEntityState(user.mcTypes, formInitialValues.value.mcTypes);
+	user.hostingStyles = updateEntityState(user.hostingStyles, formInitialValues.value.hostingStyles);
+	user.provinces = updateEntityState(user.provinces, formInitialValues.value.provinces);
+
+	// Save user logic here...
+	debugger;
+	const response = await userApi.update(userId, user);
+
+	if (response) {
+		editingMode.value = EditingMode.None;
+	}
+};
+
+const cancelEditGeneralInfo = () => {
 	editingMode.value = EditingMode.None;
 };
 
+const { updateEntityState } = useEntity();
 const galleryItems = ref([
 	{
 		id: 1,
@@ -338,6 +372,27 @@ function getRandomImageLink(): string {
 	const link = `https://picsum.photos/${randomWidth}/${randomHeight}`;
 	return link;
 }
+
+onMounted(async () => {
+	const userFromApi = await userApi.getById(userId);
+	user.value = userFromApi;
+	formInitialValues.value = {
+		...userFromApi,
+	};
+});
+
+const onFormSubmit = (e) => {
+	// e.originalEvent: Represents the native form submit event.
+	// e.valid: A boolean that indicates whether the form is valid or not.
+	// e.states: Contains the current state of each form field, including validity status.
+	// e.errors: An object that holds any validation errors for the invalid fields in the form.
+	// e.values: An object containing the current values of all form fields.
+	// e.reset: A function that resets the form to its initial state.
+	if (e.valid) {
+		handleSaveGeneralInfo(e.values);
+		toast.add({ severity: "success", summary: "Form is submitted.", life: 3000 });
+	}
+};
 </script>
 <style lang="scss" scoped>
 .main-container {

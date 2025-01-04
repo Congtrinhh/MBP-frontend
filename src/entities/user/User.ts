@@ -2,6 +2,7 @@ import type { Media } from "./media";
 import type { McType } from "../mcType";
 import type { Gender } from "@/enums/gender";
 import type { Province } from "../province";
+import type { HostingStyle } from "../hostingStyle";
 
 export interface User {
 	fullName: string;
@@ -25,4 +26,5 @@ export interface User {
 	medias: Media[];
 	mcTypes: McType[];
 	provinces: Province[];
+	hostingStyles: HostingStyle[];
 }

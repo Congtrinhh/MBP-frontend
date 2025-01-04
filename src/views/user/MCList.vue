@@ -141,7 +141,7 @@ import type { PagedRequest } from "@/entities/user/paging/pagedRequest";
 import { useProvinceStore } from "@/stores/provinceStore";
 import { useMcTypeStore } from "@/stores/mcTypeStore";
 import { useHostingStyleStore } from "@/stores/hostingStyleStore";
-import { Gender, getGenderText } from "@/enums/gender";
+import { Gender, getGenderText, getGenderDataSource } from "@/enums/gender";
 import InputText from "primevue/inputtext";
 import { debounce } from "lodash";
 import type { UserPagedRequest } from "@/entities/user/paging/UserPagedRequest";
@@ -180,11 +180,7 @@ const onFormSubmit = (formInfo) => {
 	}
 };
 
-const genders = ref([
-	{ name: getGenderText(Gender.Male), code: Gender.Male },
-	{ name: getGenderText(Gender.Female), code: Gender.Female },
-	{ name: getGenderText(Gender.Other), code: Gender.Other },
-]);
+const genders = ref(getGenderDataSource());
 
 const ageRange = ref([18, 80]);
 

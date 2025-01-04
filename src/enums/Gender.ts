@@ -16,3 +16,11 @@ export function getGenderText(gender: Gender): string {
 			return "";
 	}
 }
+
+export function getGenderDataSource() {
+	return [
+		{ name: getGenderText(Gender.Male), code: Gender.Male },
+		{ name: getGenderText(Gender.Female), code: Gender.Female },
+		{ name: getGenderText(Gender.Other), code: Gender.Other },
+	];
+}
