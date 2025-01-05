@@ -1,5 +1,14 @@
 <template>
 	<main class="main-container">
+		<Button
+			icon="pi pi-pencil"
+			class="edit-button"
+			variant="text"
+			raised
+			rounded
+			v-if="editingMode == EditingMode.None"
+			@click="editingMode = EditingMode.Update"
+		/>
 		<section class="top">
 			<div class="overview-info">
 				<div class="avatar-wrapper">
@@ -21,7 +30,7 @@
 			</div>
 		</section>
 		<section class="tabs">
-			<Tabs value="0">
+			<Tabs value="1" @update:value="handleTabChange">
 				<TabList>
 					<Tab
 						value="0"
@@ -39,10 +48,19 @@
 								style: 'flex-grow: 1',
 							},
 						}"
-						>Ảnh & video</Tab
+						>Ảnh</Tab
 					>
 					<Tab
 						value="2"
+						:pt="{
+							root: {
+								style: 'flex-grow: 1',
+							},
+						}"
+						>Video</Tab
+					>
+					<Tab
+						value="3"
 						:pt="{
 							root: {
 								style: 'flex-grow: 1',
@@ -54,22 +72,12 @@
 				<TabPanels>
 					<TabPanel value="0">
 						<div class="tab-content-wrapper">
-							<div class="top">
-								<Button
-									v-if="editingMode == EditingMode.None"
-									@click="editingMode = EditingMode.Update"
-									icon="pi pi-pencil"
-									aria-label="Filter"
-									label="Sửa"
-								/>
-							</div>
-
 							<Form
+								v-if="editingMode == EditingMode.Update"
 								class="flex flex-col gap-4 w-full sm:w-56"
 								:resolver="formResolver"
 								:initialValues="formInitialValues"
 								@submit="onFormSubmit"
-								v-if="editingMode == EditingMode.Update"
 							>
 								<div class="top">
 									<Button
@@ -213,17 +221,48 @@
 						</div>
 					</TabPanel>
 					<TabPanel value="1">
-						<div class="gallery row gx-2 gy-2">
-							<div
-								class="gallery-item img-parent col-6"
-								v-for="galleryItem in galleryItems"
-								:key="galleryItem.id"
-							>
-								<img :src="galleryItem.url" alt="" />
+						<div v-if="editingMode == EditingMode.Update" class="update-image-wrapper">
+							<div class="header">
+								<Button icon="pi pi-arrow-left" @click="cancelEditImages" class="back-button" />
+								<h3 class="title">Chỉnh sửa ảnh</h3>
+								<Button icon="pi pi-save" label="Lưu" @click="saveImages" class="save-button" />
+							</div>
+							<div class="image-list">
+								<div class="image-item" v-for="(image, index) in images" :key="image.id">
+									<img :src="image.url" alt="" class="thumbnail" />
+									<div class="actions">
+										<Button icon="pi pi-trash" @click="deleteImage(index)" class="delete-button" />
+										<Button
+											icon="pi pi-arrow-up"
+											@click="moveImageUp(index)"
+											class="move-up-button"
+											v-if="index > 0"
+										/>
+										<Button
+											icon="pi pi-arrow-down"
+											@click="moveImageDown(index)"
+											class="move-down-button"
+											v-if="index < images.length - 1"
+										/>
+									</div>
+								</div>
+							</div>
+							<Button icon="pi pi-plus" label="Thêm ảnh" @click="addImage" class="add-image-button" />
+						</div>
+						<div v-else class="gallery row gx-2 gy-2">
+							<div class="gallery-item img-parent col-6" v-for="image in sortedImages" :key="image.id">
+								<img :src="image.url" alt="" />
 							</div>
 						</div>
 					</TabPanel>
 					<TabPanel value="2">
+						<div class="gallery row gx-2 gy-2">
+							<div class="gallery-item img-parent col-6" v-for="video in sortedVideos" :key="video.id">
+								<video :src="video.url" controls></video>
+							</div>
+						</div>
+					</TabPanel>
+					<TabPanel value="3">
 						<p class="m-0">
 							At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium
 							voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati
@@ -243,22 +282,22 @@ import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { useToast } from "primevue/usetoast";
 import { onMounted, ref, computed } from "vue";
 import { z } from "zod";
-import { User } from "@/entities/user/user";
-import { Gender, getGenderDataSource, getGenderText } from "@/enums/gender";
+import cloneDeep from "lodash/cloneDeep";
+import { type User } from "@/entities/user/user";
+import { getGenderDataSource, getGenderText } from "@/enums/gender";
 import { EditingMode } from "@/enums/editingMode";
 import { userApi } from "@/apis/userApi";
 import { useRoute } from "vue-router";
 import { useHostingStyleStore } from "@/stores/hostingStyleStore";
 import { useProvinceStore } from "@/stores/provinceStore";
 import { useMcTypeStore } from "@/stores/mcTypeStore";
-import type { BaseEntity } from "@/entities/baseEntity";
-import { EntityState } from "@/enums/entityState";
 import { useEntity } from "@/composables/useEntity";
 import type { HostingStyle } from "@/entities/hostingStyle";
 import type { McType } from "@/entities/mcType";
 import type { Province } from "@/entities/province";
 import { mediaApi } from "@/apis/mediaApi";
 import type { Media } from "@/entities/user/media";
+import { MediaType } from "@/enums/mediaType";
 
 const toast = useToast();
 const route = useRoute();
@@ -329,7 +368,74 @@ const cancelEditGeneralInfo = () => {
 };
 
 const { updateEntityState } = useEntity();
-const galleryItems = ref<Media[]>([]);
+
+//#region Image Tab Panel Logic
+const images = ref<Media[]>([]);
+const initialImages = ref<Media[]>([]);
+
+const sortedImages = computed(() => {
+	return [...images.value].sort((a, b) => b.sortOrder - a.sortOrder);
+});
+
+const addImage = () => {
+	// Logic to add a new image
+};
+
+const deleteImage = (index: number) => {
+	images.value.splice(index, 1);
+};
+
+const moveImageUp = (index: number) => {
+	const currentImage = images.value[index];
+	const previousImage = images.value[index - 1];
+	const tempSortOrder = currentImage.sortOrder;
+	currentImage.sortOrder = previousImage.sortOrder;
+	previousImage.sortOrder = tempSortOrder;
+	images.value.sort((a, b) => b.sortOrder - a.sortOrder);
+};
+
+const moveImageDown = (index: number) => {
+	const currentImage = images.value[index];
+	const nextImage = images.value[index + 1];
+	const tempSortOrder = currentImage.sortOrder;
+	currentImage.sortOrder = nextImage.sortOrder;
+	nextImage.sortOrder = tempSortOrder;
+	images.value.sort((a, b) => b.sortOrder - a.sortOrder);
+};
+
+const cancelEditImages = () => {
+	editingMode.value = EditingMode.None;
+};
+
+const saveImages = async () => {
+	const updatedImages = updateEntityState(images.value, initialImages.value);
+	const payload = { id: userId, medias: updatedImages };
+	await userApi.update(userId, payload);
+	editingMode.value = EditingMode.None;
+	toast.add({ severity: "success", summary: "Images saved successfully.", life: 3000 });
+};
+
+const fetchImages = async () => {
+	const imagesFromApi = await mediaApi.getMediasByUserId(userId, MediaType.Image);
+	images.value = imagesFromApi;
+	initialImages.value = cloneDeep(imagesFromApi);
+};
+//#endregion
+
+//#region Video Tab Panel Logic
+const videos = ref<Media[]>([]);
+const initialVideos = ref<Media[]>([]);
+
+const sortedVideos = computed(() => {
+	return [...videos.value].sort((a, b) => b.sortOrder - a.sortOrder);
+});
+
+const fetchVideos = async () => {
+	const videosFromApi = await mediaApi.getMediasByUserId(userId, MediaType.Video);
+	videos.value = videosFromApi;
+	initialVideos.value = cloneDeep(videosFromApi);
+};
+//#endregion
 
 onMounted(async () => {
 	const userFromApi = await userApi.getById(userId);
@@ -338,8 +444,8 @@ onMounted(async () => {
 		...userFromApi,
 	};
 
-	const medias = await mediaApi.getMediasByUserId(userId);
-	galleryItems.value = medias;
+	await fetchImages();
+	await fetchVideos();
 });
 
 const onFormSubmit = (e) => {
@@ -354,7 +460,27 @@ const onFormSubmit = (e) => {
 		toast.add({ severity: "success", summary: "Form is submitted.", life: 3000 });
 	}
 };
+
+enum Tab {
+	GeneralInfo = 0,
+	Image = 1,
+	Video = 2,
+	Review = 3,
+}
+const activeTab = ref("0");
+const handleTabChange = async (value: number) => {
+	console.log(value);
+	activeTab.value = value.toString();
+	if (value == Tab.Image) {
+		// Load images
+		await fetchImages();
+	} else if (value == Tab.Video) {
+		// Load videos
+		await fetchVideos();
+	}
+};
 </script>
+
 <style lang="scss" scoped>
 .main-container {
 }
@@ -457,5 +583,81 @@ section.top {
 	img {
 		border-radius: 4px;
 	}
+}
+
+.edit-button {
+	position: fixed;
+	bottom: 5rem;
+	right: 2rem;
+	background: #fff;
+}
+
+.update-image-wrapper {
+	.header {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+		margin-bottom: 16px;
+
+		.back-button {
+			position: absolute;
+			left: 0;
+		}
+
+		.title {
+			font-size: 1.5rem;
+			font-weight: bold;
+		}
+
+		.save-button {
+			position: absolute;
+			right: 0;
+		}
+	}
+
+	.image-list {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+
+		.image-item {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+
+			.thumbnail {
+				width: 80px;
+				height: 80px;
+				object-fit: cover;
+				border-radius: 4px;
+			}
+
+			.actions {
+				margin-left: auto;
+				display: flex;
+				gap: 8px;
+
+				.delete-button,
+				.move-up-button,
+				.move-down-button {
+					background: none;
+					border: none;
+					cursor: pointer;
+					color: #000;
+				}
+			}
+		}
+	}
+
+	.add-image-button {
+		width: 100%;
+		margin-top: 24px;
+	}
+}
+
+.update-image-wrapper {
+	display: flex;
+	flex-direction: column;
 }
 </style>

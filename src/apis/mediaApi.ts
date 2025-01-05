@@ -1,5 +1,6 @@
 import type { Media } from "@/entities/user/media";
 import BaseApi from "./baseApi";
+import { MediaType } from "@/enums/mediaType";
 
 const API_URL = "/api/media";
 
@@ -17,8 +18,8 @@ class MediaApi extends BaseApi<Media> {
 		return MediaApi.instance;
 	}
 
-	public async getMediasByUserId(userId: number): Promise<Medias[]> {
-		const response = await this.getPaged({ pageIndex: 0, pageSize: -1, userId });
+	public async getMediasByUserId(userId: number, mediaType: MediaType): Promise<Media[]> {
+		const response = await this.getPaged({ pageIndex: 0, pageSize: -1, userId, mediaType });
 		return response.items ?? [];
 	}
 }
