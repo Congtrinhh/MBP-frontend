@@ -225,7 +225,6 @@
 							<div class="header">
 								<Button icon="pi pi-arrow-left" @click="cancelEditImages" class="back-button" />
 								<h3 class="title">Chỉnh sửa ảnh</h3>
-								<Button icon="pi pi-save" label="Lưu" @click="saveImages" class="save-button" />
 							</div>
 							<div class="image-list">
 								<div class="image-item" v-for="(image, index) in images" :key="image.id">
@@ -247,7 +246,12 @@
 									</div>
 								</div>
 							</div>
-							<Button icon="pi pi-plus" label="Thêm ảnh" @click="addImage" class="add-image-button" />
+							<Button
+								icon="pi pi-plus"
+								label="Thêm ảnh"
+								@click="onAddImageClick"
+								class="add-image-button"
+							/>
 						</div>
 						<div v-else class="gallery row gx-2 gy-2">
 							<div class="gallery-item img-parent col-6" v-for="image in sortedImages" :key="image.id">
@@ -298,6 +302,7 @@ import type { Province } from "@/entities/province";
 import { mediaApi } from "@/apis/mediaApi";
 import type { Media } from "@/entities/user/media";
 import { MediaType } from "@/enums/mediaType";
+import { EntityState } from "@/enums/entityState";
 
 const toast = useToast();
 const route = useRoute();
@@ -377,30 +382,62 @@ const sortedImages = computed(() => {
 	return [...images.value].sort((a, b) => b.sortOrder - a.sortOrder);
 });
 
-const addImage = () => {
-	// Logic to add a new image
-};
-
-const deleteImage = (index: number) => {
+const deleteImage = async (index: number) => {
+	const imageToDelete = images.value[index];
 	images.value.splice(index, 1);
+	const payload = { id: userId, medias: [{ ...imageToDelete, entityState: EntityState.Delete }] };
+	await userApi.update(userId, payload);
+	toast.add({ severity: "success", summary: "Image deleted successfully.", life: 3000 });
 };
 
-const moveImageUp = (index: number) => {
+const moveImageUp = async (index: number) => {
 	const currentImage = images.value[index];
 	const previousImage = images.value[index - 1];
 	const tempSortOrder = currentImage.sortOrder;
 	currentImage.sortOrder = previousImage.sortOrder;
 	previousImage.sortOrder = tempSortOrder;
 	images.value.sort((a, b) => b.sortOrder - a.sortOrder);
+
+	const payload = {
+		id: userId,
+		medias: [
+			{
+				...currentImage,
+				entityState: EntityState.Update,
+			},
+			{
+				...previousImage,
+				entityState: EntityState.Update,
+			},
+		],
+	};
+	await userApi.update(userId, payload);
+	toast.add({ severity: "success", summary: "Image moved up successfully.", life: 3000 });
 };
 
-const moveImageDown = (index: number) => {
+const moveImageDown = async (index: number) => {
 	const currentImage = images.value[index];
 	const nextImage = images.value[index + 1];
 	const tempSortOrder = currentImage.sortOrder;
 	currentImage.sortOrder = nextImage.sortOrder;
 	nextImage.sortOrder = tempSortOrder;
 	images.value.sort((a, b) => b.sortOrder - a.sortOrder);
+
+	const payload = {
+		id: userId,
+		medias: [
+			{
+				...currentImage,
+				entityState: EntityState.Update,
+			},
+			{
+				...nextImage,
+				entityState: EntityState.Update,
+			},
+		],
+	};
+	await userApi.update(userId, payload);
+	toast.add({ severity: "success", summary: "Image moved down successfully.", life: 3000 });
 };
 
 const cancelEditImages = () => {
@@ -419,6 +456,36 @@ const fetchImages = async () => {
 	const imagesFromApi = await mediaApi.getMediasByUserId(userId, MediaType.Image);
 	images.value = imagesFromApi;
 	initialImages.value = cloneDeep(imagesFromApi);
+};
+
+const onAddImageClick = () => {
+	const input = document.createElement("input");
+	input.type = "file";
+	input.accept = ".jpg,.jpeg,.png";
+	input.onchange = async (event: Event) => {
+		const target = event.target as HTMLInputElement;
+		if (target.files && target.files.length > 0) {
+			const file = target.files[0];
+			const newMedia: Media = {
+				id: 0, // Assuming the backend will generate the ID
+				userId: userId,
+				type: MediaType.Image,
+				url: "",
+				sortOrder: images.value.length + 1,
+				file: file, // Include the file to upload
+			};
+			debugger;
+			const response = await mediaApi.upload(newMedia);
+
+			const updatedMedias = await mediaApi.getMediasByUserId(userId, MediaType.Image);
+			updatedMedias.forEach((item: Media) => {
+				if (images.value.every((i) => i.id != item.id)) {
+					images.value.push(item);
+				}
+			});
+		}
+	};
+	input.click();
 };
 //#endregion
 

@@ -22,6 +22,23 @@ class MediaApi extends BaseApi<Media> {
 		const response = await this.getPaged({ pageIndex: 0, pageSize: -1, userId, mediaType });
 		return response.items ?? [];
 	}
+
+	public async upload(media: Media): Promise<Media> {
+		const formData = new FormData();
+		formData.append("userId", media.userId.toString());
+		formData.append("type", media.type);
+		formData.append("sortOrder", media.sortOrder.toString());
+		if (media.file) {
+			formData.append("file", media.file);
+		}
+
+		const response = await this.axiosInstance.post(`/${this.baseEndpoint}/upload`, formData, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		});
+		return response.data;
+	}
 }
 
 export const mediaApi = MediaApi.getInstance();

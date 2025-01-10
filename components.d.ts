@@ -28,6 +28,7 @@ declare module 'vue' {
     Message: typeof import('primevue/message')['default']
     MMCItem: typeof import('./src/components/MMCItem.vue')['default']
     MultiSelect: typeof import('primevue/multiselect')['default']
+    PhotoTab: typeof import('./src/components/PhotoTab.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Select: typeof import('primevue/select')['default']

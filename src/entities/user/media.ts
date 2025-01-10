@@ -6,4 +6,5 @@ export interface Media extends BaseEntity {
 	type: MediaType;
 	url: string;
 	sortOrder: number;
+	file?: File; // New field to hold the file to upload
 }
