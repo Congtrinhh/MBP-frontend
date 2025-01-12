@@ -5,10 +5,10 @@
 			<div class="tabs">
 				<Chip
 					v-for="group in groups"
-					:key="group.id"
-					:label="group.name"
-					:class="{ active: group.id == activeGroup }"
-					@click="activeGroup = group.id"
+					:key="group.value"
+					:label="group.text"
+					:class="{ active: group.value == activeGroup }"
+					@click="activeGroup = group.value"
 				/>
 			</div>
 			<div class="create-post-button" @click="openPostDialog(EditingMode.Create)">Đăng bài</div>
@@ -225,6 +225,7 @@ import type { PostPagedRequest } from "@/entities/user/paging/postPagedRequest";
 import { useLocalStorage } from "@/composables/useLocalStorage";
 import { useConfirm } from "primevue/useconfirm";
 import { cloneDeep } from "lodash";
+import { getPostGroupDataSource, PostGroup } from "@/enums/postGroup";
 
 const userId = 1;
 const confirm = useConfirm();
@@ -232,7 +233,7 @@ const confirm = useConfirm();
 const postApi = BaseApi.getInstance<Post>("posts");
 const { getItem, setItem, removeItem } = useLocalStorage();
 
-const activeGroup = ref(0);
+const activeGroup = ref(PostGroup.Common);
 
 //#region Form Data
 const defaultPost: Post = {
@@ -411,16 +412,7 @@ const getReactionInfo = (reactions: any[]) => {
 };
 //#endregion
 
-const groups = [
-	{
-		id: 0,
-		name: "Chung",
-	},
-	{
-		id: 1,
-		name: "MC mới",
-	},
-];
+const groups = getPostGroupDataSource();
 
 const reactionApi = BaseApi.getInstance<Reaction>("reactions");
 
