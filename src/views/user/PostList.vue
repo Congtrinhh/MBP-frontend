@@ -187,6 +187,7 @@
 								name="priceFrom"
 								placeholder="Nhập giá từ"
 								v-model="post.priceFrom"
+								:inputStyle="{ width: '1%' }"
 							/>
 							<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
 								$field.error?.message
@@ -201,6 +202,7 @@
 								name="priceTo"
 								placeholder="Nhập giá đến"
 								v-model="post.priceTo"
+								:inputStyle="{ width: '1%' }"
 							/>
 							<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
 								$field.error?.message
@@ -588,5 +590,9 @@ header.header {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
+}
+
+.price-input {
+	width: 1%;
 }
 </style>
