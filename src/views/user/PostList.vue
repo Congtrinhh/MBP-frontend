@@ -1,5 +1,5 @@
 <template>
-	<main class="main-container">
+	<main class="main-container" @scroll="handleScroll" style="overflow-y: auto; max-height: 99vh">
 		<header class="header">
 			<div class="logo">MBP</div>
 			<div class="tabs">
@@ -11,7 +11,7 @@
 					@click="activeGroup = group.id"
 				/>
 			</div>
-			<div class="create-post-button" @click="openPostDialog">Đăng bài</div>
+			<div class="create-post-button" @click="openPostDialog(EditingMode.Create)">Đăng bài</div>
 		</header>
 		<div class="post-list">
 			<Card
@@ -37,7 +37,7 @@
 				</template>
 				<template #content>
 					<div class="post-content">
-						<div class="start"></div>
+						<div class="show-info-item caption">{{ post.caption }}</div>
 						<div class="show-info-item show-desc">
 							<label class="title">Thông tin chương trình</label>
 							<div class="content">{{ post.eventName }}</div>
@@ -94,98 +94,119 @@
 				</template>
 			</Card>
 		</div>
-		<Dialog v-model:visible="isPostDialogVisible" modal :style="{ width: '100vw', height: '100vh' }">
+
+		<Dialog
+			v-if="isPostDialogVisible"
+			v-model:visible="isPostDialogVisible"
+			modal
+			:pt="{
+				header: {
+					style: 'display: none',
+				},
+				root: {
+					style: 'max-height: 100%;border-radius: 0;height: 100vh;',
+				},
+			}"
+			@show="handleAfterShowDialog"
+		>
+			<ConfirmDialog></ConfirmDialog>
 			<Form :resolver="formResolver" :initialValues="post" @submit="onFormSubmit">
 				<div class="dialog-header">
-					<Button icon="pi pi-times" class="escape-button" @click="closePostDialog" />
+					<Button icon="pi pi-times" class="escape-button" @click="closePostDialog(false)" />
 					<span class="dialog-title">{{
 						editingMode === EditingMode.Create ? "Tạo bài viết" : "Chỉnh sửa bài viết"
 					}}</span>
 					<Button label="Lưu" class="save-button" type="submit" />
 				</div>
-				<FormField v-slot="$field" name="caption" class="flex flex-col gap-1">
-					<label for="caption" class="form-label">Caption</label>
-					<InputText name="caption" placeholder="Nhập caption" />
-					<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
-						$field.error?.message
-					}}</Message>
-				</FormField>
-				<FormField v-slot="$field" name="eventName" class="flex flex-col gap-1">
-					<label for="eventName" class="form-label">Tên sự kiện</label>
-					<InputText name="eventName" placeholder="Nhập tên sự kiện" />
-					<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
-						$field.error?.message
-					}}</Message>
-				</FormField>
-				<div class="flex gap-4">
-					<FormField v-slot="$field" name="eventStart" class="flex flex-col gap-1 flex-1">
-						<label for="eventStart" class="form-label">Bắt đầu</label>
-						<DatePicker
-							showIcon
-							showTime
-							hourFormat="24"
-							name="eventStart"
-							placeholder="Chọn ngày bắt đầu"
-						/>
+				<div class="form-body">
+					<FormField v-slot="$field" name="caption" class="flex flex-col gap-1">
+						<label for="caption" class="form-label">Caption</label>
+						<InputText name="caption" placeholder="Nhập caption" v-model="post.caption" />
 						<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
 							$field.error?.message
 						}}</Message>
 					</FormField>
-					<FormField v-slot="$field" name="eventEnd" class="flex flex-col gap-1 flex-1">
-						<label for="eventEnd" class="form-label">Kết thúc</label>
-						<DatePicker
-							showIcon
-							showTime
-							hourFormat="24"
-							name="eventEnd"
-							placeholder="Chọn ngày kết thúc"
-						/>
+					<FormField v-slot="$field" name="eventName" class="flex flex-col gap-1">
+						<label for="eventName" class="form-label">Tên sự kiện</label>
+						<InputText name="eventName" placeholder="Nhập tên sự kiện" v-model="post.eventName" />
 						<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
 							$field.error?.message
 						}}</Message>
 					</FormField>
-				</div>
-				<FormField v-slot="$field" name="place" class="flex flex-col gap-1">
-					<label for="place" class="form-label">Địa điểm</label>
-					<InputText name="place" placeholder="Nhập địa điểm" />
-					<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
-						$field.error?.message
-					}}</Message>
-				</FormField>
-				<FormField v-slot="$field" name="mcRequirement" class="flex flex-col gap-1">
-					<label for="mcRequirement" class="form-label">Yêu cầu MC</label>
-					<TextArea name="mcRequirement" placeholder="Nhập yêu cầu MC" />
-					<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
-						$field.error?.message
-					}}</Message>
-				</FormField>
-				<div class="flex gap-4">
-					<FormField v-slot="$field" name="priceFrom" class="flex flex-col gap-1 flex-1">
-						<label for="priceFrom" class="form-label">Giá từ</label>
-						<InputNumber
-							locale="vi-VN"
-							mode="currency"
-							currency="VND"
-							name="priceFrom"
-							placeholder="Nhập giá từ"
-						/>
+					<div class="flex gap-4">
+						<FormField v-slot="$field" name="eventStart" class="flex flex-col gap-1 flex-1">
+							<label for="eventStart" class="form-label">Thời gian bắt đầu</label>
+							<DatePicker
+								showIcon
+								showTime
+								hourFormat="24"
+								name="eventStart"
+								placeholder="Chọn ngày bắt đầu"
+								v-model="post.eventStart"
+							/>
+							<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+								$field.error?.message
+							}}</Message>
+						</FormField>
+						<FormField v-slot="$field" name="eventEnd" class="flex flex-col gap-1 flex-1">
+							<label for="eventEnd" class="form-label">Thời gian kết thúc</label>
+							<DatePicker
+								showIcon
+								showTime
+								hourFormat="24"
+								name="eventEnd"
+								placeholder="Chọn ngày kết thúc"
+								v-model="post.eventEnd"
+							/>
+							<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+								$field.error?.message
+							}}</Message>
+						</FormField>
+					</div>
+					<FormField v-slot="$field" name="place" class="flex flex-col gap-1">
+						<label for="place" class="form-label">Địa điểm</label>
+						<InputText name="place" placeholder="Nhập địa điểm" v-model="post.place" />
 						<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
 							$field.error?.message
 						}}</Message>
 					</FormField>
-					<FormField v-slot="$field" name="priceTo" class="flex flex-col gap-1 flex-1">
-						<label for="priceTo" class="form-label">Giá đến</label>
-						<InputNumber
-							locale="vi-VN"
-							mode="currency"
-							currency="VND"
-							name="priceTo"
-							placeholder="Nhập giá đến"
-						/>
+					<FormField v-slot="$field" name="mcRequirement" class="flex flex-col gap-1">
+						<label for="mcRequirement" class="form-label">Yêu cầu MC</label>
+						<TextArea name="mcRequirement" placeholder="Nhập yêu cầu MC" v-model="post.mcRequirement" />
 						<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
 							$field.error?.message
 						}}</Message>
 					</FormField>
+					<div class="flex gap-4">
+						<FormField v-slot="$field" name="priceFrom" class="flex flex-col gap-1 flex-1">
+							<label for="priceFrom" class="form-label">Mức cát-xê từ</label>
+							<InputNumber
+								locale="vi-VN"
+								mode="currency"
+								currency="VND"
+								name="priceFrom"
+								placeholder="Nhập giá từ"
+								v-model="post.priceFrom"
+							/>
+							<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+								$field.error?.message
+							}}</Message>
+						</FormField>
+						<FormField v-slot="$field" name="priceTo" class="flex flex-col gap-1 flex-1">
+							<label for="priceTo" class="form-label">Mức cát-xê đến</label>
+							<InputNumber
+								locale="vi-VN"
+								mode="currency"
+								currency="VND"
+								name="priceTo"
+								placeholder="Nhập giá đến"
+								v-model="post.priceTo"
+							/>
+							<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+								$field.error?.message
+							}}</Message>
+						</FormField>
+					</div>
 				</div>
 			</Form>
 		</Dialog>
@@ -201,11 +222,20 @@ import type { Post } from "@/entities/user/post";
 import BaseApi from "@/apis/baseApi";
 import type { Reaction } from "@/entities/user/reaction";
 import type { PostPagedRequest } from "@/entities/user/paging/postPagedRequest";
+import { useLocalStorage } from "@/composables/useLocalStorage";
+import { useConfirm } from "primevue/useconfirm";
+import { cloneDeep } from "lodash";
+
+const userId = 1;
+const confirm = useConfirm();
 
 const postApi = BaseApi.getInstance<Post>("posts");
+const { getItem, setItem, removeItem } = useLocalStorage();
+
+const activeGroup = ref(0);
 
 //#region Form Data
-const post = ref<Post>({
+const defaultPost: Post = {
 	id: 0,
 	userId: 0,
 	caption: "",
@@ -216,18 +246,21 @@ const post = ref<Post>({
 	mcRequirement: "",
 	priceFrom: null,
 	priceTo: null,
-});
+};
+const post = ref<Post>(cloneDeep(defaultPost));
+
+const initialPost = ref<Post>(cloneDeep(defaultPost));
 
 const formResolver = zodResolver(
 	z.object({
 		caption: z.string().optional(),
-		eventName: z.string().min(1, { message: "Event name is required" }),
-		eventStart: z.date().optional(),
-		eventEnd: z.date().optional(),
-		place: z.string().min(1, { message: "Place is required" }),
-		mcRequirement: z.string().min(1, { message: "MC requirement is required" }),
-		priceFrom: z.number().optional(),
-		priceTo: z.number().optional(),
+		eventName: z.string().min(1, { message: "Vui lòng nhập tên chương trình" }),
+		eventStart: z.any().optional(),
+		eventEnd: z.any().optional(),
+		place: z.string().min(1, { message: "Vui lòng nhập địa điểm" }),
+		mcRequirement: z.string().min(1, { message: "Vui lòng nhập yêu cầu cho MC" }),
+		priceFrom: z.any().optional(),
+		priceTo: z.any().optional(),
 	})
 );
 
@@ -235,7 +268,7 @@ const onFormSubmit = async (formInfo: any) => {
 	const { valid, values } = formInfo;
 	console.log(formInfo);
 	if (valid) {
-		values.userId = 1;
+		values.userId = userId;
 		values.postGroup = activeGroup.value;
 		await savePost(values);
 	}
@@ -244,41 +277,117 @@ const onFormSubmit = async (formInfo: any) => {
 
 //#region Dialog Management
 const isPostDialogVisible = ref(false);
-const editingMode = ref<EditingMode>(EditingMode.None);
+const editingMode = ref<EditingMode>(EditingMode.Create);
 
-const openPostDialog = (mode: EditingMode) => {
+const openPostDialog = async (mode: EditingMode) => {
 	editingMode.value = mode;
 	isPostDialogVisible.value = true;
 };
 
-const closePostDialog = () => {
-	isPostDialogVisible.value = false;
+const closePostDialog = async (isSave: boolean = false) => {
+	if (isSave) {
+		removeItem("post");
+		post.value = cloneDeep(defaultPost);
+		initialPost.value = cloneDeep(defaultPost);
+
+		isPostDialogVisible.value = false;
+		await loadPosts();
+		return;
+	}
+	if (editingMode.value === EditingMode.Create) {
+		if (JSON.stringify(post.value) !== JSON.stringify(initialPost.value)) {
+			confirm.require({
+				header: "Xác nhận thoát",
+				message: "Dữ liệu đã được thay đổi, bạn có chắc muốn thoát không?",
+				acceptProps: {
+					label: "Thoát",
+				},
+				rejectProps: {
+					label: "Lưu nháp",
+					severity: "secondary",
+					outlined: true,
+				},
+				accept: () => {
+					removeItem("post");
+					post.value = cloneDeep(defaultPost);
+					initialPost.value = cloneDeep(defaultPost);
+
+					isPostDialogVisible.value = false;
+				},
+				reject: () => {
+					setItem("post", post.value);
+					isPostDialogVisible.value = false;
+				},
+			});
+		} else {
+			isPostDialogVisible.value = false;
+		}
+	} else if (editingMode.value === EditingMode.Update) {
+		if (JSON.stringify(post.value) !== JSON.stringify(initialPost.value)) {
+			confirm.require({
+				message: "Bạn có chắc muốn thoát không?",
+				acceptLabel: "Thoát",
+				rejectLabel: "Ở lại",
+				accept: () => {
+					isPostDialogVisible.value = false;
+				},
+			});
+		} else {
+			isPostDialogVisible.value = false;
+		}
+	}
 };
 //#endregion
 
 //#region Post Management
 const savePost = async (post: Post) => {
-	// Save post logic will be added later
 	await postApi.create(post);
-	// if (editingMode.value === EditingMode.Create) {
-	// }
-	closePostDialog();
+	await closePostDialog(true);
 };
 //#endregion
 
 //#region Post Data
 const posts = ref<Post[]>([]);
 
+const clearPosts = () => {
+	posts.value = [];
+};
+
+const isLoading = ref(false);
+
+const pagedRequest = ref<PostPagedRequest>({
+	pageIndex: 0,
+	pageSize: 10,
+	isGetReaction: true,
+	isUseProc: true,
+	postGroup: activeGroup.value,
+});
+
+const loadMorePosts = async () => {
+	if (isLoading.value) return;
+	isLoading.value = true;
+
+	pagedRequest.value.postGroup = activeGroup.value;
+	const pagedResponse = await postApi.getPaged(pagedRequest.value);
+
+	const newPosts = pagedResponse.items;
+	posts.value.push(...newPosts);
+
+	pagedRequest.value.pageIndex++;
+	isLoading.value = false;
+};
+
+const handleScroll = (event: any) => {
+	const bottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
+	if (bottom) {
+		loadMorePosts();
+	}
+};
+
 const loadPosts = async () => {
-	const pagedRequest: PostPagedRequest = {
-		pageIndex: 0,
-		pageSize: 10,
-		isGetReaction: true,
-		isUseProc: true,
-		postGroup: activeGroup.value,
-	};
-	const pagedResponse = await postApi.getPaged(pagedRequest);
-	posts.value = pagedResponse.items;
+	clearPosts();
+	pagedRequest.value.pageIndex = 0;
+	await loadMorePosts();
 };
 
 onMounted(async () => {
@@ -330,24 +439,32 @@ const toggleLikePost = async (post: Post) => {
 			id: 0,
 		};
 		post.reactions.push(newReaction);
-		await reactionApi.create(newReaction);
+		const createdReaction = await reactionApi.create(newReaction);
+		newReaction.id = createdReaction.id;
 	}
 };
-
-const isLoading = ref(false);
-const activeGroup = ref(0);
 
 watch(
 	() => activeGroup.value,
 	async () => {
-		if (isLoading.value) return;
-
-		isLoading.value = true;
 		await loadPosts();
-
-		isLoading.value = false;
 	}
 );
+
+const handleAfterShowDialog = async () => {
+	if (editingMode.value === EditingMode.Create) {
+		const draftPost = getItem("post");
+		if (draftPost) {
+			post.value = draftPost;
+			initialPost.value = cloneDeep(draftPost);
+		}
+	} else if (editingMode.value === EditingMode.Update) {
+		const postId = post.value.id;
+		const fetchedPost = await postApi.getById(postId);
+		post.value = fetchedPost;
+		initialPost.value = cloneDeep(fetchedPost);
+	}
+};
 </script>
 <style lang="scss" scoped>
 .main-container {
@@ -459,9 +576,7 @@ header.header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 0 16px;
-	height: 56px;
-	border-bottom: 1px solid #ddd;
+	padding: var(--p-dialog-header-padding) 0;
 }
 
 .dialog-title {
@@ -475,5 +590,11 @@ header.header {
 	border: none;
 	cursor: pointer;
 	color: #000;
+}
+
+.form-body {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
 }
 </style>

@@ -5,13 +5,16 @@ import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
 
-import GoogleLogin from "vue3-google-login";
+import GoogleSignInPlugin from "vue3-google-signin";
+
 import PrimeVue from "primevue/config";
 import Aura from "@primevue/themes/aura";
 import "primeicons/primeicons.css";
 import ToastService from "primevue/toastservice";
 import { definePreset } from "@primevue/themes";
 import { useAppStore } from "./stores/appStore";
+
+import ConfirmationService from "primevue/confirmationservice";
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -43,9 +46,10 @@ app.use(PrimeVue, {
 });
 app.use(ToastService);
 
-app.use(GoogleLogin, {
-	clientId: "354764772754-488i6o9djr7hala82gnremncgdrsstvn.apps.googleusercontent.com",
+app.use(GoogleSignInPlugin, {
+	clientId: "354764772754-qm2ogvlskcrlajq429558s62jbaolkpq.apps.googleusercontent.com",
 });
+app.use(ConfirmationService); //confirm dialog
 
 //	Initialize data
 const appStore = useAppStore();
