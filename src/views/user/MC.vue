@@ -25,7 +25,7 @@
 				</div>
 			</div>
 			<div class="buttons">
-				<Button type="button" label="Gửi offer" severity="primary"></Button>
+				<Button type="button" label="Gửi offer" severity="primary" @click="sendOffer"></Button>
 				<Button type="button" label="Nhắn tin" severity="contrast" variant="outlined"></Button>
 			</div>
 		</section>
@@ -86,7 +86,6 @@
 										severity="secondary"
 										v-if="editingMode == EditingMode.Update"
 										@click="cancelEditGeneralInfo"
-										class=""
 										width="80px"
 									>
 										Hủy
@@ -303,6 +302,9 @@ import { mediaApi } from "@/apis/mediaApi";
 import type { Media } from "@/entities/user/media";
 import { MediaType } from "@/enums/mediaType";
 import { EntityState } from "@/enums/entityState";
+import BaseApi from "@/apis/baseApi";
+import { notificationApi } from "@/apis/notificationApi";
+import { type Notification } from "@/entities/notification";
 
 const toast = useToast();
 const route = useRoute();
@@ -545,6 +547,16 @@ const handleTabChange = async (value: number) => {
 		// Load videos
 		await fetchVideos();
 	}
+};
+
+const sendOffer = async () => {
+	const notification = {
+		userId: userId,
+		message: "hello Cong!",
+	} as Notification;
+	debugger;
+	const response = await notificationApi.create(notification);
+	console.log("đã gửi offer.");
 };
 </script>
 

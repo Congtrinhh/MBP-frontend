@@ -238,6 +238,12 @@ const { getItem, setItem, removeItem } = useLocalStorage();
 const activeGroup = ref(PostGroup.Common);
 
 //#region Form Data
+/**
+ * The defaultPost object represents a template for a Post with default values.
+ *
+ * This is useful for initializing a new Post object with default values to ensure
+ * that all required fields are present and have a defined initial state.
+ */
 const defaultPost: Post = {
 	id: 0,
 	userId: 0,
@@ -250,8 +256,15 @@ const defaultPost: Post = {
 	priceFrom: null,
 	priceTo: null,
 };
+
 const post = ref<Post>(cloneDeep(defaultPost));
 
+/**
+ * This is necessary to ensure that the initial post state is independent and does not share
+ * references with the default post object.
+ *
+ * @type {Ref<Post>} - A reactive reference to a post object.
+ */
 const initialPost = ref<Post>(cloneDeep(defaultPost));
 
 const formResolver = zodResolver(

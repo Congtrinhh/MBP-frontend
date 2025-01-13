@@ -8,11 +8,14 @@
 import { useAuth } from "@/composables/user/useAuth";
 import { GoogleSignInButton, type CredentialResponse } from "vue3-google-signin";
 import { jwtDecode } from "jwt-decode";
+import { authApi } from "@/apis/authApi";
+import { useAuthStore } from "@/stores/authStore";
+import * as signalR from "@microsoft/signalr";
 
-const { loginWithGoogle } = useAuth();
+const authStore = useAuthStore();
 
 // handle success event
-const handleLoginSuccess = (response: CredentialResponse) => {
+const handleLoginSuccess = async (response: CredentialResponse) => {
 	const { credential } = response;
 	// Decode the JWT token
 	const decodedToken = jwtDecode(credential);
@@ -25,17 +28,40 @@ const handleLoginSuccess = (response: CredentialResponse) => {
 		console.log("Vui lòng xác thực email trước khi đăng nhập");
 		return;
 	}
+	const createUserResponse = await authApi.loginWithGoogle(credential, false, false);
 
-	// 1.điều hướng đến màn tick chọn với 1 checkbox: bạn là... MC?  nếu ko tích thì mặc định
-	// là người tìm MC
+	if (createUserResponse.data.isNewUser === true) {
+		setTimeout(async () => {
+			const isMc = true;
+			const createUserAgainResponse = await authApi.loginWithGoogle(credential, true, isMc);
+			console.log("createUserAgainResponse", createUserAgainResponse);
+		}, 2000);
+	} else {
+		console.log("Đăng nhập thành công");
+		const userInfo = jwtDecode(createUserResponse.data.accessToken);
+		authStore.saveUser(userInfo);
+		debugger;
 
-	// 2.bấm tiếp tục
+		//signalR
+		const connection = new signalR.HubConnectionBuilder()
+			.withUrl(`https://localhost:7252/notificationHub?userId=${userInfo.sub}`, {
+				skipNegotiation: true, // skipNegotiation as we specify WebSockets
+				transport: signalR.HttpTransportType.WebSockets, // force WebSocket transport
+				accessTokenFactory: () => createUserResponse.data.accessToken, // Pass the JWT token
+			}) // Use the full URL of your SignalR hub
+			.build();
 
-	// 3.Call your backend API to authenticate the user
-	// loginWithGoogle(credential);
-	// 4.get user theo email
-	// 4.1nếu chưa có thì tạo mới
-	// 5.tạo jwt token và trả về cho client
+		connection.on("ReceiveNotification", (message: string) => {
+			debugger;
+			console.log("ReceiveNotification", message);
+			// notifications.value.push({ message });
+		});
+
+		connection.start().catch((err) => {
+			debugger;
+			console.error(err.toString());
+		});
+	}
 };
 
 // handle an error event
