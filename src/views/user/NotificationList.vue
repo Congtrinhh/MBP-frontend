@@ -1,17 +1,18 @@
 <template>
 	<main class="main-container">
 		<header class="center-header">Thông báo</header>
-		<div class="notification-list">
+		<div class="notification-list" @scroll="handleScroll">
 			<div
 				v-for="notification in notifications"
 				:key="notification.id"
-				:class="{ 'notification-item': true, unread: notification.isUnread }"
+				:class="{ 'notification-item': true, unread: !notification.isRead }"
+				@click="handleNotificationClick(notification)"
 			>
-				<div class="img-parent rounded"><img :src="notification.fromUserAvatar" /></div>
+				<div class="img-parent rounded"><img :src="getAvatarUrl(notification)" /></div>
 				<div class="info">
-					<div class="title">{{ notification.title }}</div>
-					<div class="content line-clamp-3">{{ notification.content }}</div>
-					<div class="ago">{{ notification.createAt }}</div>
+					<!-- <div class="title">{{ notification.message }}</div> -->
+					<div class="content line-clamp-3">{{ notification.message }}</div>
+					<div class="ago">{{ notification.createdAt }}</div>
 				</div>
 			</div>
 		</div>
@@ -19,37 +20,82 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { notificationApi } from "@/apis/notificationApi";
+import { useRouter } from "vue-router";
+import { NotificationType } from "@/enums/notificationType";
+import { useAuthStore } from "@/stores/authStore";
+import { type Notification } from "@/entities/notification";
 
-const notifications = [
-	{
-		id: 1,
-		title: "Thông báo 1",
-		content:
-			"Hoàng Văn Khách đã đánh giá show dẫn của bạnHoàng Văn Khách đã đánh giá show dẫn của bạnHoàng Văn Khách đã đánh giá show dẫn của bạnHoàng Văn Khách đã đánh giá show dẫn của bạn",
-		createAt: "2021-10-10T10:10:10.000Z",
-		userId: 10, //id nguoi nhan thong bao
-		fromUserId: 2, //id nguoi hien len avatar thong bao
-		fromUserName: "Trịnh Quý Công",
-		fromUserAvatar: "https://picsum.photos/200",
-		isUnread: true,
-	},
-	{
-		id: 2,
-		title: "Thông báo 2",
-		content: "Hoàng Văn Khách đã đánh giá show dẫn của bạn",
-		createAt: "2021-10-10T10:10:10.000Z",
-		userId: 10, //id nguoi nhan thong bao
-		fromUserId: 2, //id nguoi hien len avatar thong bao
-		fromUserName: "Trịnh Quý Công",
-		fromUserAvatar: "https://picsum.photos/200",
-	},
-];
+const notifications = ref<Notification[]>([]);
+const page = ref(0);
+const pageSize = 10;
+const loading = ref(false);
+const router = useRouter();
+
+const authStore = useAuthStore();
+
+const fetchNotifications = async () => {
+	if (loading.value) return;
+	loading.value = true;
+	try {
+		const response = await notificationApi.getPaged({
+			pageIndex: page.value,
+			pageSize,
+			sort: "created_at DESC",
+			userId: authStore.currentUser?.sub,
+		});
+
+		if (response && response.items.length > 0) {
+			notifications.value.push(...response.items);
+			page.value++;
+		}
+	} catch (error) {
+		console.error("Failed to fetch notifications", error);
+	} finally {
+		loading.value = false;
+	}
+};
+
+const handleScroll = (event) => {
+	const bottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
+	if (bottom) {
+		fetchNotifications();
+	}
+};
+
+const handleNotificationClick = async (notification: Notification) => {
+	if (!notification.isRead) {
+		try {
+			await notificationApi.update(notification.id, { id: notification.id, isRead: true });
+			notification.isRead = true;
+		} catch (error) {
+			console.error("Failed to update notification status", error);
+		}
+	}
+	// Perform actions based on notification type
+	if (notification.type === NotificationType.SendOffer) {
+		router.push({ name: "OfferDetails", params: { id: notification.id } });
+	}
+	// Add more conditions based on other notification types
+};
+
+const getAvatarUrl = (notification: Notification): string => {
+	const additionalInfo = notification.additionalInfo;
+	if (!additionalInfo) return "";
+
+	const additionalData = JSON.parse(additionalInfo);
+	return additionalData.avatarUrl;
+};
+
+onMounted(() => {
+	fetchNotifications();
+});
 </script>
+
 <style lang="scss" scoped>
 .main-container {
 	background-color: #fff;
-
 	display: flex;
 	flex-direction: column;
 }
@@ -57,6 +103,8 @@ const notifications = [
 .notification-list {
 	display: flex;
 	flex-direction: column;
+	overflow-y: auto;
+	height: 100vh; /* Adjust as needed */
 }
 
 .notification-item {

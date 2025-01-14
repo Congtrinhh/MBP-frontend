@@ -1,12 +1,18 @@
+import { type User } from "./../entities/user/user";
 import { defineStore } from "pinia";
 import { useLocalStorage } from "@/composables/useLocalStorage";
 
 export const useAuthStore = defineStore("auth", {
-	state: () => ({
-		currentUser: null,
-	}),
+	state: () => {
+		const { getItem } = useLocalStorage();
+		const userKey = "currentUser";
+		const storedUser = getItem(userKey);
+		return {
+			currentUser: storedUser ? (storedUser as User) : null,
+		};
+	},
 	actions: {
-		saveUser(user: any) {
+		saveUser(user: User) {
 			const { setItem } = useLocalStorage();
 			const userKey = "currentUser";
 			setItem(userKey, user);

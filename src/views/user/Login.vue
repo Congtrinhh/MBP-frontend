@@ -40,7 +40,6 @@ const handleLoginSuccess = async (response: CredentialResponse) => {
 		console.log("Đăng nhập thành công");
 		const userInfo = jwtDecode(createUserResponse.data.accessToken);
 		authStore.saveUser(userInfo);
-		debugger;
 
 		//signalR
 		const connection = new signalR.HubConnectionBuilder()
