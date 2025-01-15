@@ -9,6 +9,7 @@
 				@input="debouncedSearchInput"
 			/>
 			<div class="filter-button" @click="showFilterDialog">Lọc</div>
+			<div class="login-button" @click="handleLoginClick" v-if="!authStore.user">Đăng nhập</div>
 		</header>
 
 		<div class="row gy-3">
@@ -145,6 +146,8 @@ import { Gender, getGenderText, getGenderDataSource } from "@/enums/gender";
 import InputText from "primevue/inputtext";
 import { debounce } from "lodash";
 import type { UserPagedRequest } from "@/entities/user/paging/UserPagedRequest";
+import { useUserStore } from "@/stores/userStore"; // Import user store
+import { useAuthStore } from "@/stores/authStore";
 
 const isVisibleFilterDialog = ref(false);
 const showFilterDialog = () => {
@@ -298,6 +301,11 @@ onMounted(async () => {
 
 //#region Navigation
 const router = useRouter();
+const authStore = useAuthStore();
+
+const handleLoginClick = () => {
+	router.push({ name: "user-login", query: { redirect: router.currentRoute.value.fullPath } });
+};
 
 const redirectToMC = (id: number) => {
 	router.push({ name: "uc-mc", params: { id } });

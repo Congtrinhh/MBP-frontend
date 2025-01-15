@@ -5,6 +5,5 @@ export interface SendOfferAdditionalInfo {
 	place: string;
 	note: string;
 	senderId?: number;
-	senderAvatar?: string;
 	senderName?: string;
 }

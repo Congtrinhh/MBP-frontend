@@ -7,4 +7,5 @@ export interface Notification extends BaseEntity {
 	isRead?: boolean;
 	type?: NotificationType;
 	additionalInfo?: string;
+	thumbUrl?: string; // New property
 }

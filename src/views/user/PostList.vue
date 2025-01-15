@@ -71,7 +71,7 @@
 							:class="[
 								'reaction-button like-button',
 								{
-									liked: post.reactions && post.reactions.some((r) => r.userId === 1),
+									liked: post.reactions && post.reactions.some((r) => r.userId == userId),
 								},
 							]"
 							@click="toggleLikePost(post)"
@@ -79,7 +79,7 @@
 							<i
 								:class="[
 									'icon pi',
-									post.reactions && post.reactions.some((r) => r.userId === 1)
+									post.reactions && post.reactions.some((r) => r.userId == userId)
 										? 'pi-thumbs-up-fill'
 										: 'pi-thumbs-up',
 								]"
@@ -228,8 +228,10 @@ import { useLocalStorage } from "@/composables/useLocalStorage";
 import { useConfirm } from "primevue/useconfirm";
 import { cloneDeep } from "lodash";
 import { getPostGroupDataSource, PostGroup } from "@/enums/postGroup";
+import { useAuthStore } from "@/stores/authStore";
 
-const userId = 1;
+const authStore = useAuthStore();
+const userId = authStore.user?.id || 0;
 const confirm = useConfirm();
 
 const postApi = BaseApi.getInstance<Post>("posts");
@@ -413,7 +415,7 @@ onMounted(async () => {
 const getReactionInfo = (reactions: any[]) => {
 	if (reactions.length === 0) return "";
 
-	const hasYou = reactions.some((r) => r.userId === 1);
+	const hasYou = reactions.some((r) => r.userId == userId);
 	if (reactions.length === 1) {
 		if (hasYou) return "You";
 		return reactions[0].userName;
@@ -433,14 +435,14 @@ const reactionApi = BaseApi.getInstance<Reaction>("reactions");
 
 const toggleLikePost = async (post: Post) => {
 	// is liked
-	const reaction = post.reactions.find((r: Reaction) => r.userId === 1);
+	const reaction = post.reactions.find((r: Reaction) => r.userId == userId);
 	if (reaction) {
 		post.reactions.splice(post.reactions.indexOf(reaction), 1);
 		await reactionApi.delete(reaction.id);
 	} else {
 		const newReaction: Reaction = {
 			postId: post.id,
-			userId: 1,
+			userId: userId,
 			userName: "You",
 			type: 0,
 			id: 0,

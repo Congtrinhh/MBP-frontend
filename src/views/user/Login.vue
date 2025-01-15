@@ -5,14 +5,16 @@
 </template>
 
 <script setup lang="ts">
-import { useAuth } from "@/composables/user/useAuth";
 import { GoogleSignInButton, type CredentialResponse } from "vue3-google-signin";
 import { jwtDecode } from "jwt-decode";
 import { authApi } from "@/apis/authApi";
 import { useAuthStore } from "@/stores/authStore";
 import * as signalR from "@microsoft/signalr";
+import { useRouter, useRoute } from "vue-router";
 
 const authStore = useAuthStore();
+const router = useRouter();
+const route = useRoute();
 
 // handle success event
 const handleLoginSuccess = async (response: CredentialResponse) => {
@@ -39,7 +41,7 @@ const handleLoginSuccess = async (response: CredentialResponse) => {
 	} else {
 		console.log("Đăng nhập thành công");
 		const userInfo = jwtDecode(createUserResponse.data.accessToken);
-		authStore.saveUser(userInfo);
+		authStore.login(createUserResponse.data.accessToken);
 
 		//signalR
 		const connection = new signalR.HubConnectionBuilder()
@@ -60,6 +62,10 @@ const handleLoginSuccess = async (response: CredentialResponse) => {
 			debugger;
 			console.error(err.toString());
 		});
+
+		// Redirect to the original view
+		const redirectPath = route.query.redirect || "/";
+		router.push(redirectPath as string);
 	}
 };
 

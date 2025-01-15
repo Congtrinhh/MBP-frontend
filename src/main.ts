@@ -15,6 +15,7 @@ import { definePreset } from "@primevue/themes";
 import { useAppStore } from "./stores/appStore";
 
 import ConfirmationService from "primevue/confirmationservice";
+import { useAuthStore } from "./stores/authStore";
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -38,6 +39,7 @@ const MyPreset = definePreset(Aura, {
 });
 
 app.use(pinia);
+
 app.use(router);
 app.use(PrimeVue, {
 	theme: {
@@ -51,6 +53,8 @@ app.use(GoogleSignInPlugin, {
 });
 app.use(ConfirmationService); //confirm dialog
 
+const authStore = useAuthStore();
+authStore.initialize(); //initialize user if exists
 //	Initialize data
 const appStore = useAppStore();
 appStore.initializeApp().then(() => {

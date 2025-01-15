@@ -8,7 +8,7 @@
 				:class="{ 'notification-item': true, unread: !notification.isRead }"
 				@click="handleNotificationClick(notification)"
 			>
-				<div class="img-parent rounded"><img :src="getAvatarUrl(notification)" /></div>
+				<div class="img-parent rounded"><img :src="notification.thumbUrl" /></div>
 				<div class="info">
 					<!-- <div class="title">{{ notification.message }}</div> -->
 					<div class="content line-clamp-3">{{ notification.message }}</div>
@@ -43,7 +43,7 @@ const fetchNotifications = async () => {
 			pageIndex: page.value,
 			pageSize,
 			sort: "created_at DESC",
-			userId: authStore.currentUser?.sub,
+			userId: authStore.user?.id,
 		});
 
 		if (response && response.items.length > 0) {
@@ -76,16 +76,9 @@ const handleNotificationClick = async (notification: Notification) => {
 	// Perform actions based on notification type
 	if (notification.type === NotificationType.SendOffer) {
 		router.push({ name: "OfferDetails", params: { id: notification.id } });
+		//validate when click approve (the offer is already approved,..)
 	}
 	// Add more conditions based on other notification types
-};
-
-const getAvatarUrl = (notification: Notification): string => {
-	const additionalInfo = notification.additionalInfo;
-	if (!additionalInfo) return "";
-
-	const additionalData = JSON.parse(additionalInfo);
-	return additionalData.avatarUrl;
 };
 
 onMounted(() => {

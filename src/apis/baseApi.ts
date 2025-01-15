@@ -1,9 +1,10 @@
 import type { PagedRequest } from "@/entities/user/paging/pagedRequest";
 import type { PagedResponse } from "@/entities/user/paging/pagedResponse";
+import { useAuthStore } from "@/stores/authStore";
 import axios, { type AxiosInstance, type AxiosResponse } from "axios";
 
 class BaseApi<T> {
-	protected axiosInstance: AxiosInstance;
+	public static axiosInstance: AxiosInstance;
 	protected baseUrl: string;
 	private defaultBaseUrl = "https://localhost:7252/api";
 	protected baseEndpoint = "";
@@ -19,7 +20,7 @@ class BaseApi<T> {
 			this.baseUrl = this.defaultBaseUrl;
 		}
 
-		this.axiosInstance = axios.create({
+		BaseApi.axiosInstance = axios.create({
 			baseURL: this.baseUrl,
 		});
 	}
@@ -42,12 +43,12 @@ class BaseApi<T> {
 	}
 
 	public async getAll(): Promise<T[]> {
-		const response: AxiosResponse<T[]> = await this.axiosInstance.get<T[]>(`/${this.baseEndpoint}`);
+		const response: AxiosResponse<T[]> = await BaseApi.axiosInstance.get<T[]>(`/${this.baseEndpoint}`);
 		return response.data;
 	}
 
 	public async getPaged(pagedRequest: PagedRequest): Promise<PagedResponse<T>> {
-		const response: AxiosResponse<PagedResponse<T>> = await this.axiosInstance.post<PagedResponse<T>>(
+		const response: AxiosResponse<PagedResponse<T>> = await BaseApi.axiosInstance.post<PagedResponse<T>>(
 			`/${this.baseEndpoint}/paged`,
 			pagedRequest
 		);
@@ -55,19 +56,19 @@ class BaseApi<T> {
 	}
 
 	public async getById(id: number): Promise<T> {
-		const response: AxiosResponse<T> = await this.axiosInstance.get<T>(`/${this.baseEndpoint}/${id}`);
+		const response: AxiosResponse<T> = await BaseApi.axiosInstance.get<T>(`/${this.baseEndpoint}/${id}`);
 		return response.data;
 	}
 	public async create(data: T): Promise<T> {
-		const response: AxiosResponse<T> = await this.axiosInstance.post<T>(`/${this.baseEndpoint}`, data);
+		const response: AxiosResponse<T> = await BaseApi.axiosInstance.post<T>(`/${this.baseEndpoint}`, data);
 		return response.data;
 	}
 	public async update(id: number, data: T): Promise<T> {
-		const response: AxiosResponse<T> = await this.axiosInstance.put<T>(`/${this.baseEndpoint}/${id}`, data);
+		const response: AxiosResponse<T> = await BaseApi.axiosInstance.put<T>(`/${this.baseEndpoint}/${id}`, data);
 		return response.data;
 	}
 	public async delete(id: number): Promise<void> {
-		await this.axiosInstance.delete<void>(`/${this.baseEndpoint}/${id}`);
+		await BaseApi.axiosInstance.delete<void>(`/${this.baseEndpoint}/${id}`);
 	}
 }
 

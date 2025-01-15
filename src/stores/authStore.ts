@@ -1,28 +1,54 @@
 import { type User } from "./../entities/user/user";
 import { defineStore } from "pinia";
-import { useLocalStorage } from "@/composables/useLocalStorage";
+import { jwtDecode } from "jwt-decode";
+import BaseApi from "@/apis/baseApi";
+
+const tokenKey = "mbp_token";
 
 export const useAuthStore = defineStore("auth", {
-	state: () => {
-		const { getItem } = useLocalStorage();
-		const userKey = "currentUser";
-		const storedUser = getItem(userKey);
-		return {
-			currentUser: storedUser ? (storedUser as User) : null,
-		};
-	},
+	state: () => ({
+		token: null as string | null,
+		user: null as User | null,
+	}),
 	actions: {
-		saveUser(user: User) {
-			const { setItem } = useLocalStorage();
-			const userKey = "currentUser";
-			setItem(userKey, user);
-			this.currentUser = user;
+		login(token: string) {
+			this.token = token;
+			this.user = jwtDecode<User>(token);
+			localStorage.setItem(tokenKey, token);
+
+			BaseApi.axiosInstance.interceptors.request.use(
+				(config) => {
+					if (token) {
+						config.headers.Authorization = `Bearer ${token}`;
+					}
+					return config;
+				},
+				(error) => {
+					return Promise.reject(error);
+				}
+			);
 		},
-		deleteUser() {
-			const { removeItem } = useLocalStorage();
-			const userKey = "currentUser";
-			removeItem(userKey);
-			this.currentUser = null;
+		logout() {
+			this.token = null;
+			this.user = null;
+			localStorage.removeItem(tokenKey);
+		},
+		initialize() {
+			const token = localStorage.getItem(tokenKey);
+			if (token) {
+				this.token = token;
+				this.user = jwtDecode<User>(token);
+
+				BaseApi.axiosInstance.interceptors.request.use(
+					(config) => {
+						config.headers.Authorization = `Bearer ${token}`;
+						return config;
+					},
+					(error) => {
+						return Promise.reject(error);
+					}
+				);
+			}
 		},
 	},
 });
