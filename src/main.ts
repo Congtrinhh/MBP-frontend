@@ -47,9 +47,8 @@ app.use(PrimeVue, {
 	},
 });
 app.use(ToastService);
-
 app.use(GoogleSignInPlugin, {
-	clientId: "354764772754-qm2ogvlskcrlajq429558s62jbaolkpq.apps.googleusercontent.com",
+	clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
 });
 app.use(ConfirmationService); //confirm dialog
 

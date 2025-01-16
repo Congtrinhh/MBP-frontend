@@ -6,7 +6,7 @@ import axios, { type AxiosInstance, type AxiosResponse } from "axios";
 class BaseApi<T> {
 	public static axiosInstance: AxiosInstance;
 	protected baseUrl: string;
-	private defaultBaseUrl = "https://localhost:7252/api";
+	private defaultBaseUrl = import.meta.env.VITE_API_BASE_URL;
 	protected baseEndpoint = "";
 
 	private static instances: { [key: string]: BaseApi<any> } = {};
