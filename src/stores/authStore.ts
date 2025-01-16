@@ -1,4 +1,4 @@
-import { type User } from "./../entities/user/user";
+import { type User } from "@/entities/user/user";
 import { defineStore } from "pinia";
 import { jwtDecode } from "jwt-decode";
 import BaseApi from "@/apis/baseApi";
