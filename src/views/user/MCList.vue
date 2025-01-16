@@ -138,15 +138,13 @@ import { useToast } from "primevue/usetoast";
 import { onMounted, ref, nextTick } from "vue";
 import { z } from "zod";
 import { useRouter } from "vue-router";
-import type { PagedRequest } from "@/entities/user/paging/pagedRequest";
 import { useProvinceStore } from "@/stores/provinceStore";
 import { useMcTypeStore } from "@/stores/mcTypeStore";
 import { useHostingStyleStore } from "@/stores/hostingStyleStore";
-import { Gender, getGenderText, getGenderDataSource } from "@/enums/gender";
+import { getGenderDataSource } from "@/enums/gender";
 import InputText from "primevue/inputtext";
 import { debounce } from "lodash";
 import type { UserPagedRequest } from "@/entities/user/paging/UserPagedRequest";
-import { useUserStore } from "@/stores/userStore"; // Import user store
 import { useAuthStore } from "@/stores/authStore";
 
 const isVisibleFilterDialog = ref(false);

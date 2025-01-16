@@ -32,7 +32,7 @@ class MediaApi extends BaseApi<Media> {
 			formData.append("file", media.file);
 		}
 
-		const response = await this.axiosInstance.post(`/${this.baseEndpoint}/upload`, formData, {
+		const response = await BaseApi.axiosInstance.post(`/${this.baseEndpoint}/upload`, formData, {
 			headers: {
 				"Content-Type": "multipart/form-data",
 			},

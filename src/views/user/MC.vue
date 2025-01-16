@@ -666,8 +666,8 @@ const onOfferFormSubmit = async (formInfo: any) => {
 			eventEnd: values.eventEnd,
 			place: values.place,
 			note: values.note,
-			senderId: authStore.currentUser?.id,
-			senderName: authStore.currentUser?.fullName ?? authStore.currentUser?.nickName,
+			senderId: authStore.user?.id,
+			senderName: authStore.user?.fullName ?? authStore.user?.nickName,
 		};
 
 		const notification: Notification = {
@@ -676,7 +676,7 @@ const onOfferFormSubmit = async (formInfo: any) => {
 			message: "You have received a new offer",
 			additionalInfo: JSON.stringify(additionalInfo),
 			type: NotificationType.SendOffer,
-			thumbUrl: authStore.currentUser?.avatarUrl, // Add thumbUrl property
+			thumbUrl: authStore.user?.avatarUrl, // Add thumbUrl property
 		};
 
 		await notificationApi.create(notification);
