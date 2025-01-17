@@ -455,8 +455,7 @@ const sortedImages = computed(() => {
 const deleteImage = async (index: number) => {
 	const imageToDelete = images.value[index];
 	images.value.splice(index, 1);
-	const payload = { id: userId, medias: [{ ...imageToDelete, entityState: EntityState.Delete }] };
-	await userApi.update(userId, payload);
+	await mediaApi.delete(imageToDelete.id);
 	toast.add({ severity: "success", summary: "Image deleted successfully.", life: 3000 });
 };
 
@@ -544,7 +543,7 @@ const onAddImageClick = () => {
 				sortOrder: images.value.length + 1,
 				file: file, // Include the file to upload
 			};
-			debugger;
+			
 			const response = await mediaApi.upload(newMedia);
 
 			const updatedMedias = await mediaApi.getMediasByUserId(userId, MediaType.Image);
