@@ -1,4 +1,4 @@
-import type { User } from "@/entities/user/user";
+import type { User } from "@/entities/user/user2";
 import BaseApi from "./baseApi";
 
 class UserApi extends BaseApi<User> {

@@ -1,5 +1,5 @@
 import type { BaseEntity } from "../baseEntity";
-import type { User } from "./user";
+import type { User } from "./user2";
 
 export interface Post extends BaseEntity {
 	id: number;

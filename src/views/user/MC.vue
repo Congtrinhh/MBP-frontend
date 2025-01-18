@@ -352,7 +352,7 @@ import { useToast } from "primevue/usetoast";
 import { onMounted, ref, computed } from "vue";
 import { z } from "zod";
 import cloneDeep from "lodash/cloneDeep";
-import { type User } from "@/entities/user/user";
+import { type User } from "@/entities/user/user2";
 import { getGenderDataSource, getGenderText } from "@/enums/gender";
 import { EditingMode } from "@/enums/editingMode";
 import { userApi } from "@/apis/userApi";
@@ -543,7 +543,7 @@ const onAddImageClick = () => {
 				sortOrder: images.value.length + 1,
 				file: file, // Include the file to upload
 			};
-			
+
 			const response = await mediaApi.upload(newMedia);
 
 			const updatedMedias = await mediaApi.getMediasByUserId(userId, MediaType.Image);
