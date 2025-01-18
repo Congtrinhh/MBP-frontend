@@ -22,6 +22,11 @@ class AuthApi extends BaseApi<any> {
 			isMc,
 		});
 	};
+
+	// Add logout method
+	public logout = async (): Promise<any> => {
+		return await BaseApi.axiosInstance.post(`/${this.baseEndpoint}/logout`);
+	};
 }
 
 export const authApi = AuthApi.getInstance();

@@ -1,14 +1,14 @@
 <template>
 	<main class="main-container">
 		<header class="center-header">Thiết lập</header>
-		<div class="account-wrapper">
+		<div class="account-wrapper" v-if="isLoggedIn">
 			<div class="avatar img-parent">
-				<img src="https://picsum.photos/200" alt="avatar" />
+				<img :src="user?.avatarUrl" alt="avatar" />
 			</div>
-			<div class="info">
-				<div class="name">Trịnh Quý Công</div>
-				<div class="phone-number">0342219200</div>
-			</div>
+			<div class="name">{{ user?.name }}</div>
+		</div>
+		<div class="login-button underline" v-else>
+			<button @click="redirectToLogin">Đăng nhập</button>
 		</div>
 
 		<div class="option-list">
@@ -20,7 +20,7 @@
 				<div class="icon pi pi-sign-out"></div>
 				<div class="text">Xác minh danh tính</div>
 			</div>
-			<div class="option-item">
+			<div class="option-item log-out-button" @click="logout">
 				<div class="icon pi pi-sign-out"></div>
 				<div class="text">Đăng xuất</div>
 			</div>
@@ -30,11 +30,28 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/authStore";
+import { authApi } from "@/apis/authApi";
+
+const authStore = useAuthStore();
+const user = authStore.user;
+const isLoggedIn = ref(!!user);
+
+const router = useRouter();
+const redirectToLogin = () => {
+	router.push({ name: "user-login" });
+};
+
+const logout = async () => {
+	// await authApi.logout();
+	authStore.logout();
+	router.push({ name: "user-post-list" });
+};
 </script>
 <style lang="scss" scoped>
 .main-container {
 	background-color: #e8e8e8;
-
 	display: flex;
 	flex-direction: column;
 }
@@ -45,6 +62,7 @@ import { ref } from "vue";
 	padding: 16px 24px;
 	background: #fff;
 	margin-bottom: 12px;
+	align-items: center;
 }
 
 .avatar {
@@ -52,6 +70,14 @@ import { ref } from "vue";
 	height: 40px;
 	border-radius: 50%;
 	overflow: hidden;
+}
+
+.login-button {
+	display: flex;
+	justify-content: center;
+	padding: 16px 24px;
+	background: #fff;
+	margin-bottom: 12px;
 }
 
 .option-list {

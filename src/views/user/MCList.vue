@@ -9,7 +9,7 @@
 				@input="debouncedSearchInput"
 			/>
 			<div class="filter-button" @click="showFilterDialog">Lọc</div>
-			<div class="login-button" @click="handleLoginClick" v-if="!authStore.user">Đăng nhập</div>
+			<div class="login-button underline" @click="handleLoginClick" v-if="!authStore.user">Đăng nhập</div>
 		</header>
 
 		<div class="row gy-3">

@@ -1,12 +1,12 @@
 import type { PagedRequest } from "@/entities/user/paging/pagedRequest";
 import type { PagedResponse } from "@/entities/user/paging/pagedResponse";
-import { useAuthStore } from "@/stores/authStore";
 import axios, { type AxiosInstance, type AxiosResponse } from "axios";
 
 class BaseApi<T> {
 	public static axiosInstance: AxiosInstance;
 	protected baseUrl: string;
-	private defaultBaseUrl = import.meta.env.VITE_API_BASE_URL;
+	// private defaultBaseUrl = import.meta.env.VITE_API_BASE_URL;
+	private defaultBaseUrl = "http://production.eba-nbh3jtv6.ap-southeast-1.elasticbeanstalk.com/api";
 	protected baseEndpoint = "";
 
 	private static instances: { [key: string]: BaseApi<any> } = {};
