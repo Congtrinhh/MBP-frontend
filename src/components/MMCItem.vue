@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { McType } from "@/entities/mcType";
 import type { Province } from "@/entities/province";
-import type { User } from "@/entities/user/user2";
+import type { User } from "@/entities/user/user";
 import { computed, withDefaults } from "vue";
 
 interface Props {

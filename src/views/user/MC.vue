@@ -352,7 +352,7 @@ import { useToast } from "primevue/usetoast";
 import { onMounted, ref, computed } from "vue";
 import { z } from "zod";
 import cloneDeep from "lodash/cloneDeep";
-import { type User } from "@/entities/user/user2";
+import { type User } from "@/entities/user/user";
 import { getGenderDataSource, getGenderText } from "@/enums/gender";
 import { EditingMode } from "@/enums/editingMode";
 import { userApi } from "@/apis/userApi";
