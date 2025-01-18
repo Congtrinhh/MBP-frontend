@@ -132,7 +132,7 @@
 <script setup lang="ts">
 import { userApi } from "@/apis/userApi";
 import MMCItem from "@/components/MMCItem.vue";
-import type { User } from "@/entities/user/user2";
+import type { User } from "@/entities/user/user";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { useToast } from "primevue/usetoast";
 import { onMounted, ref, nextTick } from "vue";
