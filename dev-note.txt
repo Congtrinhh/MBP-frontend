@@ -15,3 +15,4 @@ font-size theo rem
 dùng đúng icon
 
 key của file .env phải có tiền tố VITE_, nếu ko value sẽ null
+build fail do tên file trên git là User.ts nhưng trong project lại import user.ts (ở windows ko lỗi, nhưng linux sẽ lỗi, vì linux case-sensitive)
