@@ -1,11 +1,11 @@
 <template>
 	<main class="main-container">
 		<header class="center-header">Thiết lập</header>
-		<div class="account-wrapper" v-if="isLoggedIn">
+		<div class="account-wrapper" v-if="isLoggedIn" @click="redirectToProfile">
 			<div class="avatar img-parent">
 				<img :src="user?.avatarUrl" alt="avatar" />
 			</div>
-			<div class="name">{{ user?.name }}</div>
+			<div class="name">{{ user?.fullName }}</div>
 		</div>
 		<div class="login-button underline" v-else>
 			<button @click="redirectToLogin">Đăng nhập</button>
@@ -41,6 +41,10 @@ const isLoggedIn = ref(!!user);
 const router = useRouter();
 const redirectToLogin = () => {
 	router.push({ name: "user-login" });
+};
+
+const redirectToProfile = () => {
+	router.push({ name: "user-profile", params: { id: user?.id } });
 };
 
 const logout = async () => {
@@ -84,15 +88,15 @@ const logout = async () => {
 	background: #fff;
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
 	padding-top: 16px;
 }
 .option-item {
 	display: flex;
 	align-items: center;
 	gap: 24px;
-	padding: 6px 24px;
+	padding: 12px 24px;
 	cursor: pointer;
+	background: #fff;
 
 	.icon {
 		font-size: 1.2rem;

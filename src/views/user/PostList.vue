@@ -438,7 +438,7 @@ const toggleLikePost = async (post: Post) => {
 	const reaction = post.reactions.find((r: Reaction) => r.userId == userId);
 	if (reaction) {
 		post.reactions.splice(post.reactions.indexOf(reaction), 1);
-		await reactionApi.delete(reaction.id);
+		await reactionApi.delete(reaction.id, false);
 	} else {
 		const newReaction: Reaction = {
 			postId: post.id,
@@ -448,7 +448,7 @@ const toggleLikePost = async (post: Post) => {
 			id: 0,
 		};
 		post.reactions.push(newReaction);
-		const createdReaction = await reactionApi.create(newReaction);
+		const createdReaction = await reactionApi.create(newReaction, false);
 		newReaction.id = createdReaction.id;
 	}
 };
