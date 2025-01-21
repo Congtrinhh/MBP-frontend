@@ -270,16 +270,39 @@ const post = ref<Post>(cloneDeep(defaultPost));
 const initialPost = ref<Post>(cloneDeep(defaultPost));
 
 const formResolver = zodResolver(
-	z.object({
-		caption: z.string().optional(),
-		eventName: z.string().min(1, { message: "Vui lòng nhập tên chương trình" }),
-		eventStart: z.any().optional(),
-		eventEnd: z.any().optional(),
-		place: z.string().min(1, { message: "Vui lòng nhập địa điểm" }),
-		mcRequirement: z.string().min(1, { message: "Vui lòng nhập yêu cầu cho MC" }),
-		priceFrom: z.any().optional(),
-		priceTo: z.any().optional(),
-	})
+	z
+		.object({
+			caption: z.string().optional(),
+			eventName: z.string().min(1, { message: "Vui lòng nhập tên chương trình" }),
+			eventStart: z.any().optional(),
+			eventEnd: z.any().optional(),
+			place: z.string().min(1, { message: "Vui lòng nhập địa điểm" }),
+			mcRequirement: z.string().min(1, { message: "Vui lòng nhập yêu cầu cho MC" }),
+			priceFrom: z.any().optional(),
+			priceTo: z.any().optional(),
+		})
+		.refine(
+			(data) => {
+				if (data.eventStart && data.eventEnd) {
+					return new Date(data.eventStart) < new Date(data.eventEnd);
+				}
+				if (!data.eventStart && !data.eventEnd) return true;
+				if (!data.eventStart && data.eventEnd) return false;
+				if (data.eventStart && !data.eventEnd) return false;
+			},
+			{ message: "Thời gian kết thúc phải sau thời gian bắt đầu", path: ["eventEnd"] }
+		)
+		.refine(
+			(data) => {
+				if (data.priceFrom && data.priceTo) {
+					return data.priceFrom < data.priceTo;
+				}
+				if (!data.priceFrom && !data.priceTo) return true;
+				if (!data.priceFrom && data.priceTo) return false;
+				if (data.priceFrom && !data.priceTo) return false;
+			},
+			{ message: "Mức cát-xê đến phải lớn hơn mức cát-xê từ", path: ["priceTo"] }
+		)
 );
 
 const onFormSubmit = async (formInfo: any) => {
