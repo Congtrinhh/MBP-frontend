@@ -27,7 +27,11 @@
 				<template #header>
 					<div class="post-header">
 						<div class="avatar img-parent rounded">
-							<img :src="post.user?.avatarUrl" alt="avatar" />
+							<img
+								:src="post.user?.avatarUrl"
+								alt="avatar"
+								@click="redirectToProfile(post.user?.id ?? 0)"
+							/>
 						</div>
 						<div class="info">
 							<div class="name">{{ post.user?.nickName }}</div>
@@ -229,6 +233,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { cloneDeep } from "lodash";
 import { getPostGroupDataSource, PostGroup } from "@/enums/postGroup";
 import { useAuthStore } from "@/stores/authStore";
+import { useRouter } from "vue-router";
 
 const authStore = useAuthStore();
 const userId = authStore.user?.id || 0;
@@ -440,12 +445,12 @@ const getReactionInfo = (reactions: any[]) => {
 
 	const hasYou = reactions.some((r) => r.userId == userId);
 	if (reactions.length === 1) {
-		if (hasYou) return "You";
+		if (hasYou) return "Bạn";
 		return reactions[0].userName;
 	}
 
 	if (hasYou) {
-		return "You và " + (reactions.length - 1) + " người khác";
+		return "Bạn và " + (reactions.length - 1) + " người khác";
 	}
 
 	return reactions[0].userName + " và " + (reactions.length - 1) + " người khác";
@@ -456,6 +461,14 @@ const groups = getPostGroupDataSource();
 
 const reactionApi = BaseApi.getInstance<Reaction>("reactions");
 
+/**
+ * Toggles the like status of a post for the current user.
+ * If the post is already liked by the user, it removes the like.
+ * If the post is not liked by the user, it adds a like.
+ *
+ * @param {Post} post - The post object to toggle the like status for.
+ * @returns {Promise<void>} - A promise that resolves when the like status has been toggled.
+ */
 const toggleLikePost = async (post: Post) => {
 	// is liked
 	const reaction = post.reactions.find((r: Reaction) => r.userId == userId);
@@ -466,7 +479,7 @@ const toggleLikePost = async (post: Post) => {
 		const newReaction: Reaction = {
 			postId: post.id,
 			userId: userId,
-			userName: "You",
+			userName: authStore.user?.fullName || "",
 			type: 0,
 			id: 0,
 		};
@@ -496,6 +509,12 @@ const handleAfterShowDialog = async () => {
 		post.value = fetchedPost;
 		initialPost.value = cloneDeep(fetchedPost);
 	}
+};
+
+const router = useRouter();
+
+const redirectToProfile = (id: number) => {
+	router.push({ name: "user-profile", params: { id } });
 };
 </script>
 <style lang="scss" scoped>

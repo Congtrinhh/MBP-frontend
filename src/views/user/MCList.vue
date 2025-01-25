@@ -349,4 +349,8 @@ const redirectToMC = (id: number) => {
 	width: 70%;
 	flex: 1;
 }
+
+.login-button {
+	margin-left: 12px;
+}
 </style>

@@ -8,9 +8,8 @@
 				:class="{ 'notification-item': true, unread: !notification.isRead }"
 				@click="handleNotificationClick(notification)"
 			>
-				<div class="img-parent rounded"><img :src="notification.thumbUrl" /></div>
+				<div class="img-parent rounded"><img :src="notification.thumbUrl" alt="notification thumbnail" /></div>
 				<div class="info">
-					<!-- <div class="title">{{ notification.message }}</div> -->
 					<div class="content line-clamp-3">{{ notification.message }}</div>
 					<div class="ago">{{ notification.createdAt }}</div>
 				</div>
@@ -57,7 +56,7 @@ const fetchNotifications = async () => {
 	}
 };
 
-const handleScroll = (event) => {
+const handleScroll = (event: any) => {
 	const bottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
 	if (bottom) {
 		fetchNotifications();
