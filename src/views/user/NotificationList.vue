@@ -74,8 +74,12 @@ const handleNotificationClick = async (notification: Notification) => {
 	}
 	// Perform actions based on notification type
 	if (notification.type === NotificationType.SendOffer) {
-		router.push({ name: "OfferDetails", params: { id: notification.id } });
-		//validate when click approve (the offer is already approved,..)
+		router.push({
+			name: "user-offer-detail",
+			params: {
+				id: notification.id,
+			},
+		});
 	}
 	// Add more conditions based on other notification types
 };

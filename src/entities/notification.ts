@@ -1,5 +1,6 @@
 import type { BaseEntity } from "./baseEntity";
 import { NotificationType } from "@/enums/notificationType";
+import { NotificationStatus } from "@/enums/notificationStatus";
 
 export interface Notification extends BaseEntity {
 	userId: number;
@@ -7,5 +8,6 @@ export interface Notification extends BaseEntity {
 	isRead?: boolean;
 	type?: NotificationType;
 	additionalInfo?: string;
-	thumbUrl?: string; // New property
+	thumbUrl?: string;
+	status?: NotificationStatus;
 }
