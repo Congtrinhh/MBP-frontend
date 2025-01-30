@@ -1,7 +1,7 @@
 <template>
 	<main class="main-container">
 		<header class="center-header">Thiết lập</header>
-		<div class="account-wrapper" v-if="isLoggedIn" @click="redirectToProfile">
+		<div class="account-wrapper" v-if="isLoggedIn" @click="redirectToProfile(user?.id)">
 			<div class="avatar img-parent">
 				<img :src="user?.avatarUrl" alt="avatar" />
 			</div>
@@ -32,7 +32,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
-import { authApi } from "@/apis/authApi";
+import { useRedirect } from "@/composables/useRedirect";
 
 const authStore = useAuthStore();
 const user = authStore.user;
@@ -43,12 +43,9 @@ const redirectToLogin = () => {
 	router.push({ name: "user-login" });
 };
 
-const redirectToProfile = () => {
-	router.push({ name: "user-profile", params: { id: user?.id } });
-};
+const { redirectToProfile } = useRedirect();
 
 const logout = async () => {
-	// await authApi.logout();
 	authStore.logout();
 	router.push({ name: "user-post-list" });
 };

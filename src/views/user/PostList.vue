@@ -233,7 +233,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { cloneDeep } from "lodash";
 import { getPostGroupDataSource, PostGroup } from "@/enums/postGroup";
 import { useAuthStore } from "@/stores/authStore";
-import { useRouter } from "vue-router";
+import { useRedirect } from "@/composables/useRedirect";
 
 const authStore = useAuthStore();
 const userId = authStore.user?.id || 0;
@@ -243,6 +243,7 @@ const postApi = BaseApi.getInstance<Post>("posts");
 const { getItem, setItem, removeItem } = useLocalStorage();
 
 const activeGroup = ref(PostGroup.Common);
+const { redirectToProfile } = useRedirect();
 
 //#region Form Data
 /**
@@ -509,12 +510,6 @@ const handleAfterShowDialog = async () => {
 		post.value = fetchedPost;
 		initialPost.value = cloneDeep(fetchedPost);
 	}
-};
-
-const router = useRouter();
-
-const redirectToProfile = (id: number) => {
-	router.push({ name: "user-profile", params: { id } });
 };
 </script>
 <style lang="scss" scoped>

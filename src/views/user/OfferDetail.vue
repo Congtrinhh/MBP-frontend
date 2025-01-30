@@ -1,17 +1,44 @@
 <template>
 	<main class="main-container">
-		<div class="info-container" v-if="additionalInfo">
-			<p><strong>Tên sự kiện:</strong> {{ additionalInfo.eventName }}</p>
-			<p><strong>Bắt đầu:</strong> {{ additionalInfo.eventStart }}</p>
-			<p><strong>Kết thúc:</strong> {{ additionalInfo.eventEnd }}</p>
-			<p><strong>Địa điểm:</strong> {{ additionalInfo.place }}</p>
-			<p><strong>Ghi chú:</strong> {{ additionalInfo.note }}</p>
-			<p><strong>Tên người gửi:</strong> {{ additionalInfo.senderName }}</p>
-		</div>
-		<div class="button-container" v-if="notification?.status === NotificationStatus.Editable">
-			<Button label="Từ chối" icon="pi pi-times" class="p-button-danger" @click="handleReject" />
-			<Button label="Chấp nhận" icon="pi pi-check" class="p-button-success" @click="handleApprove" />
-		</div>
+		<Fieldset>
+			<template #legend>
+				<div class="flex items-center pl-2">
+					<span>Offer gửi từ &nbsp;</span>
+					<Avatar
+						:image="notification?.thumbUrl"
+						shape="circle"
+						@click="redirectToProfile(additionalInfo?.senderId)"
+					/>
+					<span class="font-bold p-2">{{ additionalInfo?.senderName }}</span>
+				</div>
+			</template>
+			<div class="info-container" v-if="additionalInfo">
+				<div class="info-item">
+					<label>Tên sự kiện:</label>
+					<div class="value">{{ additionalInfo.eventName }}</div>
+				</div>
+				<div class="info-item">
+					<label>Bắt đầu:</label>
+					<div class="value">{{ additionalInfo.eventStart }}</div>
+				</div>
+				<div class="info-item">
+					<label>Kết thúc:</label>
+					<div class="value">{{ additionalInfo.eventEnd }}</div>
+				</div>
+				<div class="info-item">
+					<label>Địa điểm:</label>
+					<div class="value">{{ additionalInfo.place }}</div>
+				</div>
+				<div class="info-item">
+					<label>Ghi chú:</label>
+					<div class="value">{{ additionalInfo.note }}</div>
+				</div>
+			</div>
+			<div class="button-container" v-if="notification?.status === NotificationStatus.Editable">
+				<Button label="Từ chối" class="p-button-danger" @click="handleReject" />
+				<Button label="Đồng ý" class="p-button-success" @click="handleApprove" />
+			</div>
+		</Fieldset>
 	</main>
 </template>
 
@@ -24,9 +51,11 @@ import type { SendOfferAdditionalInfo } from "@/entities/notification/additional
 import { NotificationStatus } from "@/enums/notificationStatus";
 import { NotificationType } from "@/enums/notificationType";
 import type { RejectOfferAdditionalInfo } from "@/entities/notification/additionalInfo/rejectOfferAdditionalInfo";
+import { useRedirect } from "@/composables/useRedirect";
 
 const route = useRoute();
 const router = useRouter();
+const { redirectToProfile } = useRedirect();
 const notification = ref<Notification | null>(null);
 const additionalInfo = ref<SendOfferAdditionalInfo | null>(null);
 
@@ -53,7 +82,7 @@ const handleReject = async () => {
 				id: 0,
 				userId: additionalInfo.value.senderId,
 				type: NotificationType.OfferRejected,
-				message: `Offer cho sự kiện ${additionalInfo.value.eventName} của bạn đãđã bị từ chối.`,
+				message: `Offer cho sự kiện ${additionalInfo.value.eventName} của bạn đã bị từ chối.`,
 				isRead: false,
 				additionalInfo: JSON.stringify(rejectOfferAdditionalInfo),
 				thumbUrl: notification.value?.thumbUrl,
@@ -93,17 +122,32 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .main-container {
+	display: flex;
+	flex-direction: column;
 	padding: 0 12px 12px;
 	margin-bottom: 60px;
 }
 
 .info-container {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 	margin-bottom: 20px;
+}
+
+.info-item {
+	display: flex;
+
+	label {
+		flex: 0 0 auto;
+		width: max-content;
+		margin-right: 4px;
+	}
 }
 
 .button-container {
 	display: flex;
 	justify-content: flex-end;
-	gap: 10px;
+	gap: 16px;
 }
 </style>
