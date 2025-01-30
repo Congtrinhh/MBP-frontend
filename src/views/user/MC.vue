@@ -277,7 +277,13 @@
 				</TabPanels>
 			</Tabs>
 		</section>
-		<Dialog v-if="isOfferDialogVisible" v-model:visible="isOfferDialogVisible" modal header="Gửi offer">
+		<Dialog
+			v-if="isOfferDialogVisible"
+			v-model:visible="isOfferDialogVisible"
+			modal
+			header="Gửi offer"
+			id="sendOfferDialog"
+		>
 			<Form :resolver="offerFormResolver" :initialValues="offer" @submit="onOfferFormSubmit">
 				<div class="form-body flex flex-column gap-4">
 					<FormField v-slot="$field" name="eventName" class="flex flex-col gap-1">

@@ -15,25 +15,128 @@
 				</div>
 			</div>
 		</div>
+		<Dialog v-model:visible="showResendOfferDialog" header="Gửi lại offer" id="sendOfferDialog">
+			<Form :resolver="offerFormResolver" :initialValues="resendOffer" @submit="onResendOfferSubmit">
+				<div class="form-body flex flex-column gap-4">
+					<FormField v-slot="$field" name="eventName" class="flex flex-col gap-1">
+						<label for="eventName" class="form-label">Tên sự kiện</label>
+						<InputText name="eventName" placeholder="Nhập tên sự kiện" v-model="resendOffer.eventName" />
+						<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+							$field.error?.message
+						}}</Message>
+					</FormField>
+					<div class="flex gap-4">
+						<FormField v-slot="$field" name="eventStart" class="flex flex-col gap-1 flex-1">
+							<label for="eventStart" class="form-label">Thời gian bắt đầu</label>
+							<DatePicker
+								showIcon
+								showTime
+								hourFormat="24"
+								name="eventStart"
+								placeholder="Chọn ngày bắt đầu"
+								v-model="resendOffer.eventStart"
+							/>
+							<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+								$field.error?.message
+							}}</Message>
+						</FormField>
+						<FormField v-slot="$field" name="eventEnd" class="flex flex-col gap-1 flex-1">
+							<label for="eventEnd" class="form-label">Thời gian kết thúc</label>
+							<DatePicker
+								showIcon
+								showTime
+								hourFormat="24"
+								name="eventEnd"
+								placeholder="Chọn ngày kết thúc"
+								v-model="resendOffer.eventEnd"
+							/>
+							<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+								$field.error?.message
+							}}</Message>
+						</FormField>
+					</div>
+					<FormField v-slot="$field" name="place" class="flex flex-col gap-1">
+						<label for="place" class="form-label">Địa điểm</label>
+						<InputText name="place" placeholder="Nhập địa điểm" v-model="resendOffer.place" />
+						<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+							$field.error?.message
+						}}</Message>
+					</FormField>
+					<FormField v-slot="$field" name="note" class="flex flex-col gap-1">
+						<label for="note" class="form-label">Ghi chú</label>
+						<TextArea name="note" placeholder="Nhập ghi chú" v-model="resendOffer.note" />
+						<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+							$field.error?.message
+						}}</Message>
+					</FormField>
+					<div class="flex justify-end gap-2">
+						<Button
+							severity="secondary"
+							label="Hủy"
+							class="escape-button"
+							@click="showResendOfferDialog = false"
+						/>
+						<Button label="Gửi" class="save-button" type="submit" />
+					</div>
+				</div>
+			</Form>
+		</Dialog>
 	</main>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, reactive } from "vue";
 import { notificationApi } from "@/apis/notificationApi";
 import { useRouter } from "vue-router";
 import { NotificationType } from "@/enums/notificationType";
 import { useAuthStore } from "@/stores/authStore";
 import { type Notification } from "@/entities/notification";
+import { NotificationStatus } from "@/enums/notificationStatus";
+import { zodResolver } from "@primevue/forms/resolvers/zod";
+import { z } from "zod";
 
+//#region State
 const notifications = ref<Notification[]>([]);
 const page = ref(0);
 const pageSize = 10;
 const loading = ref(false);
+const showResendOfferDialog = ref(false);
+const resendOffer = reactive({
+	eventName: "",
+	eventStart: new Date(),
+	eventEnd: new Date(),
+	place: "",
+	note: "",
+	senderId: 0,
+});
 const router = useRouter();
-
 const authStore = useAuthStore();
+//#endregion
 
+//#region Form Resolver
+const offerFormResolver = zodResolver(
+	z
+		.object({
+			eventName: z.string().min(1, { message: "Vui lòng nhập tên sự kiện" }),
+			eventStart: z.date().refine((date) => date >= new Date(), {
+				message: "Thời gian bắt đầu phải lớn hơn hoặc bằng thời gian hiện tại",
+			}),
+			eventEnd: z.date(),
+			place: z.string().optional(),
+			note: z.string().optional(),
+		})
+		.refine(
+			(formValue) => {
+				const eventStart = formValue.eventStart;
+				const eventEnd = formValue.eventEnd;
+				return eventStart < eventEnd;
+			},
+			{ message: "Thời gian kết thúc phải lớn hơn thời gian bắt đầu", path: ["eventEnd"] }
+		)
+);
+//#endregion
+
+//#region Fetch Notifications
 const fetchNotifications = async () => {
 	if (loading.value) return;
 	loading.value = true;
@@ -50,26 +153,30 @@ const fetchNotifications = async () => {
 			page.value++;
 		}
 	} catch (error) {
-		console.error("Failed to fetch notifications", error);
+		console.error("Không thể tải thông báo", error);
 	} finally {
 		loading.value = false;
 	}
 };
+//#endregion
 
+//#region Handle Scroll
 const handleScroll = (event: any) => {
 	const bottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
 	if (bottom) {
 		fetchNotifications();
 	}
 };
+//#endregion
 
+//#region Handle Notification Click
 const handleNotificationClick = async (notification: Notification) => {
 	if (!notification.isRead) {
 		try {
 			await notificationApi.update(notification.id, { id: notification.id, isRead: true });
 			notification.isRead = true;
 		} catch (error) {
-			console.error("Failed to update notification status", error);
+			console.error("Không thể cập nhật trạng thái thông báo", error);
 		}
 	}
 	// Perform actions based on notification type
@@ -80,13 +187,69 @@ const handleNotificationClick = async (notification: Notification) => {
 				id: notification.id,
 			},
 		});
+	} else if (notification.type === NotificationType.OfferRejected) {
+		try {
+			if (notification.additionalInfo) {
+				//id thông báo gửi offer
+				const { notificationId } = JSON.parse(notification.additionalInfo);
+				if (notificationId) {
+					const originalNotification = await notificationApi.getById(notificationId);
+
+					if (originalNotification.additionalInfo) {
+						const originalInfo = JSON.parse(originalNotification.additionalInfo);
+
+						resendOffer.eventName = originalInfo.eventName;
+						resendOffer.eventStart = new Date(originalInfo.eventStart);
+						resendOffer.eventEnd = new Date(originalInfo.eventEnd);
+						resendOffer.place = originalInfo.place;
+						resendOffer.note = originalInfo.note;
+						resendOffer.senderId = originalNotification.userId;
+					}
+				}
+			}
+			showResendOfferDialog.value = true;
+		} catch (error) {
+			console.error("Không thể tải dữ liệu offer gốc", error);
+		}
 	}
 	// Add more conditions based on other notification types
 };
+//#endregion
 
+//#region Resend Offer Submit
+const onResendOfferSubmit = async (formInfo: any) => {
+	const { valid, values } = formInfo;
+	if (valid) {
+		try {
+			await notificationApi.create({
+				id: 0,
+				userId: resendOffer.senderId,
+				type: NotificationType.SendOffer,
+				message: "Bạn đã nhận được một offer mới",
+				additionalInfo: JSON.stringify({
+					eventName: values.eventName,
+					eventStart: values.eventStart,
+					eventEnd: values.eventEnd,
+					place: values.place,
+					note: values.note,
+					senderId: authStore.user?.id,
+					senderName: authStore.user?.fullName ?? authStore.user?.nickName,
+				}),
+			});
+			showResendOfferDialog.value = false;
+			// ...success toast...
+		} catch (error) {
+			console.error("Không thể gửi lại offer", error);
+		}
+	}
+};
+//#endregion
+
+//#region On Mounted
 onMounted(() => {
 	fetchNotifications();
 });
+//#endregion
 </script>
 
 <style lang="scss" scoped>
