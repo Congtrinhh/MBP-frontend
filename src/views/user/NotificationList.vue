@@ -91,9 +91,9 @@ import { useRouter } from "vue-router";
 import { NotificationType } from "@/enums/notificationType";
 import { useAuthStore } from "@/stores/authStore";
 import { type Notification } from "@/entities/notification";
-import { NotificationStatus } from "@/enums/notificationStatus";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
+import * as signalR from "@microsoft/signalr";
 
 //#region State
 const notifications = ref<Notification[]>([]);
@@ -243,6 +243,28 @@ const onResendOfferSubmit = async (formInfo: any) => {
 		}
 	}
 };
+//#endregion
+
+//#region SignalR Connection
+const connection = new signalR.HubConnectionBuilder()
+	.withUrl(`https://localhost:7252/notificationHub?userId=${authStore.user?.id}`, {
+		skipNegotiation: true,
+		transport: signalR.HttpTransportType.WebSockets,
+		accessTokenFactory: () => authStore.token,
+	})
+	.build();
+
+connection.on("ReceiveNotification", (message: string) => {
+	console.log("ReceiveNotification", message);
+	// Refresh the notification list
+	page.value = 0;
+	notifications.value = [];
+	fetchNotifications();
+});
+
+connection.start().catch((err) => {
+	console.error(err.toString());
+});
 //#endregion
 
 //#region On Mounted

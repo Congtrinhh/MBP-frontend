@@ -53,13 +53,11 @@ const handleLoginSuccess = async (response: CredentialResponse) => {
 			.build();
 
 		connection.on("ReceiveNotification", (message: string) => {
-			debugger;
 			console.log("ReceiveNotification", message);
-			// notifications.value.push({ message });
+			// Handle real-time notification
 		});
 
 		connection.start().catch((err) => {
-			debugger;
 			console.error(err.toString());
 		});
 

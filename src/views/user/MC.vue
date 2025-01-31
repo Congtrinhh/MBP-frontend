@@ -21,7 +21,7 @@
 						<span v-if="user.isVerified" class="verified">checked</span>
 						<div v-else class="verify-identity">Xác thực danh tính</div>
 					</div>
-					<div class="credit-point"><Badge value="2"></Badge></div>
+					<div class="credit-point"><Badge :value="user.credit"></Badge></div>
 				</div>
 			</div>
 			<div class="buttons">
@@ -30,7 +30,7 @@
 			</div>
 		</section>
 		<section class="tabs">
-			<Tabs value="1" @update:value="handleTabChange">
+			<Tabs value="0" @update:value="handleTabChange">
 				<TabList>
 					<Tab
 						value="0"
@@ -92,9 +92,12 @@
 									</Button>
 									<Button v-if="editingMode == EditingMode.Update" type="submit"> Lưu </Button>
 								</div>
-								<FormField name="nickName" class="flex flex-col gap-1">
+								<FormField name="nickName" class="flex flex-col gap-1" v-slot="$field">
 									<label for="nickName" class="form-label">Nghệ danh</label>
 									<InputText type="text" placeholder="Nhập nghệ danh" />
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
 								</FormField>
 								<FormField name="mcTypes" class="flex flex-col gap-1" v-slot="$field">
 									<label for="mcTypes" class="form-label">Loại MC</label>
@@ -108,7 +111,7 @@
 										$field.error?.message
 									}}</Message>
 								</FormField>
-								<FormField name="hostingStyles" class="flex flex-col gap-1">
+								<FormField name="hostingStyles" class="flex flex-col gap-1" v-slot="$field">
 									<label for="hostingStyles" class="form-label">Phong cách dẫn</label>
 									<MultiSelect
 										:options="hostingStyles"
@@ -116,14 +119,20 @@
 										placeholder="Chọn phong cách dẫn"
 										class="w-full md:w-80"
 									/>
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
 								</FormField>
 
-								<FormField name="description" class="flex flex-col gap-1">
+								<FormField name="description" class="flex flex-col gap-1" v-slot="$field">
 									<label for="description" class="form-label">Mô tả về bản thân</label>
 									<Textarea rows="5" cols="30" placeholder="Nhập mô tả về bản thân" />
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
 								</FormField>
 
-								<FormField name="gender" class="flex flex-col gap-1">
+								<FormField name="gender" class="flex flex-col gap-1" v-slot="$field">
 									<label for="gender" class="form-label">Giới tính</label>
 									<Select
 										:options="genders"
@@ -132,14 +141,20 @@
 										placeholder="Chọn giới tính"
 										class="w-full md:w-56"
 									/>
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
 								</FormField>
 
-								<FormField name="age" class="flex flex-col gap-1">
+								<FormField name="age" class="flex flex-col gap-1" v-slot="$field">
 									<label for="age" class="form-label">Tuổi</label>
 									<InputNumber inputId="minmax" :min="0" :max="200" />
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
 								</FormField>
 
-								<FormField name="provinces" class="flex flex-col gap-1">
+								<FormField name="provinces" class="flex flex-col gap-1" v-slot="$field">
 									<label for="provinces" class="form-label">Địa bàn hoạt động</label>
 									<MultiSelect
 										:options="provinces"
@@ -147,21 +162,49 @@
 										placeholder="Chọn địa bàn hoạt động"
 										class="w-full md:w-80"
 									/>
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
 								</FormField>
 
-								<FormField name="education" class="flex flex-col gap-1">
+								<FormField name="facebook" class="flex flex-col gap-1" v-slot="$field">
+									<label for="facebook" class="form-label">Facebook</label>
+									<InputText type="text" placeholder="Nhập link facebook" />
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
+								</FormField>
+
+								<FormField name="zalo" class="flex flex-col gap-1" v-slot="$field">
+									<label for="zalo" class="form-label">Zalo</label>
+									<InputText type="text" placeholder="Nhập số zalo" />
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
+								</FormField>
+
+								<FormField name="education" class="flex flex-col gap-1" v-slot="$field">
 									<label for="education" class="form-label">Học vấn</label>
 									<InputText type="text" placeholder="Nhập học vấn" />
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
 								</FormField>
 
-								<FormField name="height" class="flex flex-col gap-1">
+								<FormField name="height" class="flex flex-col gap-1" v-slot="$field">
 									<label for="height" class="form-label">Chiều cao</label>
 									<InputNumber placeholder="Nhập chiều cao" />
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
 								</FormField>
 
-								<FormField name="weight" class="flex flex-col gap-1">
+								<FormField name="weight" class="flex flex-col gap-1" v-slot="$field">
 									<label for="weight" class="form-label">Cân nặng</label>
 									<InputNumber placeholder="Nhập cân nặng" />
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
 								</FormField>
 							</Form>
 
@@ -200,6 +243,20 @@
 									<i class="icon pi pi-map-marker"></i>
 									<div class="label">Khu vực hoạt động</div>
 									<div class="value line-clamp-3">{{ areasText }}</div>
+								</div>
+								<div class="info-item">
+									<i class="icon pi pi-graduation-cap"></i>
+									<div class="label">Facebook</div>
+									<div class="value line-clamp-3">
+										<a :href="user.facebook" class="underline" target="_blank">{{
+											user.facebook
+										}}</a>
+									</div>
+								</div>
+								<div class="info-item">
+									<i class="icon pi pi-graduation-cap"></i>
+									<div class="label">Zalo</div>
+									<div class="value line-clamp-3">{{ user.zalo }}</div>
 								</div>
 								<div class="info-item">
 									<i class="icon pi pi-graduation-cap"></i>
@@ -394,11 +451,13 @@ const formResolver = ref(
 			gender: z.number(),
 			description: z.string().optional(),
 			education: z.string().optional(),
-			height: z.number().optional(),
-			weight: z.number().optional(),
+			height: z.any().optional(),
+			weight: z.any().optional(),
 			mcTypes: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
 			provinces: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
 			hostingStyles: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
+			facebook: z.string().max(255, { message: "Không được vượt quá 255 ký tự" }).optional(),
+			zalo: z.string().max(255, { message: "Không được vượt quá 255 ký tự" }).optional(),
 		})
 	)
 );
@@ -519,14 +578,6 @@ const cancelEditImages = () => {
 	editingMode.value = EditingMode.None;
 };
 
-const saveImages = async () => {
-	const updatedImages = updateEntityState(images.value, initialImages.value);
-	const payload = { id: userId, medias: updatedImages };
-	await userApi.update(userId, payload);
-	editingMode.value = EditingMode.None;
-	toast.add({ severity: "success", summary: "Images saved successfully.", life: 3000 });
-};
-
 const fetchImages = async () => {
 	const imagesFromApi = await mediaApi.getMediasByUserId(userId, MediaType.Image);
 	images.value = imagesFromApi;
@@ -603,20 +654,21 @@ const onFormSubmit = (e) => {
 	}
 };
 
-enum Tab {
+enum TabType {
 	GeneralInfo = 0,
 	Image = 1,
 	Video = 2,
 	Review = 3,
 }
+
 const activeTab = ref("0");
+
 const handleTabChange = async (value: number) => {
-	console.log(value);
 	activeTab.value = value.toString();
-	if (value == Tab.Image) {
+	if (value == TabType.Image) {
 		// Load images
 		await fetchImages();
-	} else if (value == Tab.Video) {
+	} else if (value == TabType.Video) {
 		// Load videos
 		await fetchVideos();
 	}

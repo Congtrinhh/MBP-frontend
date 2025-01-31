@@ -29,27 +29,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import { useRedirect } from "@/composables/useRedirect";
 
+const { redirectToProfile } = useRedirect();
+
 const authStore = useAuthStore();
-const user = authStore.user;
-const isLoggedIn = ref(!!user);
+const user = computed(() => authStore.user);
+const isLoggedIn = computed(() => !!user.value);
 
 const router = useRouter();
+
 const redirectToLogin = () => {
 	router.push({ name: "user-login" });
 };
 
-const { redirectToProfile } = useRedirect();
-
 const logout = async () => {
-	authStore.logout();
+	await authStore.logout();
 	router.push({ name: "user-post-list" });
 };
 </script>
+
 <style lang="scss" scoped>
 .main-container {
 	background-color: #e8e8e8;
