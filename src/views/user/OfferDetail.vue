@@ -46,12 +46,16 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { notificationApi } from "@/apis/notificationApi";
+import { contractApi } from "@/apis/contractApi";
 import type { Notification } from "@/entities/notification";
 import type { SendOfferAdditionalInfo } from "@/entities/notification/additionalInfo/sendOfferAdditionalInfo";
 import { NotificationStatus } from "@/enums/notificationStatus";
 import { NotificationType } from "@/enums/notificationType";
 import type { RejectOfferAdditionalInfo } from "@/entities/notification/additionalInfo/rejectOfferAdditionalInfo";
 import { useRedirect } from "@/composables/useRedirect";
+import type { Contract } from "@/entities/contract";
+import { useAuth } from "@/composables/user/useAuth";
+import { useAuthStore } from "@/stores/authStore";
 
 const route = useRoute();
 const router = useRouter();
@@ -105,9 +109,47 @@ const handleReject = async () => {
 	}
 };
 
-const handleApprove = () => {
-	router.push({ name: "user-notification-list" });
-	// Show approve toast
+const handleApprove = async () => {
+	try {
+		if (additionalInfo.value?.senderId) {
+			// Create a new contract
+			const newContract: Contract = {
+				id: 0,
+				clientId: additionalInfo.value.senderId,
+				mcId: useAuthStore().user?.id ?? notification.value?.userId,
+				eventStart: additionalInfo.value.eventStart,
+				eventEnd: additionalInfo.value.eventEnd,
+				description: additionalInfo.value.note,
+				place: additionalInfo.value.place,
+			};
+
+			await contractApi.create(newContract);
+
+			// Send notification to the user who sent the offer
+			await notificationApi.create({
+				id: 0,
+				userId: additionalInfo.value.senderId,
+				type: NotificationType.OfferApproved,
+				message: `Offer cho sự kiện ${additionalInfo.value.eventName} của bạn đã được chấp nhận.`,
+				additionalInfo: JSON.stringify({ notificationId: notification.value?.id }),
+				thumbUrl: notification.value?.thumbUrl,
+			} as Notification);
+
+			// Update the status of the original notification to NotEditable
+			if (notification.value) {
+				await notificationApi.update(notification.value.id, {
+					...notification.value,
+					status: NotificationStatus.NotEditable,
+				} as Notification);
+			}
+		}
+		// Redirect to notification list
+		router.push({ name: "user-notification-list" });
+		// Show success toast (replace with your own toast logic)
+		// ...toast code...
+	} catch (error) {
+		console.error("Failed to approve the offer", error);
+	}
 };
 
 onMounted(() => {
