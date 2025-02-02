@@ -66,6 +66,12 @@ const router = createRouter({
 					component: () => import("@/views/user/ContractList.vue"),
 				},
 				{
+					path: "review/:contractId",
+					name: "user-review",
+					component: () => import("@/views/user/Review.vue"),
+					props: true,
+				},
+				{
 					path: "/login",
 					name: "user-login",
 					component: () => import("@/views/user/Login.vue"),

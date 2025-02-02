@@ -56,3 +56,9 @@ when showing me response, only show code snippets and changes that is new, not r
 ##
 
 next time, only show me method having code changes, don't show everything of every file, it is lengthy
+
+backend prod:
+http://production.eba-nbh3jtv6.ap-southeast-1.elasticbeanstalk.com/api
+
+frontend prod:
+https://main.d3vt4ohfxm0zrb.amplifyapp.com

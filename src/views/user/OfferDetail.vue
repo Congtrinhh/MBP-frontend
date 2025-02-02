@@ -132,7 +132,6 @@ const handleApprove = async () => {
 				userId: additionalInfo.value.senderId,
 				type: NotificationType.OfferApproved,
 				message: `Offer cho sự kiện ${additionalInfo.value.eventName} của bạn đã được chấp nhận.`,
-				additionalInfo: JSON.stringify({ notificationId: notification.value?.id }),
 				thumbUrl: notification.value?.thumbUrl,
 			} as Notification);
 

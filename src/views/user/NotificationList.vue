@@ -213,6 +213,17 @@ const handleNotificationClick = async (notification: Notification) => {
 		}
 	} else if (notification.type === NotificationType.OfferApproved) {
 		router.push({ name: "user-contract-list" });
+	} else if (notification.type === NotificationType.Review) {
+		if (true || notification.additionalInfo) {
+			// const { contractId } = JSON.parse(notification.additionalInfo);
+			let contractId = 3;
+			router.push({
+				name: "user-review",
+				params: {
+					contractId,
+				},
+			});
+		}
 	}
 	// Add more conditions based on other notification types
 };
