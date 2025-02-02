@@ -12,7 +12,7 @@
 		</div>
 
 		<div class="option-list">
-			<div class="option-item">
+			<div class="option-item" @click="redirectToContracts">
 				<div class="icon pi pi-sign-out"></div>
 				<div class="text">Hợp đồng</div>
 			</div>
@@ -44,6 +44,10 @@ const router = useRouter();
 
 const redirectToLogin = () => {
 	router.push({ name: "user-login" });
+};
+
+const redirectToContracts = () => {
+	router.push({ name: "user-contract-list" });
 };
 
 const logout = async () => {

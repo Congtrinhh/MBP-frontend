@@ -18,11 +18,11 @@
 						</div>
 						<div class="info-item">
 							<label>Bắt đầu:</label>
-							<div class="value">{{ contract.eventStart }}</div>
+							<div class="value" v-format-date="contract.eventStart"></div>
 						</div>
 						<div class="info-item">
 							<label>Kết thúc:</label>
-							<div class="value">{{ contract.eventEnd }}</div>
+							<div class="value" v-format-date="contract.eventEnd"></div>
 						</div>
 						<div class="info-item">
 							<label>Địa điểm:</label>
@@ -37,7 +37,7 @@
 					<div class="additional-info">
 						<div class="info-item">
 							<label>Created date:</label>
-							<div class="value">{{ contract.createdAt }}</div>
+							<div class="value" v-format-date="contract.createdAt"></div>
 						</div>
 						<div class="info-item">
 							<label>Contract status:</label>
@@ -74,6 +74,7 @@ import { contractApi } from "@/apis/contractApi";
 import { useAuthStore } from "@/stores/authStore";
 import type { Contract } from "@/entities/contract";
 import { ContractStatus, getContractStatusText } from "@/enums/contractStatus";
+import formatDate from "@/directives/formatDate";
 
 const contracts = ref<Contract[]>([]);
 const page = ref(0);

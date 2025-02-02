@@ -19,11 +19,11 @@
 				</div>
 				<div class="info-item">
 					<label>Bắt đầu:</label>
-					<div class="value">{{ additionalInfo.eventStart }}</div>
+					<div class="value" v-format-date="additionalInfo.eventStart"></div>
 				</div>
 				<div class="info-item">
 					<label>Kết thúc:</label>
-					<div class="value">{{ additionalInfo.eventEnd }}</div>
+					<div class="value" v-format-date="additionalInfo.eventEnd"></div>
 				</div>
 				<div class="info-item">
 					<label>Địa điểm:</label>
@@ -55,6 +55,7 @@ import type { RejectOfferAdditionalInfo } from "@/entities/notification/addition
 import { useRedirect } from "@/composables/useRedirect";
 import type { Contract } from "@/entities/contract";
 import { useAuthStore } from "@/stores/authStore";
+import formatDate from "@/directives/formatDate";
 
 const route = useRoute();
 const router = useRouter();

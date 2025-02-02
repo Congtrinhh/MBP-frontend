@@ -35,7 +35,7 @@
 						</div>
 						<div class="info">
 							<div class="name">{{ post.user?.nickName }}</div>
-							<div class="time-ago">{{ post.createdAt }}</div>
+							<div class="time-ago" v-format-date:isRelativeNow="post.createdAt"></div>
 						</div>
 					</div>
 				</template>
@@ -234,6 +234,7 @@ import { cloneDeep } from "lodash";
 import { getPostGroupDataSource, PostGroup } from "@/enums/postGroup";
 import { useAuthStore } from "@/stores/authStore";
 import { useRedirect } from "@/composables/useRedirect";
+import formatDate from "@/directives/formatDate";
 
 const authStore = useAuthStore();
 const userId = authStore.user?.id || 0;

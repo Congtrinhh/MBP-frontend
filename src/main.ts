@@ -16,6 +16,7 @@ import { useAppStore } from "./stores/appStore";
 
 import ConfirmationService from "primevue/confirmationservice";
 import { useAuthStore } from "./stores/authStore";
+import formatDate from "./directives/formatDate";
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -51,6 +52,9 @@ app.use(GoogleSignInPlugin, {
 	clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
 });
 app.use(ConfirmationService); //confirm dialog
+
+// Register the directive globally
+app.directive("format-date", formatDate);
 
 const authStore = useAuthStore();
 authStore.initialize(); //initialize user if exists

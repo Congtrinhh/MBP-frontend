@@ -11,7 +11,7 @@
 				<div class="img-parent rounded"><img :src="notification.thumbUrl" alt="notification thumbnail" /></div>
 				<div class="info">
 					<div class="content line-clamp-3">{{ notification.message }}</div>
-					<div class="ago">{{ notification.createdAt }}</div>
+					<div class="ago" v-format-date:isRelativeNow="notification.createdAt"></div>
 				</div>
 			</div>
 		</div>
