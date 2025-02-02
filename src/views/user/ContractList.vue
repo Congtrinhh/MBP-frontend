@@ -74,7 +74,6 @@ import { contractApi } from "@/apis/contractApi";
 import { useAuthStore } from "@/stores/authStore";
 import type { Contract } from "@/entities/contract";
 import { ContractStatus, getContractStatusText } from "@/enums/contractStatus";
-import formatDate from "@/directives/formatDate";
 
 const contracts = ref<Contract[]>([]);
 const page = ref(0);

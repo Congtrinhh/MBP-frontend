@@ -234,7 +234,6 @@ import { cloneDeep } from "lodash";
 import { getPostGroupDataSource, PostGroup } from "@/enums/postGroup";
 import { useAuthStore } from "@/stores/authStore";
 import { useRedirect } from "@/composables/useRedirect";
-import formatDate from "@/directives/formatDate";
 
 const authStore = useAuthStore();
 const userId = authStore.user?.id || 0;

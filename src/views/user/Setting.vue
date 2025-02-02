@@ -13,11 +13,11 @@
 
 		<div class="option-list">
 			<div class="option-item" @click="redirectToContracts">
-				<div class="icon pi pi-sign-out"></div>
+				<div class="icon pi pi-book"></div>
 				<div class="text">Hợp đồng</div>
 			</div>
 			<div class="option-item">
-				<div class="icon pi pi-sign-out"></div>
+				<div class="icon pi pi-lock-open"></div>
 				<div class="text">Xác minh danh tính</div>
 			</div>
 			<div class="option-item log-out-button" @click="logout">

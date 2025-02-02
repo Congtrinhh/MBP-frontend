@@ -18,8 +18,8 @@
 				<div class="info">
 					<div class="name-wrapper">
 						<div class="name">{{ user.nickName }}</div>
-						<span v-if="user.isVerified" class="verified">checked</span>
-						<div v-else class="verify-identity">Xác thực danh tính</div>
+						<span v-if="user.isVerified" class="pi pi-verified"></span>
+						<div v-else class="verify-identity underline">Xác thực danh tính</div>
 					</div>
 					<div class="credit-point"><Badge :value="user.credit"></Badge></div>
 				</div>
@@ -210,17 +210,17 @@
 
 							<div v-else class="general-info-wrapper">
 								<div class="info-item">
-									<i class="icon pi pi-map-marker"></i>
+									<i class="icon pi pi-user-edit"></i>
 									<div class="label">Nghệ danh</div>
 									<div class="value line-clamp-3">{{ user.nickName }}</div>
 								</div>
 								<div class="info-item">
-									<i class="icon pi pi-map-marker"></i>
+									<i class="icon pi pi-align-center"></i>
 									<div class="label">Loại MC</div>
 									<div class="value line-clamp-3">{{ mcTypesText }}</div>
 								</div>
 								<div class="info-item">
-									<i class="icon pi pi-map-marker"></i>
+									<i class="icon pi pi-sparkles"></i>
 									<div class="label">Phong cách dẫn</div>
 									<div class="value line-clamp-3">{{ hostingStylesText }}</div>
 								</div>
@@ -230,12 +230,12 @@
 									<div class="value line-clamp-3">{{ user.description }}</div>
 								</div>
 								<div class="info-item">
-									<i class="icon pi pi-map-marker"></i>
+									<i class="icon pi pi-mars"></i>
 									<div class="label">Giới tính</div>
 									<div class="value line-clamp-3">{{ getGenderText(user.gender) }}</div>
 								</div>
 								<div class="info-item">
-									<i class="icon pi pi-map-marker"></i>
+									<i class="icon pi pi-clock"></i>
 									<div class="label">Tuổi</div>
 									<div class="value line-clamp-3">{{ user.age }}</div>
 								</div>
@@ -245,7 +245,7 @@
 									<div class="value line-clamp-3">{{ areasText }}</div>
 								</div>
 								<div class="info-item">
-									<i class="icon pi pi-graduation-cap"></i>
+									<i class="icon pi pi-facebook"></i>
 									<div class="label">Facebook</div>
 									<div class="value line-clamp-3">
 										<a :href="user.facebook" class="underline" target="_blank">{{
@@ -254,7 +254,7 @@
 									</div>
 								</div>
 								<div class="info-item">
-									<i class="icon pi pi-graduation-cap"></i>
+									<i class="icon pi pi-link"></i>
 									<div class="label">Zalo</div>
 									<div class="value line-clamp-3">{{ user.zalo }}</div>
 								</div>
@@ -264,12 +264,12 @@
 									<div class="value line-clamp-3">{{ user.education }}</div>
 								</div>
 								<div class="info-item">
-									<i class="icon pi pi-map-marker"></i>
+									<i class="icon pi pi-angle-double-up"></i>
 									<div class="label">Chiều cao</div>
 									<div class="value line-clamp-3">{{ user.height }}</div>
 								</div>
 								<div class="info-item">
-									<i class="icon pi pi-map-marker"></i>
+									<i class="icon pi pi-gauge"></i>
 									<div class="label">Cân nặng</div>
 									<div class="value line-clamp-3">{{ user.weight }}</div>
 								</div>
