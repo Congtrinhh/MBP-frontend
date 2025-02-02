@@ -55,7 +55,6 @@ import type { RejectOfferAdditionalInfo } from "@/entities/notification/addition
 import { useRedirect } from "@/composables/useRedirect";
 import type { Contract } from "@/entities/contract";
 import { useAuthStore } from "@/stores/authStore";
-import formatDate from "@/directives/formatDate";
 
 const route = useRoute();
 const router = useRouter();

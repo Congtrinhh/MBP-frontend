@@ -5,7 +5,7 @@ class ClientReviewMcApi extends BaseApi<ClientReviewMc> {
 	private static instance: ClientReviewMcApi;
 
 	constructor() {
-		super("client-review-mcs");
+		super("clientReviewMcs");
 	}
 
 	public static getInstance(): ClientReviewMcApi {

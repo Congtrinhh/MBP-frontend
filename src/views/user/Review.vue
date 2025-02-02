@@ -60,6 +60,10 @@ import { contractApi } from "@/apis/contractApi";
 import { clientReviewMcApi } from "@/apis/clientReviewMcApi";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
+import type { ClientReviewMc } from "@/entities/clientReviewMc";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 //#region State
 const route = useRoute();
@@ -104,8 +108,13 @@ const onSubmit = async (formInfo: any) => {
 	debugger;
 	if (valid) {
 		try {
-			await clientReviewMcApi.create(values);
-			console.log("Đánh giá đã được gửi thành công");
+			const review: ClientReviewMc = {
+				...values,
+				contractId: contractId,
+				mcId: 58,
+			};
+			await clientReviewMcApi.create(review);
+			router.push({ name: "user-notification-list" });
 		} catch (error) {
 			console.error("Không thể gửi đánh giá", error);
 		}
