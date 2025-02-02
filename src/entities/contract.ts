@@ -1,8 +1,10 @@
 import type { BaseEntity } from "./baseEntity";
+import { ContractStatus } from "../enumerations/contractStatus";
 
 export interface Contract extends BaseEntity {
 	mcId: number;
 	clientId: number;
+	eventName: string;
 	eventStart: string;
 	eventEnd: string;
 	description: string;
@@ -12,4 +14,5 @@ export interface Contract extends BaseEntity {
 	clientCancelDate?: string | null;
 	clientCancelReason?: string | null;
 	isActive?: boolean;
+	status?: ContractStatus;
 }

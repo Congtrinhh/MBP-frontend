@@ -121,6 +121,7 @@ const handleApprove = async () => {
 				eventEnd: additionalInfo.value.eventEnd,
 				description: additionalInfo.value.note,
 				place: additionalInfo.value.place,
+				eventName: additionalInfo.value.eventName,
 			};
 
 			await contractApi.create(newContract);
