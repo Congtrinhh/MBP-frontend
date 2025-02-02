@@ -8,7 +8,11 @@
 				class="search-input"
 				@input="debouncedSearchInput"
 			/>
-			<div class="filter-button" @click="showFilterDialog">Lọc</div>
+			<div
+				class="filter-button pi"
+				:class="[hasFilter ? 'pi-filter-fill' : 'pi-filter']"
+				@click="showFilterDialog"
+			></div>
 			<div class="login-button underline" @click="handleLoginClick" v-if="!authStore.user">Đăng nhập</div>
 		</header>
 
@@ -135,7 +139,7 @@ import MMCItem from "@/components/MMCItem.vue";
 import type { User } from "@/entities/user/user";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { useToast } from "primevue/usetoast";
-import { onMounted, ref, nextTick } from "vue";
+import { onMounted, ref, nextTick, computed } from "vue";
 import { z } from "zod";
 import { useRouter } from "vue-router";
 import { useProvinceStore } from "@/stores/provinceStore";
@@ -146,6 +150,7 @@ import InputText from "primevue/inputtext";
 import { debounce } from "lodash";
 import type { UserPagedRequest } from "@/entities/user/paging/UserPagedRequest";
 import { useAuthStore } from "@/stores/authStore";
+import { isEqual } from "lodash";
 
 const isVisibleFilterDialog = ref(false);
 const showFilterDialog = () => {
@@ -291,6 +296,8 @@ let pagedRequest: UserPagedRequest = {
 	isUseProc: true,
 };
 
+const hasFilter = computed(() => !isEqual(filter.value, initialFilter));
+
 const users = ref<User[]>([]);
 onMounted(async () => {
 	await loadMoreUsers();
@@ -337,7 +344,6 @@ const redirectToMC = (id: number) => {
 	}
 
 	.filter-button {
-		text-decoration: underline;
 		cursor: pointer;
 	}
 }
