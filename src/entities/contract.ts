@@ -1,5 +1,5 @@
 import type { BaseEntity } from "./baseEntity";
-import { ContractStatus } from "../enumerations/contractStatus";
+import { ContractStatus } from "../enums/contractStatus";
 
 export interface Contract extends BaseEntity {
 	mcId: number;

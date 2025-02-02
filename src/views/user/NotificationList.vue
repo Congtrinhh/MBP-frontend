@@ -211,6 +211,8 @@ const handleNotificationClick = async (notification: Notification) => {
 		} catch (error) {
 			console.error("Không thể tải dữ liệu offer gốc", error);
 		}
+	} else if (notification.type === NotificationType.OfferApproved) {
+		router.push({ name: "user-contract-list" });
 	}
 	// Add more conditions based on other notification types
 };

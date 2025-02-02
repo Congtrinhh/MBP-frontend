@@ -54,7 +54,6 @@ import { NotificationType } from "@/enums/notificationType";
 import type { RejectOfferAdditionalInfo } from "@/entities/notification/additionalInfo/rejectOfferAdditionalInfo";
 import { useRedirect } from "@/composables/useRedirect";
 import type { Contract } from "@/entities/contract";
-import { useAuth } from "@/composables/user/useAuth";
 import { useAuthStore } from "@/stores/authStore";
 
 const route = useRoute();
