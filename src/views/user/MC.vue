@@ -323,13 +323,61 @@
 						</div>
 					</TabPanel>
 					<TabPanel value="3">
-						<p class="m-0">
-							At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium
-							voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati
-							cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id
-							est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam
-							libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.
-						</p>
+						<div class="reviews" @scroll="handleScroll">
+							<div v-for="review in reviews" :key="review.id" class="review-item">
+								<Card>
+									<template #header>
+										<div class="review-header">
+											<img
+												:src="review.client?.avatarUrl"
+												alt="client avatar"
+												class="client-avatar"
+											/>
+											<div class="client-info">
+												<div class="client-name">
+													{{ review.client?.fullName ?? "Hoàng Văn Khách" }}
+												</div>
+												<div class="review-date" v-format-date="review.createdAt"></div>
+											</div>
+										</div>
+									</template>
+									<template #content>
+										<div class="review-body" :class="{ collapsed: review.collapsed }">
+											<Rating v-model="review.overallPoint" readonly></Rating>
+											<div class="event-name">{{ review.contract?.eventName }}</div>
+											<div class="short-description mb-3">{{ review.shortDescription }}</div>
+
+											<div class="pro-point-wrapper flex align-center justify-between">
+												<div class="label">Kỹ năng chuyên môn</div>
+												<Rating v-model="review.proPoint" readonly></Rating>
+											</div>
+
+											<div class="attitude-point-wrapper flex align-center justify-between">
+												<div class="label">Tinh thần thái độ</div>
+												<Rating v-model="review.attitudePoint" readonly></Rating>
+											</div>
+
+											<div class="reliable-point-wrapper flex align-center justify-between">
+												<div class="label">Độ tin cậy</div>
+												<Rating v-model="review.reliablePoint" readonly></Rating>
+											</div>
+
+											<p>{{ review.detailDescription }}</p>
+										</div>
+										<div
+											v-if="review.collapsed"
+											class="view-more-button"
+											@click="review.collapsed = false"
+										>
+											Xem thêm
+										</div>
+									</template>
+								</Card>
+							</div>
+							<div v-if="!hasMoreReviews" class="no-more-reviews">
+								<p>No more reviews</p>
+							</div>
+						</div>
 					</TabPanel>
 				</TabPanels>
 			</Tabs>
@@ -436,6 +484,9 @@ import { type Notification } from "@/entities/notification";
 import { type SendOfferAdditionalInfo } from "@/entities/notification/additionalInfo/sendOfferAdditionalInfo";
 import { NotificationType } from "@/enums/notificationType";
 import { useAuthStore } from "@/stores/authStore";
+import { clientReviewMcApi } from "@/apis/clientReviewMcApi";
+import type { ClientReviewMc } from "@/entities/clientReviewMc";
+import type { ClientReviewMcPagedRequest } from "@/entities/user/paging/clientReviewMcPagedRequest";
 
 const toast = useToast();
 const route = useRoute();
@@ -630,6 +681,47 @@ const fetchVideos = async () => {
 };
 //#endregion
 
+//#region Review Tab Panel Logic
+const reviews = ref<ClientReviewMc[]>([]);
+const reviewPage = ref(0);
+const reviewPageSize = 10;
+const hasMoreReviews = ref(true);
+const isLoadingReviews = ref(false);
+
+const fetchReviews = async () => {
+	if (!hasMoreReviews.value || isLoadingReviews.value) return;
+
+	const mcId = authStore.user?.id ?? undefined;
+
+	isLoadingReviews.value = true;
+
+	const pagedRequest: ClientReviewMcPagedRequest = {
+		pageIndex: reviewPage.value,
+		pageSize: reviewPageSize,
+		mcId: mcId,
+		isUseProc: true,
+		isGetContract: true,
+		isGetMc: true,
+		isGetClient: true,
+	};
+
+	const response = await clientReviewMcApi.getPaged(pagedRequest);
+	if (response.items.length < reviewPageSize) {
+		hasMoreReviews.value = false;
+	}
+	reviews.value.push(...response.items.map((item) => ({ ...item, collapsed: true })));
+	reviewPage.value++;
+	isLoadingReviews.value = false;
+};
+
+const handleScroll = async (event) => {
+	const bottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
+	if (bottom) {
+		await fetchReviews();
+	}
+};
+//#endregion
+
 onMounted(async () => {
 	const userFromApi = await userApi.getById(userId);
 	user.value = userFromApi;
@@ -639,6 +731,7 @@ onMounted(async () => {
 
 	await fetchImages();
 	await fetchVideos();
+	await fetchReviews();
 });
 
 const onFormSubmit = (e) => {
@@ -671,6 +764,9 @@ const handleTabChange = async (value: number) => {
 	} else if (value == TabType.Video) {
 		// Load videos
 		await fetchVideos();
+	} else if (value == TabType.Review) {
+		// Load reviews
+		await fetchReviews();
 	}
 };
 
@@ -933,5 +1029,51 @@ section.top {
 .update-image-wrapper {
 	display: flex;
 	flex-direction: column;
+}
+
+.review-item {
+	margin-bottom: 16px;
+}
+
+.review-header {
+	display: flex;
+	align-items: center;
+	padding: var(--p-card-body-padding);
+	padding-bottom: 0;
+
+	.client-avatar {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		margin-right: 12px;
+	}
+
+	.client-info {
+		.client-name {
+			font-weight: bold;
+		}
+
+		.review-date {
+			font-size: 0.875rem;
+			color: #888;
+		}
+	}
+}
+
+.review-body {
+	margin-bottom: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.review-body.collapsed {
+	max-height: 50vh;
+	overflow: hidden;
+	position: relative;
+}
+
+.view-more-button {
+	text-decoration: underline;
 }
 </style>

@@ -1,4 +1,6 @@
 import type { BaseEntity } from "./baseEntity";
+import type { Contract } from "./contract";
+import type { User } from "./user/user";
 
 export interface ClientReviewMc extends BaseEntity {
 	clientId?: number;
@@ -11,4 +13,8 @@ export interface ClientReviewMc extends BaseEntity {
 	isActive?: boolean;
 	overallPoint: number;
 	reliablePoint: number;
+
+	mc?: User;
+	client?: User;
+	contract?: Contract;
 }
