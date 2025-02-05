@@ -62,8 +62,10 @@ import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
 import type { ClientReviewMc } from "@/entities/clientReviewMc";
 import { useRouter } from "vue-router";
+import { useToast } from "primevue/usetoast";
 
 const router = useRouter();
+const toast = useToast();
 
 //#region State
 const route = useRoute();
@@ -105,7 +107,6 @@ const fetchContract = async () => {
 //#region On Submit
 const onSubmit = async (formInfo: any) => {
 	const { valid, values } = formInfo;
-	debugger;
 	if (valid) {
 		try {
 			const review: ClientReviewMc = {
@@ -115,6 +116,14 @@ const onSubmit = async (formInfo: any) => {
 			};
 			await clientReviewMcApi.create(review);
 			router.push({ name: "user-notification-list" });
+			debugger;
+			toast.add({
+				severity: "success",
+				summary: "Review Submitted",
+				detail: "Your review has been submitted successfully",
+				life: 3000,
+				group: "br",
+			});
 		} catch (error) {
 			console.error("Không thể gửi đánh giá", error);
 		}

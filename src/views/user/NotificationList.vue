@@ -94,6 +94,7 @@ import { type Notification } from "@/entities/notification";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
 import * as signalR from "@microsoft/signalr";
+import { useToast } from "primevue/usetoast";
 
 //#region State
 const notifications = ref<Notification[]>([]);
@@ -111,6 +112,7 @@ const resendOffer = reactive({
 });
 const router = useRouter();
 const authStore = useAuthStore();
+const toast = useToast();
 //#endregion
 
 //#region Form Resolver
@@ -250,7 +252,13 @@ const onResendOfferSubmit = async (formInfo: any) => {
 				}),
 			});
 			showResendOfferDialog.value = false;
-			// ...success toast...
+			toast.add({
+				severity: "success",
+				summary: "Offer Resent",
+				detail: "The offer has been resent successfully",
+				life: 3000,
+				group: "br",
+			});
 		} catch (error) {
 			console.error("Không thể gửi lại offer", error);
 		}

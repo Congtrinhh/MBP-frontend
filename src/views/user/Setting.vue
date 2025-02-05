@@ -33,6 +33,7 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import { useRedirect } from "@/composables/useRedirect";
+import { useToast } from "primevue/usetoast";
 
 const { redirectToProfile } = useRedirect();
 
@@ -41,6 +42,7 @@ const user = computed(() => authStore.user);
 const isLoggedIn = computed(() => !!user.value);
 
 const router = useRouter();
+const toast = useToast();
 
 const redirectToLogin = () => {
 	router.push({ name: "user-login" });
@@ -53,6 +55,13 @@ const redirectToContracts = () => {
 const logout = async () => {
 	await authStore.logout();
 	router.push({ name: "user-post-list" });
+	toast.add({
+		severity: "success",
+		summary: "Logged Out",
+		detail: "You have been logged out",
+		life: 3000,
+		group: "br",
+	});
 };
 </script>
 

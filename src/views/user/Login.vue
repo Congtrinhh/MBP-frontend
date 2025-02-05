@@ -11,10 +11,12 @@ import { authApi } from "@/apis/authApi";
 import { useAuthStore } from "@/stores/authStore";
 import * as signalR from "@microsoft/signalr";
 import { useRouter, useRoute } from "vue-router";
+import { useToast } from "primevue/usetoast";
 
 const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
+const toast = useToast();
 
 // handle success event
 const handleLoginSuccess = async (response: CredentialResponse) => {
@@ -42,6 +44,13 @@ const handleLoginSuccess = async (response: CredentialResponse) => {
 		console.log("Đăng nhập thành công");
 		const userInfo = jwtDecode(createUserResponse.data.accessToken);
 		authStore.login(createUserResponse.data.accessToken);
+		toast.add({
+			severity: "success",
+			summary: "Login Successful",
+			detail: "You have logged in successfully",
+			life: 3000,
+			group: "br",
+		});
 
 		//signalR
 		const connection = new signalR.HubConnectionBuilder()

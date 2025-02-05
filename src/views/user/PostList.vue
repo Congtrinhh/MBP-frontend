@@ -234,6 +234,7 @@ import { cloneDeep } from "lodash";
 import { getPostGroupDataSource, PostGroup } from "@/enums/postGroup";
 import { useAuthStore } from "@/stores/authStore";
 import { useRedirect } from "@/composables/useRedirect";
+import { useToast } from "primevue/usetoast";
 
 const authStore = useAuthStore();
 const userId = authStore.user?.id || 0;
@@ -244,6 +245,8 @@ const { getItem, setItem, removeItem } = useLocalStorage();
 
 const activeGroup = ref(PostGroup.Common);
 const { redirectToProfile } = useRedirect();
+
+const toast = useToast();
 
 //#region Form Data
 /**
@@ -390,6 +393,13 @@ const closePostDialog = async (isSave: boolean = false) => {
 const savePost = async (post: Post) => {
 	await postApi.create(post);
 	await closePostDialog(true);
+	toast.add({
+		severity: "success",
+		summary: "Post Created",
+		detail: "Your post has been created successfully",
+		life: 3000,
+		group: "br",
+	});
 };
 //#endregion
 

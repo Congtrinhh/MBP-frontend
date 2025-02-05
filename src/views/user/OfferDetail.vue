@@ -55,12 +55,14 @@ import type { RejectOfferAdditionalInfo } from "@/entities/notification/addition
 import { useRedirect } from "@/composables/useRedirect";
 import type { Contract } from "@/entities/contract";
 import { useAuthStore } from "@/stores/authStore";
+import { useToast } from "primevue/usetoast";
 
 const route = useRoute();
 const router = useRouter();
 const { redirectToProfile } = useRedirect();
 const notification = ref<Notification | null>(null);
 const additionalInfo = ref<SendOfferAdditionalInfo | null>(null);
+const toast = useToast();
 
 const fetchNotificationDetails = async (id: string) => {
 	try {
@@ -101,8 +103,13 @@ const handleReject = async () => {
 		}
 		// Redirect to notification list
 		router.push({ name: "user-notification-list" });
-		// Show success toast (replace with your own toast logic)
-		// ...toast code...
+		toast.add({
+			severity: "success",
+			summary: "Offer Rejected",
+			detail: "You have rejected the offer",
+			life: 3000,
+			group: "br",
+		});
 	} catch (error) {
 		console.error("Failed to reject the offer", error);
 	}
@@ -144,8 +151,13 @@ const handleApprove = async () => {
 		}
 		// Redirect to notification list
 		router.push({ name: "user-notification-list" });
-		// Show success toast (replace with your own toast logic)
-		// ...toast code...
+		toast.add({
+			severity: "success",
+			summary: "Offer Approved",
+			detail: "You have approved the offer",
+			life: 3000,
+			group: "br",
+		});
 	} catch (error) {
 		console.error("Failed to approve the offer", error);
 	}

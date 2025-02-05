@@ -1,5 +1,6 @@
 <template>
 	<main class="main-container" @scroll="handleScroll" style="overflow-y: auto; max-height: 99vh">
+		<Button label="Show" @click="show()" />
 		<header class="header">
 			<div class="logo">MBP</div>
 			<InputText
@@ -316,6 +317,10 @@ const redirectToMC = (id: number) => {
 	router.push({ name: "uc-mc", params: { id } });
 };
 //#endregion
+
+const show = () => {
+	toast.add({ severity: "success", summary: "Success Message", detail: "Message Content", life: 3000 });
+};
 </script>
 
 <style lang="scss" scoped>
