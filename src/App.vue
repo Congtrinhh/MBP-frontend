@@ -9,6 +9,7 @@ const { isLoading } = useLoading();
 	<div v-if="isLoading" class="loading-overlay">
 		<span class="loader"></span>
 	</div>
+	<Toast />
 </template>
 
 <style scoped>
