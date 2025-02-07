@@ -49,7 +49,6 @@ const handleLoginSuccess = async (response: CredentialResponse) => {
 			summary: "Login Successful",
 			detail: "You have logged in successfully",
 			life: 3000,
-			group: "br",
 		});
 
 		//signalR

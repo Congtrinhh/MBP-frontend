@@ -40,9 +40,9 @@ const { redirectToProfile } = useRedirect();
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
 const isLoggedIn = computed(() => !!user.value);
+const toast = useToast();
 
 const router = useRouter();
-const toast = useToast();
 
 const redirectToLogin = () => {
 	router.push({ name: "user-login" });
@@ -55,13 +55,7 @@ const redirectToContracts = () => {
 const logout = async () => {
 	await authStore.logout();
 	router.push({ name: "user-post-list" });
-	toast.add({
-		severity: "success",
-		summary: "Logged Out",
-		detail: "You have been logged out",
-		life: 3000,
-		group: "br",
-	});
+	toast.add({ severity: "success", summary: "Logged Out", detail: "You have been logged out", life: 3000 });
 };
 </script>
 

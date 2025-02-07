@@ -557,7 +557,6 @@ const handleSaveGeneralInfo = async (user: User) => {
 		summary: "Info Saved",
 		detail: "Your general information has been saved",
 		life: 3000,
-		group: 'br'
 	});
 };
 
@@ -579,7 +578,7 @@ const deleteImage = async (index: number) => {
 	const imageToDelete = images.value[index];
 	images.value.splice(index, 1);
 	await mediaApi.delete(imageToDelete.id);
-	toast.add({ severity: "success", summary: "Image deleted successfully.", life: 3000, group: 'br' });
+	toast.add({ severity: "success", summary: "Image deleted successfully.", life: 3000 });
 };
 
 const moveImageUp = async (index: number) => {
@@ -604,7 +603,7 @@ const moveImageUp = async (index: number) => {
 		],
 	};
 	await userApi.update(userId, payload);
-	toast.add({ severity: "success", summary: "Image moved up successfully.", life: 3000, group: 'br' });
+	toast.add({ severity: "success", summary: "Image moved up successfully.", life: 3000 });
 };
 
 const moveImageDown = async (index: number) => {
@@ -629,7 +628,7 @@ const moveImageDown = async (index: number) => {
 		],
 	};
 	await userApi.update(userId, payload);
-	toast.add({ severity: "success", summary: "Image moved down successfully.", life: 3000, group: 'br' });
+	toast.add({ severity: "success", summary: "Image moved down successfully.", life: 3000 });
 };
 
 const cancelEditImages = () => {
@@ -847,7 +846,6 @@ const onOfferFormSubmit = async (formInfo: any) => {
 			summary: "Offer Sent",
 			detail: "The offer has been sent successfully",
 			life: 3000,
-			group: 'br'
 		});
 	}
 };

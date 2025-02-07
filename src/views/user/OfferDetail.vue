@@ -108,7 +108,6 @@ const handleReject = async () => {
 			summary: "Offer Rejected",
 			detail: "You have rejected the offer",
 			life: 3000,
-			group: "br",
 		});
 	} catch (error) {
 		console.error("Failed to reject the offer", error);
@@ -156,7 +155,6 @@ const handleApprove = async () => {
 			summary: "Offer Approved",
 			detail: "You have approved the offer",
 			life: 3000,
-			group: "br",
 		});
 	} catch (error) {
 		console.error("Failed to approve the offer", error);

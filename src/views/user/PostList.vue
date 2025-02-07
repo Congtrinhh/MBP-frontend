@@ -398,7 +398,6 @@ const savePost = async (post: Post) => {
 		summary: "Post Created",
 		detail: "Your post has been created successfully",
 		life: 3000,
-		group: "br",
 	});
 };
 //#endregion

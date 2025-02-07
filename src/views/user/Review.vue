@@ -116,13 +116,11 @@ const onSubmit = async (formInfo: any) => {
 			};
 			await clientReviewMcApi.create(review);
 			router.push({ name: "user-notification-list" });
-			debugger;
 			toast.add({
 				severity: "success",
 				summary: "Review Submitted",
 				detail: "Your review has been submitted successfully",
 				life: 3000,
-				group: "br",
 			});
 		} catch (error) {
 			console.error("Không thể gửi đánh giá", error);

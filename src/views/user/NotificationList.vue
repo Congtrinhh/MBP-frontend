@@ -257,7 +257,6 @@ const onResendOfferSubmit = async (formInfo: any) => {
 				summary: "Offer Resent",
 				detail: "The offer has been resent successfully",
 				life: 3000,
-				group: "br",
 			});
 		} catch (error) {
 			console.error("Không thể gửi lại offer", error);
