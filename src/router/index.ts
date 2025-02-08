@@ -22,17 +22,17 @@ const router = createRouter({
 				{
 					path: "mcs",
 					name: "user-mc-list",
-					component: () => import("@/views/user/MCList.vue"),
+					component: () => import("@/views/user/McList.vue"),
 				},
 				{
 					path: "mcs/:id",
 					name: "uc-mc",
-					component: () => import("@/views/user/MC.vue"),
+					component: () => import("@/views/user/Mc.vue"),
 				},
 				{
 					path: "profiles/:id",
 					name: "user-profile",
-					component: () => import("@/views/user/MC.vue"),
+					component: () => import("@/views/user/Mc.vue"),
 				},
 				{
 					path: "posts",

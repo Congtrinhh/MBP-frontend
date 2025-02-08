@@ -52,6 +52,8 @@ when showing me response, only show code snippets and changes that is new, not r
 #endregion
 
 #backend:
+Notes for front-end:
+When creating new components, prefix the name of component with M letter. for example MImageViewer, MMcItem,.. to differentiate between components from MBP and other libraries.
 
 ##
 

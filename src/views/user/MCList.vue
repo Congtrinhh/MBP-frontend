@@ -18,7 +18,7 @@
 
 		<div class="row gy-3">
 			<div class="col-6" v-for="user in users" :key="user.id">
-				<MMCItem :-m-c="user" @click="redirectToMC(user.id)"></MMCItem>
+				<MMcItem :user="user" @click="redirectToMC(user.id)"></MMcItem>
 			</div>
 		</div>
 
@@ -135,7 +135,7 @@
 
 <script setup lang="ts">
 import { userApi } from "@/apis/userApi";
-import MMCItem from "@/components/MMCItem.vue";
+import MMCItem from "@/components/MMcItem.vue";
 import type { User } from "@/entities/user/user";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { useToast } from "primevue/usetoast";

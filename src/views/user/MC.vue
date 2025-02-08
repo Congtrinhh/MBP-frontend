@@ -312,10 +312,20 @@
 							/>
 						</div>
 						<div v-else class="gallery row gx-2 gy-2">
-							<div class="gallery-item img-parent col-6" v-for="image in sortedImages" :key="image.id">
+							<div
+								class="gallery-item img-parent col-6"
+								v-for="(image, index) in sortedImages"
+								:key="image.id"
+								@click="openImageViewer(index)"
+							>
 								<img :src="image.url" alt="" />
 							</div>
 						</div>
+						<MImageViewer
+							v-model:visible="isImageViewerVisible"
+							:images="sortedImages"
+							:initial-index="selectedImageIndex"
+						/>
 					</TabPanel>
 					<TabPanel value="2">
 						<div class="gallery row gx-2 gy-2">
@@ -497,6 +507,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { clientReviewMcApi } from "@/apis/clientReviewMcApi";
 import type { ClientReviewMc } from "@/entities/clientReviewMc";
 import type { ClientReviewMcPagedRequest } from "@/entities/user/paging/clientReviewMcPagedRequest";
+import MImageViewer from "@/components/MImageViewer.vue";
 
 const toast = useToast();
 const route = useRoute();
@@ -899,7 +910,8 @@ const showAvatarMenu = (event: any) => {
 const handleUpload = () => {
 	const input = document.createElement("input");
 	input.type = "file";
-	input.accept = ".jpg,.jpeg,.png";
+	input.accept = "image/*";
+	input.capture = "camera"; // This attribute allows the use of the camera on mobile devices
 	input.onchange = async (event) => {
 		const target = event.target as HTMLInputElement;
 		if (target.files && target.files.length > 0) {
@@ -909,6 +921,14 @@ const handleUpload = () => {
 		}
 	};
 	input.click();
+};
+
+const isImageViewerVisible = ref(false);
+const selectedImageIndex = ref(0);
+
+const openImageViewer = (index: number) => {
+	selectedImageIndex.value = index;
+	isImageViewerVisible.value = true;
 };
 </script>
 
