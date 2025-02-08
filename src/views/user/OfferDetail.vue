@@ -137,7 +137,7 @@ const handleApprove = async () => {
 				userId: additionalInfo.value.senderId,
 				type: NotificationType.OfferApproved,
 				message: `Offer cho sự kiện ${additionalInfo.value.eventName} của bạn đã được chấp nhận.`,
-				thumbUrl: notification.value?.thumbUrl,
+				thumbUrl: useAuthStore().user?.avatarUrl,
 			} as Notification);
 
 			// Update the status of the original notification to NotEditable
