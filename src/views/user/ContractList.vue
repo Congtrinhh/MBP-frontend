@@ -89,7 +89,7 @@ const fetchContracts = async () => {
 			pageIndex: page.value,
 			pageSize,
 			sort: "created_at DESC",
-			userId: authStore.user?.id ?? undefined,
+			userId: authStore.user?.id as number,
 		});
 
 		if (response && response.items.length > 0) {

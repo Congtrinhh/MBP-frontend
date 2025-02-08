@@ -57,6 +57,7 @@ import type { Contract } from "@/entities/contract";
 import { useAuthStore } from "@/stores/authStore";
 import { useToast } from "primevue/usetoast";
 
+const authStore = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 const { redirectToProfile } = useRedirect();
@@ -90,7 +91,7 @@ const handleReject = async () => {
 				message: `Offer cho sự kiện ${additionalInfo.value.eventName} của bạn đã bị từ chối.`,
 				isRead: false,
 				additionalInfo: JSON.stringify(rejectOfferAdditionalInfo),
-				thumbUrl: notification.value?.thumbUrl,
+				thumbUrl: authStore.user?.avatarUrl,
 			});
 
 			// Update the status of the original notification to NotEditable
@@ -121,7 +122,7 @@ const handleApprove = async () => {
 			const newContract: Contract = {
 				id: 0,
 				clientId: additionalInfo.value.senderId,
-				mcId: useAuthStore().user?.id ?? notification.value?.userId,
+				mcId: authStore.user?.id,
 				eventStart: additionalInfo.value.eventStart,
 				eventEnd: additionalInfo.value.eventEnd,
 				description: additionalInfo.value.note,
@@ -148,8 +149,8 @@ const handleApprove = async () => {
 				} as Notification);
 			}
 		}
-		// Redirect to notification list
-		router.push({ name: "user-notification-list" });
+		// Redirect to contract list
+		router.push({ name: "user-contract-list" });
 		toast.add({
 			severity: "success",
 			summary: "Offer Approved",
