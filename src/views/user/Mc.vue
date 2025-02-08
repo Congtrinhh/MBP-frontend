@@ -659,6 +659,8 @@ const onAddImageClick = () => {
 					images.value.push(item);
 				}
 			});
+			//sort images by sortorder descending
+			images.value.sort((a, b) => b.sortOrder - a.sortOrder);
 		}
 	};
 	input.click();
