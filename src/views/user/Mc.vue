@@ -26,7 +26,7 @@
 					<div class="credit-point"><Badge :value="user.credit"></Badge></div>
 				</div>
 			</div>
-			<div class="buttons">
+			<div v-if="!isLoggedUser" class="buttons">
 				<Button type="button" label="Gửi offer" severity="primary" @click="sendOffer"></Button>
 				<Button type="button" label="Nhắn tin" severity="contrast" variant="outlined"></Button>
 			</div>
@@ -517,7 +517,11 @@ const userId = Number(route.params.id);
 
 const user = ref<User>({});
 
+// có thể sửa profile hay ko
 const hasEditPermission = computed(() => authStore.user!! && authStore.user.id == userId);
+
+// có phải người đang login và người trong profile này là cùng 1 người hay ko
+const isLoggedUser = computed(() => authStore.user!! && authStore.user.id == userId);
 
 const formResolver = ref(
 	zodResolver(
