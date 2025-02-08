@@ -11,7 +11,13 @@
 					@click="activeGroup = group.value"
 				/>
 			</div>
-			<div class="create-post-button" @click="openPostDialog(EditingMode.Create)">Đăng bài</div>
+			<div v-if="authStore.user" class="create-post-button" @click="openPostDialog(EditingMode.Create)">
+				Đăng bài
+			</div>
+			<div v-else>
+				<span class="login-to-post-button" @click="handleLoginClick">Đăng nhập</span>
+				&nbsp;để đăng bài, tương tác
+			</div>
 		</header>
 		<div class="post-list">
 			<Card
@@ -70,7 +76,7 @@
 						<div class="icon pi pi-thumbs-up-fill"></div>
 						<div class="info">{{ getReactionInfo(post.reactions) }}</div>
 					</div>
-					<div class="reaction-buttons">
+					<div class="reaction-buttons" v-if="authStore.user">
 						<div
 							:class="[
 								'reaction-button like-button',
@@ -92,7 +98,7 @@
 						</div>
 						<div class="reaction-button chat-button">
 							<i class="icon pi pi-comment"></i>
-							<span class="text">Like</span>
+							<span class="text">Nhắn tin</span>
 						</div>
 					</div>
 				</template>
@@ -235,6 +241,9 @@ import { getPostGroupDataSource, PostGroup } from "@/enums/postGroup";
 import { useAuthStore } from "@/stores/authStore";
 import { useRedirect } from "@/composables/useRedirect";
 import { useToast } from "primevue/usetoast";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const authStore = useAuthStore();
 const userId = authStore.user?.id || 0;
@@ -520,6 +529,10 @@ const handleAfterShowDialog = async () => {
 		initialPost.value = cloneDeep(fetchedPost);
 	}
 };
+
+const handleLoginClick = () => {
+	router.push({ name: "user-login", query: { redirect: router.currentRoute.value.fullPath } });
+};
 </script>
 <style lang="scss" scoped>
 .main-container {
@@ -551,7 +564,8 @@ header.header {
 		gap: 12px;
 	}
 
-	.create-post-button {
+	.create-post-button,
+	.login-to-post-button {
 		text-decoration: underline;
 		cursor: pointer;
 	}

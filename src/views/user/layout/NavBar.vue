@@ -1,32 +1,41 @@
 <template>
 	<div class="navbar" id="navbar">
-		<router-link
-			class="nav-item"
-			v-for="item in items"
-			:key="item.name"
-			@click="handleTabClick(item)"
-			:class="{ active: item.route === currentRoute.path }"
-			:to="item.route"
+		<template v-for="item in items" :key="item.name">
+			<router-link
+				v-if="item.shouldShow()"
+				class="nav-item"
+				@click="handleTabClick(item)"
+				:class="{ active: item.route === currentRoute.path }"
+				:to="item.route"
+			>
+				<i :class="item.icon"></i>
+				<div v-if="item.label" class="label">{{ item.label }}</div>
+			</router-link></template
 		>
-			<i :class="item.icon"></i>
-			<div v-if="item.label" class="label">{{ item.label }}</div>
-		</router-link>
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { useAuthStore } from "@/stores/authStore";
 import { ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
 
 const items = ref([
-	{ name: "posts", route: "/posts", label: "", icon: "pi pi-home" },
-	{ name: "messages", route: "/messages", label: "", icon: "pi pi-comment" },
-	{ name: "mcs", route: "/mcs", label: "MC" },
-	{ name: "notifications", route: "/notifications", label: "", icon: "pi pi-bell" },
-	{ name: "setting", route: "/setting", label: "", icon: "pi pi-bars" },
+	{ name: "posts", route: "/posts", label: "", icon: "pi pi-home", shouldShow: () => true },
+	{ name: "messages", route: "/messages", label: "", icon: "pi pi-comment", shouldShow: () => authStore.user!! },
+	{ name: "mcs", route: "/mcs", label: "MC", shouldShow: () => true },
+	{
+		name: "notifications",
+		route: "/notifications",
+		label: "",
+		icon: "pi pi-bell",
+		shouldShow: () => authStore.user!!,
+	},
+	{ name: "setting", route: "/setting", label: "", icon: "pi pi-bars", shouldShow: () => true },
 ]);
 
 const currentRoute = ref(route);

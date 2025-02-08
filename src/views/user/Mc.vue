@@ -6,7 +6,7 @@
 			variant="text"
 			raised
 			rounded
-			v-if="editingMode == EditingMode.None"
+			v-if="hasEditPermission && editingMode == EditingMode.None"
 			@click="editingMode = EditingMode.Update"
 		/>
 		<section class="top">
@@ -21,7 +21,7 @@
 					<div class="name-wrapper">
 						<div class="name">{{ user.nickName }}</div>
 						<span v-if="user.isVerified" class="pi pi-verified"></span>
-						<div v-else class="verify-identity underline">Xác thực danh tính</div>
+						<div v-else-if="hasEditPermission" class="verify-identity underline">Xác thực danh tính</div>
 					</div>
 					<div class="credit-point"><Badge :value="user.credit"></Badge></div>
 				</div>
@@ -516,6 +516,8 @@ const route = useRoute();
 const userId = Number(route.params.id);
 
 const user = ref<User>({});
+
+const hasEditPermission = computed(() => authStore.user!! && authStore.user.id == userId);
 
 const formResolver = ref(
 	zodResolver(

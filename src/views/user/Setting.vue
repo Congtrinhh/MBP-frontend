@@ -11,7 +11,7 @@
 			<button @click="redirectToLogin">Đăng nhập</button>
 		</div>
 
-		<div class="option-list">
+		<div class="option-list" v-if="isLoggedIn">
 			<div class="option-item" @click="redirectToContracts">
 				<div class="icon pi pi-book"></div>
 				<div class="text">Hợp đồng</div>
