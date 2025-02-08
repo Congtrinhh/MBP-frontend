@@ -692,14 +692,12 @@ const isLoadingReviews = ref(false);
 const fetchReviews = async () => {
 	if (!hasMoreReviews.value || isLoadingReviews.value) return;
 
-	const mcId = authStore.user?.id ?? undefined;
-
 	isLoadingReviews.value = true;
 
 	const pagedRequest: ClientReviewMcPagedRequest = {
 		pageIndex: reviewPage.value,
 		pageSize: reviewPageSize,
-		mcId: mcId,
+		mcId: userId,
 		isUseProc: true,
 		isGetContract: true,
 		isGetMc: true,

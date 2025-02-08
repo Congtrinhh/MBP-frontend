@@ -250,6 +250,7 @@ const onResendOfferSubmit = async (formInfo: any) => {
 					senderId: authStore.user?.id,
 					senderName: authStore.user?.fullName ?? authStore.user?.nickName,
 				}),
+				thumbUrl: authStore.user?.avatarUrl,
 			});
 			showResendOfferDialog.value = false;
 			toast.add({
