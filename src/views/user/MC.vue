@@ -12,8 +12,10 @@
 		<section class="top">
 			<div class="overview-info">
 				<div class="avatar-wrapper">
-					<div class="avatar img-parent rounded"><img :src="user.avatarUrl" alt="user avatar" /></div>
-					<div class="choose-avatar-icon pi pi-camera"></div>
+					<div class="avatar img-parent rounded" @click="showAvatarMenu">
+						<img :src="user.avatarUrl" alt="user avatar" />
+					</div>
+					<Menu :model="avatarMenuItems" ref="avatarMenu" popup />
 				</div>
 				<div class="info">
 					<div class="name-wrapper">
@@ -454,6 +456,14 @@
 				</div>
 			</Form>
 		</Dialog>
+		<Dialog
+			v-if="isAvatarDialogVisible"
+			v-model:visible="isAvatarDialogVisible"
+			modal
+			:style="{ width: '100vw', height: '100vh' }"
+		>
+			<Image :src="user.avatarUrl" alt="user avatar" preview />
+		</Dialog>
 	</main>
 </template>
 
@@ -861,6 +871,45 @@ const closeOfferDialog = (isSave: boolean = false) => {
 	isOfferDialogVisible.value = false;
 };
 //#endregion
+
+const avatarMenu = ref(null);
+const isAvatarDialogVisible = ref(false);
+
+const avatarMenuItems = [
+	{
+		label: "View avatar",
+		icon: "pi pi-eye",
+		command: () => {
+			isAvatarDialogVisible.value = true;
+		},
+	},
+	{
+		label: "Upload new avatar",
+		icon: "pi pi-upload",
+		command: () => {
+			handleUpload();
+		},
+	},
+];
+
+const showAvatarMenu = (event: any) => {
+	avatarMenu.value?.toggle(event);
+};
+
+const handleUpload = () => {
+	const input = document.createElement("input");
+	input.type = "file";
+	input.accept = ".jpg,.jpeg,.png";
+	input.onchange = async (event) => {
+		const target = event.target as HTMLInputElement;
+		if (target.files && target.files.length > 0) {
+			const file = target.files[0];
+			const response = await userApi.uploadAvatar(userId, file);
+			user.value.avatarUrl = response.avatarUrl;
+		}
+	};
+	input.click();
+};
 </script>
 
 <style lang="scss" scoped>
@@ -890,12 +939,6 @@ section.top {
 			display: flex;
 			align-items: center;
 			gap: 16px;
-		}
-		.choose-avatar-icon {
-			position: absolute;
-			bottom: 7px;
-			right: 0;
-			font-size: 1.4rem;
 		}
 	}
 	.buttons {
