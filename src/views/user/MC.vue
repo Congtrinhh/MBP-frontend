@@ -284,26 +284,27 @@
 								<Button icon="pi pi-arrow-left" @click="cancelEditImages" class="back-button" />
 								<h3 class="title">Chỉnh sửa ảnh</h3>
 							</div>
-							<div class="image-list">
-								<div class="image-item" v-for="(image, index) in images" :key="image.id">
-									<img :src="image.url" alt="" class="thumbnail" />
-									<div class="actions">
-										<Button icon="pi pi-trash" @click="deleteImage(index)" class="delete-button" />
-										<Button
-											icon="pi pi-arrow-up"
-											@click="moveImageUp(index)"
-											class="move-up-button"
-											v-if="index > 0"
-										/>
-										<Button
-											icon="pi pi-arrow-down"
-											@click="moveImageDown(index)"
-											class="move-down-button"
-											v-if="index < images.length - 1"
-										/>
+							<draggable
+								v-model="images"
+								class="image-list"
+								@end="handleDragEnd"
+								item-key="id"
+								handle=".drag-handle"
+							>
+								<template #item="{ element: image, index }">
+									<div class="image-item">
+										<i class="pi pi-bars drag-handle"></i>
+										<img :src="image.url" alt="" class="thumbnail" />
+										<div class="actions">
+											<Button
+												icon="pi pi-trash"
+												@click="deleteImage(index)"
+												class="delete-button"
+											/>
+										</div>
 									</div>
-								</div>
-							</div>
+								</template>
+							</draggable>
 							<Button
 								icon="pi pi-plus"
 								label="Thêm ảnh"
@@ -508,6 +509,7 @@ import { clientReviewMcApi } from "@/apis/clientReviewMcApi";
 import type { ClientReviewMc } from "@/entities/clientReviewMc";
 import type { ClientReviewMcPagedRequest } from "@/entities/user/paging/clientReviewMcPagedRequest";
 import MImageViewer from "@/components/MImageViewer.vue";
+import draggable from "vuedraggable";
 
 const toast = useToast();
 const route = useRoute();
@@ -602,54 +604,24 @@ const deleteImage = async (index: number) => {
 	toast.add({ severity: "success", summary: "Image deleted successfully.", life: 3000 });
 };
 
-const moveImageUp = async (index: number) => {
-	const currentImage = images.value[index];
-	const previousImage = images.value[index - 1];
-	const tempSortOrder = currentImage.sortOrder;
-	currentImage.sortOrder = previousImage.sortOrder;
-	previousImage.sortOrder = tempSortOrder;
-	images.value.sort((a, b) => b.sortOrder - a.sortOrder);
+const handleDragEnd = async () => {
+	// Reassign sort orders based on new positions
+	images.value.forEach((image, index) => {
+		image.sortOrder = images.value.length - index;
+	});
 
+	// Prepare payload with all updated images
 	const payload = {
 		id: userId,
-		medias: [
-			{
-				...currentImage,
-				entityState: EntityState.Update,
-			},
-			{
-				...previousImage,
-				entityState: EntityState.Update,
-			},
-		],
+		medias: images.value.map((image) => ({
+			...image,
+			entityState: EntityState.Update,
+		})),
 	};
-	await userApi.update(userId, payload);
-	toast.add({ severity: "success", summary: "Image moved up successfully.", life: 3000 });
-};
 
-const moveImageDown = async (index: number) => {
-	const currentImage = images.value[index];
-	const nextImage = images.value[index + 1];
-	const tempSortOrder = currentImage.sortOrder;
-	currentImage.sortOrder = nextImage.sortOrder;
-	nextImage.sortOrder = tempSortOrder;
-	images.value.sort((a, b) => b.sortOrder - a.sortOrder);
-
-	const payload = {
-		id: userId,
-		medias: [
-			{
-				...currentImage,
-				entityState: EntityState.Update,
-			},
-			{
-				...nextImage,
-				entityState: EntityState.Update,
-			},
-		],
-	};
+	// Update in backend
 	await userApi.update(userId, payload);
-	toast.add({ severity: "success", summary: "Image moved down successfully.", life: 3000 });
+	toast.add({ severity: "success", summary: "Images reordered successfully.", life: 3000 });
 };
 
 const cancelEditImages = () => {
@@ -923,6 +895,8 @@ const handleUpload = () => {
 	input.click();
 };
 
+// #region Image Viewer Logic
+
 const isImageViewerVisible = ref(false);
 const selectedImageIndex = ref(0);
 
@@ -930,6 +904,7 @@ const openImageViewer = (index: number) => {
 	selectedImageIndex.value = index;
 	isImageViewerVisible.value = true;
 };
+// #endregion
 </script>
 
 <style lang="scss" scoped>
@@ -1150,5 +1125,15 @@ section.top {
 
 .view-more-button {
 	text-decoration: underline;
+}
+
+.drag-handle {
+	cursor: move;
+	padding: 8px;
+	color: #666;
+
+	&:hover {
+		color: #000;
+	}
 }
 </style>

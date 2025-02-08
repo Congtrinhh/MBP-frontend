@@ -1,8 +1,3 @@
-## I'm starting to develop a new project, there requirements are as this md file below:
-
-;don't do anything oke, just remember the information to provide me good response when I ask future questions.
-when showing me response, only show code snippets and changes that is new, not regenerate everything for every files.
-
 #region Project summary
 
 **Project Name**: MC Booking Platform (MBP)
@@ -52,15 +47,11 @@ when showing me response, only show code snippets and changes that is new, not r
 #endregion
 
 #backend:
-Notes for front-end:
-When creating new components, prefix the name of component with M letter. for example MImageViewer, MMcItem,.. to differentiate between components from MBP and other libraries.
 
 ##
 
 next time, only show me method having code changes, don't show everything of every file, it is lengthy
 
-backend prod:
-http://production.eba-nbh3jtv6.ap-southeast-1.elasticbeanstalk.com/api
-
-frontend prod:
-https://main.d3vt4ohfxm0zrb.amplifyapp.com
+Notes for front-end:
+When creating new components, prefix the name of component with M letter. for example MImageViewer, MMcItem,.. to differentiate between components from MBP and other libraries.
+This app is MBP (MC Booking Platform) running mostly in browser of mobile devices (iphone, android phones), so the UI should be mobile user-friendly with actions like touch, swipe up, swipe down, scroll,..

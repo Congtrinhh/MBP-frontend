@@ -1,3 +1,8 @@
+## I'm starting to develop a new project, there requirements are as this md file below:
+
+;don't do anything oke, just remember the information to provide me good response when I ask future questions.
+when showing me response, only show code snippets and changes that is new, not regenerate everything for every files.
+
 #region Questions to clarify
 
 Is this the minimal version of clean architecture yet easily scalable?
@@ -16,3 +21,9 @@ dùng đúng icon
 
 key của file .env phải có tiền tố VITE_, nếu ko value sẽ null
 build fail do tên file trên git là User.ts nhưng trong project lại import user.ts (ở windows ko lỗi, nhưng linux sẽ lỗi, vì linux case-sensitive)
+
+backend prod:
+http://production.eba-nbh3jtv6.ap-southeast-1.elasticbeanstalk.com/api
+
+frontend prod:
+https://main.d3vt4ohfxm0zrb.amplifyapp.com
