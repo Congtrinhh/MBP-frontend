@@ -63,3 +63,9 @@ const appStore = useAppStore();
 appStore.initializeApp().then(() => {
 	app.mount("#app");
 });
+
+// Stop SignalR connections when the user leaves the application or navigates to another website
+window.addEventListener("beforeunload", () => {
+	const authStore = useAuthStore();
+	authStore.stopSignalRConnection();
+});

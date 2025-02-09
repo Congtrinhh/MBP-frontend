@@ -11,7 +11,7 @@ export const useAuthStore = defineStore("auth", {
 	state: () => ({
 		token: null as string | null,
 		user: null as User | null,
-		connection: null as signalR.HubConnection | null,
+		notificationConnection: null as signalR.HubConnection | null,
 	}),
 	actions: {
 		login(token: string) {
@@ -63,10 +63,10 @@ export const useAuthStore = defineStore("auth", {
 		 * @returns
 		 */
 		async startSignalRConnection() {
-			if (this.connection) {
+			if (this.notificationConnection) {
 				return;
 			}
-			this.connection = new signalR.HubConnectionBuilder()
+			this.notificationConnection = new signalR.HubConnectionBuilder()
 				.withUrl(`${import.meta.env.VITE_API_ROOT_HOST_URL}/notificationHub?userId=${this.user?.id}`, {
 					skipNegotiation: true,
 					transport: signalR.HttpTransportType.WebSockets,
@@ -74,13 +74,13 @@ export const useAuthStore = defineStore("auth", {
 				})
 				.build();
 
-			this.connection.on("ReceiveNotification", (message: string) => {
+			this.notificationConnection.on("ReceiveNotification", (message: string) => {
 				console.log("noti from authstore", message);
 				useAppStore().unreadNotificationCount++;
 			});
 
 			try {
-				await this.connection.start();
+				await this.notificationConnection.start();
 				console.log("SignalR connection established.");
 			} catch (err) {
 				console.error("Error establishing SignalR connection:", err);
@@ -88,16 +88,15 @@ export const useAuthStore = defineStore("auth", {
 		},
 		/**
 		 * đóng connection tới notificationHub
-		 * todo: close connection on closing app to prevent memory leak
 		 * @returns
 		 */
 		async stopSignalRConnection() {
-			if (!this.connection) {
+			if (!this.notificationConnection) {
 				return;
 			}
 			try {
-				await this.connection.stop();
-				this.connection = null;
+				await this.notificationConnection.stop();
+				this.notificationConnection = null;
 				console.log("SignalR connection stopped.");
 			} catch (err) {
 				console.error("Error stopping SignalR connection:", err);

@@ -274,7 +274,7 @@ const onResendOfferSubmit = async (formInfo: any) => {
 
 //#region On Mounted
 onMounted(() => {
-	const connection = authStore.connection;
+	const connection = authStore.notificationConnection;
 	connection?.on("ReceiveNotification", (message: string) => {
 		// Refresh the notification list
 		page.value = 0;

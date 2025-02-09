@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { useLoading } from "@/composables/useLoading"; // Update import path
-
+import { useAuthStore } from "@/stores/authStore"; // Add this import
+import { onUnmounted } from "vue";
 const { isLoading } = useLoading();
+
+onUnmounted(() => {
+	const authStore = useAuthStore();
+	authStore.stopSignalRConnection();
+});
 </script>
 
 <template>
