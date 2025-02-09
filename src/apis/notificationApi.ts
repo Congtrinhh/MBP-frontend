@@ -14,6 +14,11 @@ class NotificationApi extends BaseApi<Notification> {
 		}
 		return NotificationApi.instance;
 	}
+
+	public async getUnreadCount(userId: number): Promise<number> {
+		const response = await BaseApi.axiosInstance.get<number>(`/${this.baseEndpoint}/unread-count/${userId}`);
+		return response.data;
+	}
 }
 
 export const notificationApi = NotificationApi.getInstance();

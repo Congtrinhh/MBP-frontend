@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted, reactive, onUnmounted } from "vue";
 import { notificationApi } from "@/apis/notificationApi";
 import { useRouter } from "vue-router";
 import { NotificationType } from "@/enums/notificationType";
@@ -95,6 +95,7 @@ import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
 import * as signalR from "@microsoft/signalr";
 import { useToast } from "primevue/usetoast";
+import { useAppStore } from "@/stores/appStore";
 
 //#region State
 const notifications = ref<Notification[]>([]);
@@ -177,6 +178,7 @@ const handleNotificationClick = async (notification: Notification) => {
 		try {
 			await notificationApi.update(notification.id, { id: notification.id, isRead: true });
 			notification.isRead = true;
+			useAppStore().unreadNotificationCount--;
 		} catch (error) {
 			console.error("Không thể cập nhật trạng thái thông báo", error);
 		}
@@ -267,31 +269,22 @@ const onResendOfferSubmit = async (formInfo: any) => {
 //#endregion
 
 //#region SignalR Connection
-const connection = new signalR.HubConnectionBuilder()
-	.withUrl(`https://localhost:7252/notificationHub?userId=${authStore.user?.id}`, {
-		skipNegotiation: true,
-		transport: signalR.HttpTransportType.WebSockets,
-		accessTokenFactory: () => authStore.token,
-	})
-	.build();
 
-connection.on("ReceiveNotification", (message: string) => {
-	console.log("ReceiveNotification", message);
-	// Refresh the notification list
-	page.value = 0;
-	notifications.value = [];
-	fetchNotifications();
-});
-
-connection.start().catch((err) => {
-	console.error(err.toString());
-});
 //#endregion
 
 //#region On Mounted
 onMounted(() => {
+	const connection = authStore.connection;
+	connection?.on("ReceiveNotification", (message: string) => {
+		// Refresh the notification list
+		page.value = 0;
+		notifications.value = [];
+		fetchNotifications();
+	});
+
 	fetchNotifications();
 });
+
 //#endregion
 </script>
 

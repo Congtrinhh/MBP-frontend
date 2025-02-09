@@ -10,19 +10,31 @@
 			>
 				<i :class="item.icon"></i>
 				<div v-if="item.label" class="label">{{ item.label }}</div>
+				<div
+					v-if="item.name == 'notifications' && unreadNotificationCount > 0"
+					class="unread-notification-count-wrapper"
+				>
+					<div class="unread-notification-count">
+						{{ unreadNotificationCount > 9 ? "9+" : unreadNotificationCount }}
+					</div>
+				</div>
 			</router-link></template
 		>
 	</div>
 </template>
 
 <script setup lang="ts">
+import { useAppStore } from "@/stores/appStore";
 import { useAuthStore } from "@/stores/authStore";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
+const appStore = useAppStore();
+
+const unreadNotificationCount = computed(() => appStore.unreadNotificationCount);
 
 const items = ref([
 	{ name: "posts", route: "/posts", label: "", icon: "pi pi-home", shouldShow: () => true },
@@ -70,6 +82,8 @@ const handleTabClick = (item) => {
 		align-items: center;
 		justify-content: center;
 		border-radius: 6px;
+		position: relative;
+
 		i.pi {
 			font-size: 1.5rem;
 			color: #000;
@@ -93,5 +107,24 @@ const handleTabClick = (item) => {
 			color: #fff;
 		}
 	}
+}
+
+.unread-notification-count-wrapper {
+	position: absolute;
+	top: 2px;
+	left: 50%;
+	transform: translateX(calc(-50% + 11px));
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border-radius: 50%;
+	width: 16px;
+	height: 16px;
+
+	background: #333;
+	color: #fff;
+	font-size: 0.85rem;
 }
 </style>
