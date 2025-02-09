@@ -9,7 +9,6 @@ import { GoogleSignInButton, type CredentialResponse } from "vue3-google-signin"
 import { jwtDecode } from "jwt-decode";
 import { authApi } from "@/apis/authApi";
 import { useAuthStore } from "@/stores/authStore";
-import * as signalR from "@microsoft/signalr";
 import { useRouter, useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 
@@ -58,6 +57,11 @@ const handleLoginSuccess = async (response: CredentialResponse) => {
 
 // handle an error event
 const handleLoginError = () => {
-	console.error("Login failed");
+	toast.add({
+		severity: "error",
+		summary: "Login failed",
+		detail: "Fail to login",
+		life: 3000,
+	});
 };
 </script>

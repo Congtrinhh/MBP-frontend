@@ -106,6 +106,11 @@ const handleTabClick = (item) => {
 		.label {
 			color: #fff;
 		}
+
+		.unread-notification-count-wrapper {
+			background: #fff;
+			color: #333;
+		}
 	}
 }
 

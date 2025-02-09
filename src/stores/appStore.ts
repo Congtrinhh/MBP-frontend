@@ -21,7 +21,6 @@ export const useAppStore = defineStore("app", {
 			hostingStyleStore.fetchHostingStyles();
 
 			const authStore = useAuthStore();
-			debugger;
 			if (authStore.user) {
 				const unreadCount = await notificationApi.getUnreadCount(authStore.user.id);
 				this.unreadNotificationCount = unreadCount;
