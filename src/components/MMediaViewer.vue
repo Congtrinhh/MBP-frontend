@@ -18,12 +18,21 @@
 							:ref="(el) => (videoRefs[index] = el)"
 							:src="media.url"
 							:loop="true"
-							muted
 							playsinline
+							@timeupdate="updateProgress(index)"
+							@loadedmetadata="setDuration(index)"
 							style="object-fit: cover; width: 100%; height: 100%"
 						></video>
 						<div class="video-overlay" v-if="!isPlaying[index]">
 							<i class="pi pi-play play-icon"></i>
+						</div>
+						<!-- Progress Bar -->
+						<div
+							class="progress-bar-container"
+							@mousedown="startSeek(index, $event)"
+							@touchstart="startSeek(index, $event)"
+						>
+							<div class="progress-bar" :style="{ width: `${progress[index]}%` }"></div>
 						</div>
 					</div>
 				</div>
@@ -37,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, onMounted, nextTick } from "vue";
 import type { Media } from "@/entities/user/media";
 import { MediaType } from "@/enums/mediaType";
 
@@ -57,6 +66,7 @@ const touchStart = ref(0);
 const touchMove = ref(0);
 const videoRefs = ref<Array<HTMLVideoElement | null>>([]);
 const isPlaying = ref<boolean[]>([]);
+const progress = ref<number[]>([]);
 const wasVideoClicked = ref(true);
 
 watch(
@@ -64,6 +74,13 @@ watch(
 	(newValue) => {
 		if (newValue) {
 			document.body.style.overflow = "hidden";
+			nextTick(() => {
+				const currentVideo = videoRefs.value[currentIndex.value];
+				if (currentVideo) {
+					currentVideo.play();
+					isPlaying.value[currentIndex.value] = true;
+				}
+			});
 		} else {
 			document.body.style.overflow = "auto";
 		}
@@ -127,6 +144,9 @@ const toggleVideo = (index: number, evt: Event) => {
 	evt.stopPropagation();
 	wasVideoClicked.value = true;
 	const vid = videoRefs.value[index];
+
+	videoRefs.value.forEach((v) => v?.pause());
+
 	if (!vid) return;
 	if (vid.paused) {
 		vid.play();
@@ -135,6 +155,52 @@ const toggleVideo = (index: number, evt: Event) => {
 		vid.pause();
 		isPlaying.value[index] = false;
 	}
+};
+
+const updateProgress = (index: number) => {
+	const vid = videoRefs.value[index];
+	if (vid) {
+		progress.value[index] = (vid.currentTime / vid.duration) * 100;
+	}
+};
+
+const setDuration = (index: number) => {
+	const vid = videoRefs.value[index];
+	if (vid) {
+		progress.value[index] = (vid.currentTime / vid.duration) * 100;
+	}
+};
+
+/**
+ * bắt đầu action kéo thả tua video
+ * @param index
+ * @param event
+ */
+const startSeek = (index: number, event: MouseEvent | TouchEvent) => {
+	const vid = videoRefs.value[index];
+	if (!vid) return;
+
+	const seek = (e: MouseEvent | TouchEvent) => {
+		const rect = (e.target as HTMLElement).getBoundingClientRect();
+		const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+		const seekTime = ((clientX - rect.left) / rect.width) * vid.duration;
+		vid.currentTime = seekTime;
+		updateProgress(index);
+	};
+
+	const stopSeek = () => {
+		document.removeEventListener("mousemove", seek);
+		document.removeEventListener("mouseup", stopSeek);
+		document.removeEventListener("touchmove", seek);
+		document.removeEventListener("touchend", stopSeek);
+	};
+
+	document.addEventListener("mousemove", seek);
+	document.addEventListener("mouseup", stopSeek);
+	document.addEventListener("touchmove", seek);
+	document.addEventListener("touchend", stopSeek);
+
+	seek(event);
 };
 </script>
 
@@ -217,6 +283,22 @@ const toggleVideo = (index: number, evt: Event) => {
 
 	.play-icon {
 		font-size: 4rem;
+	}
+
+	.progress-bar-container {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		height: 5px;
+		background: rgba(255, 255, 255, 0.3);
+		cursor: pointer;
+	}
+
+	.progress-bar {
+		height: 100%;
+		background: #fff;
+		width: 0;
 	}
 }
 </style>
