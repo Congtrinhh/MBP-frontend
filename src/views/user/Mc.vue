@@ -324,7 +324,7 @@
 						</div>
 						<MMediaViewer
 							v-model:visible="isImageViewerVisible"
-							:images="sortedImages"
+							:medias="sortedImages"
 							:initial-index="selectedImageIndex"
 						/>
 					</TabPanel>
@@ -344,7 +344,7 @@
 								<template #item="{ element: video, index }">
 									<div class="video-item">
 										<i class="pi pi-bars drag-handle"></i>
-										<video :src="video.url" controls class="thumbnail"></video>
+										<video :src="video.url" class="thumbnail" />
 										<div class="actions">
 											<Button
 												icon="pi pi-trash"
@@ -369,7 +369,7 @@
 								:key="video.id"
 								@click="openVideoViewer(index)"
 							>
-								<video :src="video.url" controls></video>
+								<video :src="video.url" class="thumbnail" />
 							</div>
 						</div>
 						<MMediaViewer
@@ -1230,7 +1230,6 @@ section.top {
 				width: 80px;
 				height: 80px;
 				object-fit: cover;
-				border-radius: 4px;
 			}
 
 			.actions {
@@ -1310,5 +1309,12 @@ section.top {
 	&:hover {
 		color: #000;
 	}
+}
+
+.thumbnail {
+	width: 100%;
+	height: auto;
+	object-fit: cover;
+	cursor: pointer;
 }
 </style>

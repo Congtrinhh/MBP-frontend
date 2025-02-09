@@ -71,7 +71,7 @@ const logout = async () => {
 	gap: 16px;
 	padding: 16px 24px;
 	background: #fff;
-	margin-bottom: 12px;
+	margin-bottom: 8px;
 	align-items: center;
 }
 

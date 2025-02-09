@@ -8,8 +8,24 @@
 		>
 			<div class="swiper-wrapper" :style="{ transform: `translateY(${translateY}px)` }">
 				<div v-for="(media, index) in medias" :key="media.id" class="swiper-slide">
-					<img v-if="media.type === 'image'" :src="media.url" alt="" />
-					<video v-else :src="media.url" controls></video>
+					<img v-if="media.type === MediaType.Image" :src="media.url" alt="" />
+					<div
+						v-if="media.type === MediaType.Video"
+						class="video-container"
+						@click="toggleVideo(index, $event)"
+					>
+						<video
+							:ref="(el) => (videoRefs[index] = el)"
+							:src="media.url"
+							:loop="true"
+							muted
+							playsinline
+							style="object-fit: cover; width: 100%; height: 100%"
+						></video>
+						<div class="video-overlay" v-if="!isPlaying[index]">
+							<i class="pi pi-play play-icon"></i>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -23,6 +39,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import type { Media } from "@/entities/user/media";
+import { MediaType } from "@/enums/mediaType";
 
 const props = defineProps<{
 	visible: boolean;
@@ -38,6 +55,9 @@ const currentIndex = ref(props.initialIndex);
 const translateY = ref(0);
 const touchStart = ref(0);
 const touchMove = ref(0);
+const videoRefs = ref<Array<HTMLVideoElement | null>>([]);
+const isPlaying = ref<boolean[]>([]);
+const wasVideoClicked = ref(true);
 
 watch(
 	() => props.visible,
@@ -49,6 +69,19 @@ watch(
 		}
 	}
 );
+
+watch(currentIndex, (newVal, oldVal) => {
+	const oldVid = videoRefs.value[oldVal];
+	const newVid = videoRefs.value[newVal];
+	if (oldVid) {
+		oldVid.pause();
+		isPlaying.value[oldVal] = false;
+	}
+	if (newVid) {
+		newVid.play();
+		isPlaying.value[newVal] = true;
+	}
+});
 
 const close = () => {
 	emit("update:visible", false);
@@ -67,6 +100,10 @@ const handleTouchMove = (e: TouchEvent) => {
 };
 
 const handleTouchEnd = () => {
+	if (wasVideoClicked.value) {
+		wasVideoClicked.value = false;
+		return;
+	}
 	const diff = touchMove.value - touchStart.value;
 	const threshold = window.innerHeight * 0.2; // 20% of screen height
 
@@ -84,6 +121,20 @@ const handleTouchEnd = () => {
 	translateY.value = -currentIndex.value * window.innerHeight;
 	touchStart.value = 0;
 	touchMove.value = 0;
+};
+
+const toggleVideo = (index: number, evt: Event) => {
+	evt.stopPropagation();
+	wasVideoClicked.value = true;
+	const vid = videoRefs.value[index];
+	if (!vid) return;
+	if (vid.paused) {
+		vid.play();
+		isPlaying.value[index] = true;
+	} else {
+		vid.pause();
+		isPlaying.value[index] = false;
+	}
 };
 </script>
 
@@ -146,5 +197,26 @@ const handleTouchEnd = () => {
 	color: white;
 	font-size: 16px;
 	z-index: 1001;
+}
+
+.video-container {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+
+	.video-overlay {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		color: white;
+		font-size: 2rem;
+		pointer-events: none;
+	}
+
+	.play-icon {
+		font-size: 4rem;
+	}
 }
 </style>
