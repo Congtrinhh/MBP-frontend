@@ -322,18 +322,61 @@
 								<img :src="image.url" alt="" />
 							</div>
 						</div>
-						<MImageViewer
+						<MMediaViewer
 							v-model:visible="isImageViewerVisible"
 							:images="sortedImages"
 							:initial-index="selectedImageIndex"
 						/>
 					</TabPanel>
 					<TabPanel value="2">
-						<div class="gallery row gx-2 gy-2">
-							<div class="gallery-item img-parent col-6" v-for="video in sortedVideos" :key="video.id">
+						<div v-if="editingMode == EditingMode.Update" class="update-video-wrapper">
+							<div class="header">
+								<Button icon="pi pi-arrow-left" @click="cancelEditVideos" class="back-button" />
+								<h3 class="title">Chỉnh sửa video</h3>
+							</div>
+							<draggable
+								v-model="videos"
+								class="video-list"
+								@end="handleVideoDragEnd"
+								item-key="id"
+								handle=".drag-handle"
+							>
+								<template #item="{ element: video, index }">
+									<div class="video-item">
+										<i class="pi pi-bars drag-handle"></i>
+										<video :src="video.url" controls class="thumbnail"></video>
+										<div class="actions">
+											<Button
+												icon="pi pi-trash"
+												@click="deleteVideo(index)"
+												class="delete-button"
+											/>
+										</div>
+									</div>
+								</template>
+							</draggable>
+							<Button
+								icon="pi pi-plus"
+								label="Thêm video"
+								@click="onAddVideoClick"
+								class="add-video-button"
+							/>
+						</div>
+						<div v-else class="gallery row gx-2 gy-2">
+							<div
+								class="gallery-item img-parent col-6"
+								v-for="(video, index) in sortedVideos"
+								:key="video.id"
+								@click="openVideoViewer(index)"
+							>
 								<video :src="video.url" controls></video>
 							</div>
 						</div>
+						<MMediaViewer
+							v-model:visible="isVideoViewerVisible"
+							:medias="sortedVideos"
+							:initial-index="selectedVideoIndex"
+						/>
 					</TabPanel>
 					<TabPanel value="3">
 						<div class="reviews" @scroll="handleScroll">
@@ -508,7 +551,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { clientReviewMcApi } from "@/apis/clientReviewMcApi";
 import type { ClientReviewMc } from "@/entities/clientReviewMc";
 import type { ClientReviewMcPagedRequest } from "@/entities/user/paging/clientReviewMcPagedRequest";
-import MImageViewer from "@/components/MImageViewer.vue";
+import MMediaViewer from "@/components/MMediaViewer.vue";
 import draggable from "vuedraggable";
 
 const toast = useToast();
@@ -681,10 +724,73 @@ const sortedVideos = computed(() => {
 	return [...videos.value].sort((a, b) => b.sortOrder - a.sortOrder);
 });
 
+const deleteVideo = async (index: number) => {
+	const videoToDelete = videos.value[index];
+	videos.value.splice(index, 1);
+	await mediaApi.delete(videoToDelete.id);
+	toast.add({ severity: "success", summary: "Video deleted successfully.", life: 3000 });
+};
+
+const handleVideoDragEnd = async () => {
+	// Reassign sort orders based on new positions
+	videos.value.forEach((video, index) => {
+		video.sortOrder = videos.value.length - index;
+	});
+
+	// Prepare payload with all updated videos
+	const payload = {
+		id: userId,
+		medias: videos.value.map((video) => ({
+			...video,
+			entityState: EntityState.Update,
+		})),
+	};
+
+	// Update in backend
+	await userApi.update(userId, payload);
+	toast.add({ severity: "success", summary: "Videos reordered successfully.", life: 3000 });
+};
+
+const cancelEditVideos = () => {
+	editingMode.value = EditingMode.None;
+};
+
 const fetchVideos = async () => {
 	const videosFromApi = await mediaApi.getMediasByUserId(userId, MediaType.Video);
 	videos.value = videosFromApi;
 	initialVideos.value = cloneDeep(videosFromApi);
+};
+
+const onAddVideoClick = () => {
+	const input = document.createElement("input");
+	input.type = "file";
+	input.accept = "video/*";
+	input.onchange = async (event: Event) => {
+		const target = event.target as HTMLInputElement;
+		if (target.files && target.files.length > 0) {
+			const file = target.files[0];
+			const newMedia: Media = {
+				id: 0, // Assuming the backend will generate the ID
+				userId: userId,
+				type: MediaType.Video,
+				url: "",
+				sortOrder: videos.value.length + 1,
+				file: file, // Include the file to upload
+			};
+
+			const response = await mediaApi.upload(newMedia);
+
+			const updatedMedias = await mediaApi.getMediasByUserId(userId, MediaType.Video);
+			updatedMedias.forEach((item: Media) => {
+				if (videos.value.every((i) => i.id != item.id)) {
+					videos.value.push(item);
+				}
+			});
+			//sort videos by sortorder descending
+			videos.value.sort((a, b) => b.sortOrder - a.sortOrder);
+		}
+	};
+	input.click();
 };
 //#endregion
 
@@ -733,10 +839,6 @@ onMounted(async () => {
 	formInitialValues.value = {
 		...userFromApi,
 	};
-
-	await fetchImages();
-	await fetchVideos();
-	await fetchReviews();
 });
 
 const onFormSubmit = (e) => {
@@ -764,13 +866,10 @@ const activeTab = ref("0");
 const handleTabChange = async (value: number) => {
 	activeTab.value = value.toString();
 	if (value == TabType.Image) {
-		// Load images
 		await fetchImages();
 	} else if (value == TabType.Video) {
-		// Load videos
 		await fetchVideos();
 	} else if (value == TabType.Review) {
-		// Load reviews
 		await fetchReviews();
 	}
 };
@@ -901,8 +1000,7 @@ const handleUpload = () => {
 	input.click();
 };
 
-// #region Image Viewer Logic
-
+// #region Image Viewer
 const isImageViewerVisible = ref(false);
 const selectedImageIndex = ref(0);
 
@@ -911,12 +1009,19 @@ const openImageViewer = (index: number) => {
 	isImageViewerVisible.value = true;
 };
 // #endregion
+
+// #region Video Viewer
+const isVideoViewerVisible = ref(false);
+const selectedVideoIndex = ref(0);
+
+const openVideoViewer = (index: number) => {
+	selectedVideoIndex.value = index;
+	isVideoViewerVisible.value = true;
+};
+// #endregion
 </script>
 
 <style lang="scss" scoped>
-.main-container {
-}
-
 section.top {
 	display: flex;
 	flex-direction: column;
@@ -1085,6 +1190,70 @@ section.top {
 .update-image-wrapper {
 	display: flex;
 	flex-direction: column;
+}
+
+.update-video-wrapper {
+	.header {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+		margin-bottom: 16px;
+
+		.back-button {
+			position: absolute;
+			left: 0;
+		}
+
+		.title {
+			font-size: 1.5rem;
+			font-weight: bold;
+		}
+
+		.save-button {
+			position: absolute;
+			right: 0;
+		}
+	}
+
+	.video-list {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+
+		.video-item {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+
+			.thumbnail {
+				width: 80px;
+				height: 80px;
+				object-fit: cover;
+				border-radius: 4px;
+			}
+
+			.actions {
+				margin-left: auto;
+				display: flex;
+				gap: 8px;
+
+				.delete-button,
+				.move-up-button,
+				.move-down-button {
+					background: none;
+					border: none;
+					cursor: pointer;
+					color: #000;
+				}
+			}
+		}
+	}
+
+	.add-video-button {
+		width: 100%;
+		margin-top: 24px;
+	}
 }
 
 .review-item {

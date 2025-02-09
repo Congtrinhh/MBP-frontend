@@ -1,5 +1,5 @@
 <template>
-	<div class="image-viewer" v-if="visible">
+	<div class="media-viewer" v-if="visible">
 		<div
 			class="swiper-container"
 			@touchstart="handleTouchStart"
@@ -7,15 +7,16 @@
 			@touchend="handleTouchEnd"
 		>
 			<div class="swiper-wrapper" :style="{ transform: `translateY(${translateY}px)` }">
-				<div v-for="(image, index) in images" :key="image.id" class="swiper-slide">
-					<img :src="image.url" alt="" />
+				<div v-for="(media, index) in medias" :key="media.id" class="swiper-slide">
+					<img v-if="media.type === 'image'" :src="media.url" alt="" />
+					<video v-else :src="media.url" controls></video>
 				</div>
 			</div>
 		</div>
 		<button class="close-button" @click="close">
 			<i class="pi pi-times"></i>
 		</button>
-		<div class="image-counter">{{ currentIndex + 1 }} / {{ images.length }}</div>
+		<div class="media-counter">{{ currentIndex + 1 }} / {{ medias.length }}</div>
 	</div>
 </template>
 
@@ -25,7 +26,7 @@ import type { Media } from "@/entities/user/media";
 
 const props = defineProps<{
 	visible: boolean;
-	images: Media[];
+	medias: Media[];
 	initialIndex: number;
 }>();
 
@@ -71,15 +72,15 @@ const handleTouchEnd = () => {
 
 	if (Math.abs(diff) > threshold) {
 		if (diff > 0 && currentIndex.value > 0) {
-			// Swipe down, show previous image
+			// Swipe down, show previous media
 			currentIndex.value--;
-		} else if (diff < 0 && currentIndex.value < props.images.length - 1) {
-			// Swipe up, show next image
+		} else if (diff < 0 && currentIndex.value < props.medias.length - 1) {
+			// Swipe up, show next media
 			currentIndex.value++;
 		}
 	}
 
-	// Animate to the current image
+	// Animate to the current media
 	translateY.value = -currentIndex.value * window.innerHeight;
 	touchStart.value = 0;
 	touchMove.value = 0;
@@ -87,7 +88,7 @@ const handleTouchEnd = () => {
 </script>
 
 <style lang="scss" scoped>
-.image-viewer {
+.media-viewer {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -114,7 +115,8 @@ const handleTouchEnd = () => {
 	align-items: center;
 	justify-content: center;
 
-	img {
+	img,
+	video {
 		max-width: 100%;
 		max-height: 100%;
 		object-fit: contain;
@@ -137,7 +139,7 @@ const handleTouchEnd = () => {
 	}
 }
 
-.image-counter {
+.media-counter {
 	position: absolute;
 	top: 20px;
 	left: 20px;

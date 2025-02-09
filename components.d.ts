@@ -36,6 +36,7 @@ declare module 'vue' {
     MImageViewer: typeof import('./src/components/MImageViewer.vue')['default']
     MMcItem: typeof import('./src/components/MMcItem.vue')['default']
     MMCItem: typeof import('./src/components/MMCItem.vue')['default']
+    MMediaViewer: typeof import('./src/components/MMediaViewer.vue')['default']
     MultiSelect: typeof import('primevue/multiselect')['default']
     NotificationList: typeof import('./src/components/NotificationList.vue')['default']
     Rating: typeof import('primevue/rating')['default']
