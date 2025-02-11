@@ -7,8 +7,8 @@
 					<template #legend>
 						<div class="flex items-center pl-2">
 							<span>Hợp đồng từ &nbsp;</span>
-							<Avatar :image="contract.client?.avatarUrl" shape="circle" />
-							<span class="font-bold p-2">{{ contract.client?.fullName }}</span>
+							<Avatar :image="getAvatarUrl(contract)" shape="circle" />
+							<span class="font-bold p-2">{{ getFullName(contract) }}</span>
 						</div>
 					</template>
 					<div class="info-container">
@@ -74,6 +74,7 @@ import { contractApi } from "@/apis/contractApi";
 import { useAuthStore } from "@/stores/authStore";
 import type { Contract } from "@/entities/contract";
 import { ContractStatus, getContractStatusText } from "@/enums/contractStatus";
+import type { ContractPagedRequest } from "@/entities/user/paging/contractPagedRequest";
 
 const contracts = ref<Contract[]>([]);
 const page = ref(0);
@@ -85,12 +86,20 @@ const fetchContracts = async () => {
 	if (loading.value) return;
 	loading.value = true;
 	try {
-		const response = await contractApi.getPaged({
+		const request: ContractPagedRequest = {
 			pageIndex: page.value,
 			pageSize,
 			sort: "created_at DESC",
-			userId: authStore.user?.id as number,
-		});
+			isUseProc: true,
+		};
+
+		if (authStore.user?.isMc == "True") {
+			request.mcId = authStore.user?.id as number;
+		} else {
+			request.clientId = authStore.user?.id as number;
+		}
+
+		const response = await contractApi.getPaged(request);
 
 		if (response && response.items.length > 0) {
 			contracts.value.push(...response.items);
@@ -100,6 +109,22 @@ const fetchContracts = async () => {
 		console.error("Không thể tải hợp đồng", error);
 	} finally {
 		loading.value = false;
+	}
+};
+
+const getAvatarUrl = (contract: Contract) => {
+	if (authStore.user?.isMc == "True") {
+		return contract.client?.avatarUrl;
+	} else {
+		return contract.mc?.avatarUrl;
+	}
+};
+
+const getFullName = (contract: Contract) => {
+	if (authStore.user?.isMc == "True") {
+		return contract.client?.nickName ?? contract.client?.fullName;
+	} else {
+		return contract.mc?.nickName ?? contract.mc?.fullName;
 	}
 };
 

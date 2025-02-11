@@ -1,5 +1,6 @@
 import type { BaseEntity } from "./baseEntity";
 import { ContractStatus } from "../enums/contractStatus";
+import type { User } from "./user/user";
 
 export interface Contract extends BaseEntity {
 	mcId: number;
@@ -15,4 +16,7 @@ export interface Contract extends BaseEntity {
 	clientCancelReason?: string | null;
 	isActive?: boolean;
 	status?: ContractStatus;
+
+	client?: User;
+	mc?: User;
 }
