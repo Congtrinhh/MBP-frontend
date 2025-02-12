@@ -6,8 +6,12 @@
 				<Fieldset>
 					<template #legend>
 						<div class="flex items-center pl-2">
-							<span>Hợp đồng từ &nbsp;</span>
-							<Avatar :image="getAvatarUrl(contract)" shape="circle" />
+							<span>Hợp đồng của &nbsp;</span>
+							<Avatar
+								:image="getAvatarUrl(contract)"
+								shape="circle"
+								@click="redirectToProfile(getUserId(contract))"
+							/>
 							<span class="font-bold p-2">{{ getFullName(contract) }}</span>
 						</div>
 					</template>
@@ -36,12 +40,23 @@
 					<hr />
 					<div class="additional-info">
 						<div class="info-item">
-							<label>Created date:</label>
+							<label>Ngày tạo:</label>
 							<div class="value" v-format-date="contract.createdAt"></div>
 						</div>
 						<div class="info-item">
-							<label>Contract status:</label>
-							<div class="value">{{ getContractStatusText(contract.status) }}</div>
+							<label>Trạng thái:</label>
+							<div class="value">
+								<Tag
+									v-if="contract.status === ContractStatus.InEffect"
+									severity="success"
+									:value="getContractStatusText(contract.status)"
+								/>
+								<Tag
+									v-if="contract.status === ContractStatus.Canceled"
+									severity="danger"
+									:value="getContractStatusText(contract.status)"
+								/>
+							</div>
 						</div>
 						<template v-if="contract.status === ContractStatus.Canceled">
 							<div v-if="contract.mcCancelDate" class="info-item">
@@ -75,12 +90,14 @@ import { useAuthStore } from "@/stores/authStore";
 import type { Contract } from "@/entities/contract";
 import { ContractStatus, getContractStatusText } from "@/enums/contractStatus";
 import type { ContractPagedRequest } from "@/entities/user/paging/contractPagedRequest";
+import { useRedirect } from "@/composables/useRedirect";
 
 const contracts = ref<Contract[]>([]);
 const page = ref(0);
 const pageSize = 10;
 const loading = ref(false);
 const authStore = useAuthStore();
+const { redirectToProfile } = useRedirect();
 
 const fetchContracts = async () => {
 	if (loading.value) return;
@@ -125,6 +142,14 @@ const getFullName = (contract: Contract) => {
 		return contract.client?.nickName ?? contract.client?.fullName;
 	} else {
 		return contract.mc?.nickName ?? contract.mc?.fullName;
+	}
+};
+
+const getUserId = (contract: Contract) => {
+	if (authStore.user?.isMc == "True") {
+		return contract.client?.id;
+	} else {
+		return contract.mc?.id;
 	}
 };
 

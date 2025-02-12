@@ -7,9 +7,9 @@ export enum ContractStatus {
 export function getContractStatusText(status: ContractStatus): string {
 	switch (status) {
 		case ContractStatus.InEffect:
-			return "In Effect";
+			return "Có hiệu lực";
 		case ContractStatus.Canceled:
-			return "Canceled";
+			return "Bị hủy";
 		default:
 			return "";
 	}
