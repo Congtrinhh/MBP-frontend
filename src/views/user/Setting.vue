@@ -29,16 +29,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import { useRedirect } from "@/composables/useRedirect";
 import { useToast } from "primevue/usetoast";
+import { storeToRefs } from "pinia";
 
 const { redirectToProfile } = useRedirect();
 
 const authStore = useAuthStore();
-const user = computed(() => authStore.user);
+const { user } = storeToRefs(authStore);
 const isLoggedIn = computed(() => !!user.value);
 const toast = useToast();
 

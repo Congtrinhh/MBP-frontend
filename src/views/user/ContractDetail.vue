@@ -116,19 +116,22 @@ const fetchContract = async (id: number) => {
 	}
 };
 
+function getCanceledContract(original: Contract, isMc: boolean): Contract {
+	const canceled = { ...original, status: ContractStatus.Canceled };
+	if (isMc) {
+		canceled.mcCancelDate = new Date().toISOString();
+		canceled.mcCancelReason = "Hết nhu cầu";
+	} else {
+		canceled.clientCancelDate = new Date().toISOString();
+		canceled.clientCancelReason = "Hết nhu cầu";
+	}
+	return canceled;
+}
+
 const onCancelContract = async () => {
 	if (!contract.value) return;
 	try {
-		// Update contract status to Canceled
-		const updatedContract: Contract = { ...contract.value, status: ContractStatus.Canceled };
-		if (isMc.value) {
-			updatedContract.mcCancelDate = new Date().toISOString();
-			updatedContract.mcCancelReason = "Hết nhu cầu";
-		} else {
-			updatedContract.clientCancelDate = new Date().toISOString();
-			updatedContract.clientCancelReason = "Hết nhu cầu";
-		}
-
+		const updatedContract = getCanceledContract(contract.value, isMc.value);
 		await contractApi.update(contract.value.id, updatedContract);
 		toast.add({
 			severity: "success",
