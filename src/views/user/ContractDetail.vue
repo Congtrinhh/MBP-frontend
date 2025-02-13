@@ -1,0 +1,221 @@
+<template>
+	<main class="main-container">
+		<header class="center-header">Chi tiết hợp đồng</header>
+		<template v-if="contract">
+			<div class="info-container">
+				<div class="info-item">
+					<label>Khách hàng:</label>
+					<Avatar :image="contract.client?.avatarUrl" shape="circle" />
+					<span class="font-bold p-2">{{ contract.client?.nickName || contract.client?.fullName }}</span>
+				</div>
+				<div class="info-item">
+					<label>MC:</label>
+					<Avatar :image="contract.mc?.avatarUrl" shape="circle" />
+					<span class="font-bold p-2">{{ contract.mc?.nickName || contract.mc?.fullName }}</span>
+				</div>
+				<div class="info-item">
+					<label>Sự kiện:</label>
+					<div class="value">{{ contract.eventName }}</div>
+				</div>
+				<div class="info-item">
+					<label>Bắt đầu:</label>
+					<div class="value" v-format-date="contract.eventStart"></div>
+				</div>
+				<div class="info-item">
+					<label>Kết thúc:</label>
+					<div class="value" v-format-date="contract.eventEnd"></div>
+				</div>
+				<div class="info-item">
+					<label>Địa điểm:</label>
+					<div class="value">{{ contract.place }}</div>
+				</div>
+				<div class="info-item">
+					<label>Mô tả:</label>
+					<div class="value">{{ contract.description }}</div>
+				</div>
+			</div>
+			<hr />
+			<div class="additional-info">
+				<div class="info-item">
+					<label>Ngày tạo:</label>
+					<div class="value" v-format-date="contract.createdAt"></div>
+				</div>
+				<div class="info-item">
+					<label>Trạng thái:</label>
+					<div class="value">
+						<Tag
+							v-if="contract.status === ContractStatus.InEffect"
+							severity="success"
+							:value="getContractStatusText(contract.status)"
+						/>
+						<Tag
+							v-if="contract.status === ContractStatus.Canceled"
+							severity="danger"
+							:value="getContractStatusText(contract.status)"
+						/>
+					</div>
+				</div>
+				<template v-if="contract.status === ContractStatus.Canceled">
+					<div class="info-item" v-if="contract.clientCancelDate">
+						<label>Hủy bởi:</label>
+						<Avatar :image="contract.client?.avatarUrl" shape="circle" />
+						<span class="font-bold p-2">{{ contract.client?.nickName || contract.client?.fullName }}</span>
+					</div>
+					<div class="info-item" v-if="contract.mcCancelDate">
+						<label>Hủy bởi:</label>
+						<Avatar :image="contract.mc?.avatarUrl" shape="circle" />
+						<span class="font-bold p-2">{{ contract.mc?.nickName || contract.mc?.fullName }}</span>
+					</div>
+					<div v-if="contract.mcCancelDate" class="info-item">
+						<label>Hủy ngày:</label>
+						<div class="value">{{ contract.mcCancelDate }}</div>
+					</div>
+					<div v-if="contract.mcCancelReason" class="info-item">
+						<label>Lý do:</label>
+						<div class="value">{{ contract.mcCancelReason }}</div>
+					</div>
+					<div v-if="contract.clientCancelDate" class="info-item">
+						<label>Hủy ngày:</label>
+						<div class="value">{{ contract.clientCancelDate }}</div>
+					</div>
+					<div v-if="contract.clientCancelReason" class="info-item">
+						<label>Lý do:</label>
+						<div class="value">{{ contract.clientCancelReason }}</div>
+					</div>
+				</template>
+				<!-- buttons -->
+				<div v-if="contract?.status === ContractStatus.InEffect" class="buttons">
+					<Button label="Cancel Contract" severity="danger" @click="onCancelContract" />
+				</div>
+			</div>
+		</template>
+	</main>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, computed } from "vue";
+import { useRoute } from "vue-router";
+import { contractApi } from "@/apis/contractApi";
+import type { Contract } from "@/entities/contract";
+import { ContractStatus, getContractStatusText } from "@/enums/contractStatus";
+import { useAuthStore } from "@/stores/authStore";
+import { useToast } from "primevue/usetoast";
+
+const toast = useToast();
+const route = useRoute();
+const contract = ref<Contract | null>(null);
+const authStore = useAuthStore();
+
+const isMc = computed(() => authStore.user?.isMc == "True");
+
+const fetchContract = async (id: number) => {
+	try {
+		contract.value = await contractApi.getById(id);
+	} catch (error) {
+		console.error("Error fetching contract detail", error);
+	}
+};
+
+const onCancelContract = async () => {
+	if (!contract.value) return;
+	try {
+		// Update contract status to Canceled
+		const updatedContract: Contract = { ...contract.value, status: ContractStatus.Canceled };
+		if (isMc.value) {
+			updatedContract.mcCancelDate = new Date().toISOString();
+			updatedContract.mcCancelReason = "Hết nhu cầu";
+		} else {
+			updatedContract.clientCancelDate = new Date().toISOString();
+			updatedContract.clientCancelReason = "Hết nhu cầu";
+		}
+
+		await contractApi.update(contract.value.id, updatedContract);
+		toast.add({
+			severity: "success",
+			summary: "Contract Canceled",
+			detail: "The contract has been canceled successfully",
+			life: 3000,
+		});
+		await fetchContract(contract.value.id);
+	} catch (error) {
+		console.error("Error canceling contract", error);
+	}
+};
+
+onMounted(() => {
+	const id = Number(route.params.id);
+	fetchContract(id);
+});
+
+// Reuse same helpers as in ContractList.vue
+const getAvatarUrl = (contract: Contract) => {
+	if (authStore.user?.isMc == "True") {
+		return contract.client?.avatarUrl;
+	} else {
+		return contract.mc?.avatarUrl;
+	}
+};
+
+const getFullName = (contract: Contract) => {
+	if (authStore.user?.isMc == "True") {
+		return contract.client?.nickName ?? contract.client?.fullName;
+	} else {
+		return contract.mc?.nickName ?? contract.mc?.fullName;
+	}
+};
+</script>
+
+<style lang="scss" scoped>
+.main-container {
+	background-color: #fff;
+	display: flex;
+	flex-direction: column;
+	padding: 16px;
+}
+
+.center-header {
+	font-size: 1.5rem;
+	font-weight: bold;
+	text-align: center;
+	margin-bottom: 16px;
+}
+
+.info-container {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-bottom: 20px;
+}
+
+.info-item {
+	display: flex;
+	label {
+		flex: 0 0 auto;
+		width: 120px;
+		margin-right: 4px;
+	}
+}
+
+.additional-info {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-top: 20px;
+}
+
+/* Mobile friendly adjustments */
+@media (max-width: 768px) {
+	.main-container {
+		padding: 8px;
+	}
+	.info-item label {
+		width: 100px;
+	}
+}
+
+.buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+}
+</style>

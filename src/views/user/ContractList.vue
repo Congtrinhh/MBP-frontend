@@ -2,7 +2,12 @@
 	<main class="main-container">
 		<header class="center-header">Danh sách hợp đồng</header>
 		<div class="contract-list" @scroll="handleScroll">
-			<div v-for="contract in contracts" :key="contract.id" class="contract-item">
+			<div
+				v-for="contract in contracts"
+				:key="contract.id"
+				class="contract-item"
+				@click="redirectToContractDetail(contract)"
+			>
 				<Fieldset>
 					<template #legend>
 						<div class="flex items-center pl-2">
@@ -58,24 +63,6 @@
 								/>
 							</div>
 						</div>
-						<template v-if="contract.status === ContractStatus.Canceled">
-							<div v-if="contract.mcCancelDate" class="info-item">
-								<label>MC Cancel Date:</label>
-								<div class="value">{{ contract.mcCancelDate }}</div>
-							</div>
-							<div v-if="contract.mcCancelReason" class="info-item">
-								<label>MC Cancel Reason:</label>
-								<div class="value">{{ contract.mcCancelReason }}</div>
-							</div>
-							<div v-if="contract.clientCancelDate" class="info-item">
-								<label>Client Cancel Date:</label>
-								<div class="value">{{ contract.clientCancelDate }}</div>
-							</div>
-							<div v-if="contract.clientCancelReason" class="info-item">
-								<label>Client Cancel Reason:</label>
-								<div class="value">{{ contract.clientCancelReason }}</div>
-							</div>
-						</template>
 					</div>
 				</Fieldset>
 			</div>
@@ -91,6 +78,7 @@ import type { Contract } from "@/entities/contract";
 import { ContractStatus, getContractStatusText } from "@/enums/contractStatus";
 import type { ContractPagedRequest } from "@/entities/user/paging/contractPagedRequest";
 import { useRedirect } from "@/composables/useRedirect";
+import { useRouter } from "vue-router";
 
 const contracts = ref<Contract[]>([]);
 const page = ref(0);
@@ -98,6 +86,7 @@ const pageSize = 10;
 const loading = ref(false);
 const authStore = useAuthStore();
 const { redirectToProfile } = useRedirect();
+const router = useRouter();
 
 const fetchContracts = async () => {
 	if (loading.value) return;
@@ -158,6 +147,10 @@ const handleScroll = (event: any) => {
 	if (bottom) {
 		fetchContracts();
 	}
+};
+
+const redirectToContractDetail = (contract: any) => {
+	router.push({ name: "contract-detail", params: { id: contract.id } });
 };
 
 onMounted(() => {
