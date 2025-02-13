@@ -11,7 +11,7 @@
 				<Fieldset>
 					<template #legend>
 						<div class="flex items-center pl-2">
-							<span>Hợp đồng của &nbsp;</span>
+							<span>Hợp tác với &nbsp;</span>
 							<Avatar
 								:image="getAvatarUrl(contract)"
 								shape="circle"
@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { contractApi } from "@/apis/contractApi";
 import { useAuthStore } from "@/stores/authStore";
 import type { Contract } from "@/entities/contract";
@@ -87,6 +87,7 @@ const loading = ref(false);
 const authStore = useAuthStore();
 const { redirectToProfile } = useRedirect();
 const router = useRouter();
+const isMc = computed(() => authStore.user?.isMc == "True");
 
 const fetchContracts = async () => {
 	if (loading.value) return;
@@ -99,7 +100,7 @@ const fetchContracts = async () => {
 			isUseProc: true,
 		};
 
-		if (authStore.user?.isMc == "True") {
+		if (isMc.value) {
 			request.mcId = authStore.user?.id as number;
 		} else {
 			request.clientId = authStore.user?.id as number;
@@ -119,7 +120,7 @@ const fetchContracts = async () => {
 };
 
 const getAvatarUrl = (contract: Contract) => {
-	if (authStore.user?.isMc == "True") {
+	if (isMc.value) {
 		return contract.client?.avatarUrl;
 	} else {
 		return contract.mc?.avatarUrl;
@@ -127,7 +128,7 @@ const getAvatarUrl = (contract: Contract) => {
 };
 
 const getFullName = (contract: Contract) => {
-	if (authStore.user?.isMc == "True") {
+	if (isMc.value) {
 		return contract.client?.nickName ?? contract.client?.fullName;
 	} else {
 		return contract.mc?.nickName ?? contract.mc?.fullName;
@@ -135,7 +136,7 @@ const getFullName = (contract: Contract) => {
 };
 
 const getUserId = (contract: Contract) => {
-	if (authStore.user?.isMc == "True") {
+	if (isMc.value) {
 		return contract.client?.id;
 	} else {
 		return contract.mc?.id;

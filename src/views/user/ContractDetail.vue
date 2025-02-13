@@ -146,23 +146,6 @@ onMounted(() => {
 	const id = Number(route.params.id);
 	fetchContract(id);
 });
-
-// Reuse same helpers as in ContractList.vue
-const getAvatarUrl = (contract: Contract) => {
-	if (authStore.user?.isMc == "True") {
-		return contract.client?.avatarUrl;
-	} else {
-		return contract.mc?.avatarUrl;
-	}
-};
-
-const getFullName = (contract: Contract) => {
-	if (authStore.user?.isMc == "True") {
-		return contract.client?.nickName ?? contract.client?.fullName;
-	} else {
-		return contract.mc?.nickName ?? contract.mc?.fullName;
-	}
-};
 </script>
 
 <style lang="scss" scoped>
