@@ -189,16 +189,6 @@ onMounted(() => {
 	margin-top: 20px;
 }
 
-/* Mobile friendly adjustments */
-@media (max-width: 768px) {
-	.main-container {
-		padding: 8px;
-	}
-	.info-item label {
-		width: 100px;
-	}
-}
-
 .buttons {
 	display: flex;
 	justify-content: flex-end;

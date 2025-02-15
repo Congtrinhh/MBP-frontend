@@ -14,6 +14,9 @@ export const useAuthStore = defineStore("auth", {
 		notificationConnection: null as signalR.HubConnection | null,
 	}),
 	actions: {
+		/**
+		 * lưu token sau ki đăn nập backend tàn côn
+		 */
 		login(token: string) {
 			this.token = token;
 			this.user = jwtDecode<User>(token);

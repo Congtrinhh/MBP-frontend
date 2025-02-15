@@ -27,3 +27,16 @@ http://production.eba-nbh3jtv6.ap-southeast-1.elasticbeanstalk.com/api
 
 frontend prod:
 https://main.d3vt4ohfxm0zrb.amplifyapp.com
+
+Base list (for user side - not grid with multiple fields):
+filterin & sortin: pagerequest
+api
+entity
+andle scrollin
+need user logged in or not
+slot for list item
+click on item, show detail page
+
+Base detail:
+id
+entity
