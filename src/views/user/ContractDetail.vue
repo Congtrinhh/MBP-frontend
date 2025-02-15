@@ -1,25 +1,26 @@
 <template>
 	<main class="main-container">
-		<header class="center-header">Chi tiết hợp đồng</header>
 		<template v-if="contract">
 			<div class="info-container">
 				<div class="info-item items-center">
 					<label>Khách hàng:</label>
 					<div class="value">
 						<Avatar :image="contract.client?.avatarUrl" shape="circle" />
-						<span class="font-bold p-2">{{ contract.client?.nickName || contract.client?.fullName }}</span>
+						<span class="font-medium p-2">{{
+							contract.client?.nickName || contract.client?.fullName
+						}}</span>
 					</div>
 				</div>
 				<div class="info-item items-center">
 					<label>MC:</label>
 					<div class="value">
 						<Avatar :image="contract.mc?.avatarUrl" shape="circle" />
-						<span class="font-bold p-2">{{ contract.mc?.nickName || contract.mc?.fullName }}</span>
+						<span class="font-medium p-2">{{ contract.mc?.nickName || contract.mc?.fullName }}</span>
 					</div>
 				</div>
 				<div class="info-item">
 					<label>Sự kiện:</label>
-					<div class="value">{{ contract.eventName }}</div>
+					<div class="value font-medium">{{ contract.eventName }}</div>
 				</div>
 				<div class="info-item">
 					<label>Bắt đầu:</label>
@@ -64,7 +65,7 @@
 						<label>Hủy bởi:</label>
 						<div class="value">
 							<Avatar :image="contract.client?.avatarUrl" shape="circle" />
-							<span class="font-bold p-2">{{
+							<span class="font-medium p-2">{{
 								contract.client?.nickName || contract.client?.fullName
 							}}</span>
 						</div>
@@ -73,7 +74,7 @@
 						<label>Hủy bởi:</label>
 						<div class="value">
 							<Avatar :image="contract.mc?.avatarUrl" shape="circle" />
-							<span class="font-bold p-2">{{ contract.mc?.nickName || contract.mc?.fullName }}</span>
+							<span class="font-medium p-2">{{ contract.mc?.nickName || contract.mc?.fullName }}</span>
 						</div>
 					</div>
 					<div v-if="contract.mcCancelDate" class="info-item">

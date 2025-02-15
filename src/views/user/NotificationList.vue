@@ -93,7 +93,6 @@ import { useAuthStore } from "@/stores/authStore";
 import { type Notification } from "@/entities/notification";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
-import * as signalR from "@microsoft/signalr";
 import { useToast } from "primevue/usetoast";
 import { useAppStore } from "@/stores/appStore";
 
