@@ -3,15 +3,19 @@
 		<header class="center-header">Chi tiết hợp đồng</header>
 		<template v-if="contract">
 			<div class="info-container">
-				<div class="info-item">
+				<div class="info-item items-center">
 					<label>Khách hàng:</label>
-					<Avatar :image="contract.client?.avatarUrl" shape="circle" />
-					<span class="font-bold p-2">{{ contract.client?.nickName || contract.client?.fullName }}</span>
+					<div class="value">
+						<Avatar :image="contract.client?.avatarUrl" shape="circle" />
+						<span class="font-bold p-2">{{ contract.client?.nickName || contract.client?.fullName }}</span>
+					</div>
 				</div>
-				<div class="info-item">
+				<div class="info-item items-center">
 					<label>MC:</label>
-					<Avatar :image="contract.mc?.avatarUrl" shape="circle" />
-					<span class="font-bold p-2">{{ contract.mc?.nickName || contract.mc?.fullName }}</span>
+					<div class="value">
+						<Avatar :image="contract.mc?.avatarUrl" shape="circle" />
+						<span class="font-bold p-2">{{ contract.mc?.nickName || contract.mc?.fullName }}</span>
+					</div>
 				</div>
 				<div class="info-item">
 					<label>Sự kiện:</label>
@@ -56,15 +60,21 @@
 					</div>
 				</div>
 				<template v-if="contract.status === ContractStatus.Canceled">
-					<div class="info-item" v-if="contract.clientCancelDate">
+					<div class="info-item items-center" v-if="contract.clientCancelDate">
 						<label>Hủy bởi:</label>
-						<Avatar :image="contract.client?.avatarUrl" shape="circle" />
-						<span class="font-bold p-2">{{ contract.client?.nickName || contract.client?.fullName }}</span>
+						<div class="value">
+							<Avatar :image="contract.client?.avatarUrl" shape="circle" />
+							<span class="font-bold p-2">{{
+								contract.client?.nickName || contract.client?.fullName
+							}}</span>
+						</div>
 					</div>
-					<div class="info-item" v-if="contract.mcCancelDate">
+					<div class="info-item items-center" v-if="contract.mcCancelDate">
 						<label>Hủy bởi:</label>
-						<Avatar :image="contract.mc?.avatarUrl" shape="circle" />
-						<span class="font-bold p-2">{{ contract.mc?.nickName || contract.mc?.fullName }}</span>
+						<div class="value">
+							<Avatar :image="contract.mc?.avatarUrl" shape="circle" />
+							<span class="font-bold p-2">{{ contract.mc?.nickName || contract.mc?.fullName }}</span>
+						</div>
 					</div>
 					<div v-if="contract.mcCancelDate" class="info-item">
 						<label>Hủy ngày:</label>
@@ -179,6 +189,10 @@ onMounted(() => {
 		flex: 0 0 auto;
 		width: 120px;
 		margin-right: 4px;
+	}
+	.value {
+		display: flex;
+		align-items: center;
 	}
 }
 

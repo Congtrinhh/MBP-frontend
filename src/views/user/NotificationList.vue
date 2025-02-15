@@ -216,7 +216,15 @@ const handleNotificationClick = async (notification: Notification) => {
 			console.error("Không thể tải dữ liệu offer gốc", error);
 		}
 	} else if (notification.type === NotificationType.OfferApproved) {
-		router.push({ name: "user-contract-list" });
+		if (notification.additionalInfo) {
+			const { contractId } = JSON.parse(notification.additionalInfo);
+			router.push({
+				name: "user-contract-detail",
+				params: {
+					id: contractId,
+				},
+			});
+		}
 	} else if (notification.type === NotificationType.Review) {
 		if (true || notification.additionalInfo) {
 			// const { contractId } = JSON.parse(notification.additionalInfo);
@@ -225,6 +233,16 @@ const handleNotificationClick = async (notification: Notification) => {
 				name: "user-review",
 				params: {
 					contractId,
+				},
+			});
+		}
+	} else if (notification.type === NotificationType.ContractCanceled) {
+		if (notification.additionalInfo) {
+			const { contractId } = JSON.parse(notification.additionalInfo);
+			router.push({
+				name: "user-contract-detail",
+				params: {
+					id: contractId,
 				},
 			});
 		}

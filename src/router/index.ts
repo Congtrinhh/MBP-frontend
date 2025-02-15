@@ -73,7 +73,7 @@ const router = createRouter({
 				},
 				{
 					path: "contracts/:id",
-					name: "contract-detail",
+					name: "user-contract-detail",
 					component: () => import("@/views/user/ContractDetail.vue"),
 				},
 				{

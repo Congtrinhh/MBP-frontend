@@ -56,6 +56,7 @@ import { useRedirect } from "@/composables/useRedirect";
 import type { Contract } from "@/entities/contract";
 import { useAuthStore } from "@/stores/authStore";
 import { useToast } from "primevue/usetoast";
+import type { OfferApprovedAdditionalInfo } from "@/entities/notification/additionalInfo/offerApprovedAdditionalInfo";
 
 const authStore = useAuthStore();
 const route = useRoute();
@@ -119,7 +120,7 @@ const handleApprove = async () => {
 	try {
 		if (additionalInfo.value?.senderId) {
 			// Create a new contract
-			const newContract: Contract = {
+			const contract: Contract = {
 				id: 0,
 				clientId: additionalInfo.value.senderId,
 				mcId: authStore.user?.id,
@@ -129,8 +130,7 @@ const handleApprove = async () => {
 				place: additionalInfo.value.place,
 				eventName: additionalInfo.value.eventName,
 			};
-
-			await contractApi.create(newContract);
+			const newContract = await contractApi.create(contract);
 
 			// Send notification to the user who sent the offer
 			await notificationApi.create({
@@ -139,6 +139,9 @@ const handleApprove = async () => {
 				type: NotificationType.OfferApproved,
 				message: `Offer cho sự kiện ${additionalInfo.value.eventName} của bạn đã được chấp nhận.`,
 				thumbUrl: useAuthStore().user?.avatarUrl,
+				additionalInfo: JSON.stringify({
+					contractId: newContract.id,
+				} as OfferApprovedAdditionalInfo),
 			} as Notification);
 
 			// Update the status of the original notification to NotEditable

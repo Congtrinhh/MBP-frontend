@@ -151,7 +151,7 @@ const handleScroll = (event: any) => {
 };
 
 const redirectToContractDetail = (contract: any) => {
-	router.push({ name: "contract-detail", params: { id: contract.id } });
+	router.push({ name: "user-contract-detail", params: { id: contract.id } });
 };
 
 onMounted(() => {
