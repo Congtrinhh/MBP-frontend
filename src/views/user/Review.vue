@@ -1,6 +1,27 @@
 <template>
 	<main class="main-container">
 		<header class="center-header">Đánh giá</header>
+		<div class="event-info-container">
+			<div class="info-item">
+				<label>Sự kiện:</label>
+				<div class="value font-medium">{{ contract?.eventName }}</div>
+			</div>
+			<div v-if="isMc" class="info-item items-center">
+				<label>Khách hàng:</label>
+				<div class="value">
+					<Avatar :image="contract?.client?.avatarUrl" shape="circle" />
+					<span class="font-medium p-2">{{ contract?.client?.nickName || contract?.client?.fullName }}</span>
+				</div>
+			</div>
+			<div v-else class="info-item items-center">
+				<label>MC:</label>
+				<div class="value">
+					<Avatar :image="contract?.mc?.avatarUrl" shape="circle" />
+					<span class="font-medium p-2">{{ contract?.mc?.nickName || contract?.mc?.fullName }}</span>
+				</div>
+			</div>
+			<div class="underline cursor-pointer view-contract-button" @click="viewContract">Xem hợp đồng</div>
+		</div>
 		<div class="review-form">
 			<Form :resolver="reviewFormResolver" @submit="onSubmit">
 				<div class="form-body flex flex-column gap-4">
@@ -54,22 +75,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { ref, reactive, onMounted, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { contractApi } from "@/apis/contractApi";
 import { clientReviewMcApi } from "@/apis/clientReviewMcApi";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
 import type { ClientReviewMc } from "@/entities/clientReviewMc";
-import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
+import type { Contract } from "@/entities/contract";
+import { useAuthStore } from "@/stores/authStore";
 
+const authStore = useAuthStore();
 const router = useRouter();
 const toast = useToast();
+const isMc = computed(() => authStore.user?.isMc == "True");
+
+const viewContract = () => {
+	router.push({ name: "user-contract-detail", params: { id: contractId } });
+};
 
 //#region State
 const route = useRoute();
-const contractId = route.params.contractId;
+const contractId = Number(route.params.contractId);
 const review = reactive({
 	overallPoint: 5,
 	proPoint: 5,
@@ -94,12 +122,15 @@ const reviewFormResolver = zodResolver(
 //#endregion
 
 //#region Fetch Contract
-const fetchContract = async () => {
+const contract = ref<Contract>();
+const fetchContract = async (): Promise<Contract | null> => {
 	try {
 		const contract = await contractApi.getById(contractId);
+		return contract;
 		// Use contract data if needed
 	} catch (error) {
 		console.error("Không thể tải hợp đồng", error);
+		return null;
 	}
 };
 //#endregion
@@ -130,8 +161,8 @@ const onSubmit = async (formInfo: any) => {
 //#endregion
 
 //#region On Mounted
-onMounted(() => {
-	fetchContract();
+onMounted(async () => {
+	contract.value = await fetchContract();
 });
 //#endregion
 </script>
@@ -149,5 +180,18 @@ onMounted(() => {
 
 .form-label {
 	font-weight: bold;
+}
+
+.event-info-container {
+	padding: 16px 16px 0;
+}
+.info-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+.value {
+	display: flex;
+	align-items: center;
 }
 </style>

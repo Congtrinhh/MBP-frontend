@@ -55,3 +55,25 @@ next time, only show me method having code changes, don't show everything of eve
 Notes for front-end:
 When creating new components, prefix the name of component with M letter. for example MImageViewer, MMcItem,.. to differentiate between components from MBP and other libraries.
 This app is MBP (MC Booking Platform) running mostly in browser of mobile devices (iphone, android phones), so the UI should be mobile user-friendly with actions like touch, swipe up, swipe down, scroll,..
+Most of the users (80%) use iphone, so the ux should be mobile-friendly for iphone users.
+
+The front-end use vue.js 3 with composition style, with vite build tool.
+Use pinia as state management tool. with pinia, write code in option api style.
+
+Notes for back-end:
+the back-end uses .net 8, with asp.net web api technology.
+using clean architecture with the following already created projects: Api, Application, Domain, Infrastructure.
+Api project contains mainly controllers.
+Application project contains business logic and related components for it: Interfaces, Dtos, Services, Hubs, Mapper
+Domain project contains core entities of app (mapping with tables in database) with folders: Entities, Enums, Extensions, Attributes.
+Infrastructure project contains components to interact with outer systems, services such as databases, log services: Repositories, Logging.
+when adding new classes, add brief comment in this form, this is an example:
+`entity for user of the system
+created by: tqcong <<current date. eg: 16/02/2025>>
+`
+
+Notes for database:
+the database is mysql version 8.0.41.
+naming convention for table is snake case with singular form. eg: 'school_student' is table for student of school, 'home_pet' is table for pet information.
+naming convention for table's fields are the same as naming convention for table.
+when creating new tables, try to add comment for table and its fields if there is information to infer from to generate the comments.
