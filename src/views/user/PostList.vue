@@ -19,6 +19,8 @@
 				&nbsp;để đăng bài, tương tác
 			</div>
 		</header>
+		<Menu :model="postMenuItems" ref="postMenu" popup />
+
 		<div class="post-list">
 			<Card
 				class="post-item"
@@ -43,6 +45,13 @@
 							<div class="name">{{ post.user?.nickName }}</div>
 							<div class="time-ago" v-format-date:isRelativeNow="post.createdAt"></div>
 						</div>
+						<Button
+							v-if="authStore.user?.id == post.userId"
+							icon="pi pi-ellipsis-v"
+							class="more-button p-button-text"
+							severity="contrast"
+							@click="handleShowPostMenu($event, post.id)"
+						/>
 					</div>
 				</template>
 				<template #content>
@@ -533,6 +542,40 @@ const handleAfterShowDialog = async () => {
 const handleLoginClick = () => {
 	router.push({ name: "user-login", query: { redirect: router.currentRoute.value.fullPath } });
 };
+
+const postMenu = ref(null);
+const selectedPostId = ref<number>(0);
+const postMenuItems = [
+	{ label: "Edit", icon: "pi pi-pencil", command: () => handleEditPost() },
+	{ label: "Delete", icon: "pi pi-trash", command: () => handleDeletePost() },
+];
+
+function handleShowPostMenu(event: Event, postId: number) {
+	selectedPostId.value = postId;
+
+	postMenu.value?.toggle(event);
+}
+
+async function handleEditPost() {
+	try {
+		const fetchedPost = await postApi.getById(selectedPostId.value);
+		post.value = fetchedPost;
+		initialPost.value = cloneDeep(fetchedPost);
+		openPostDialog(EditingMode.Update);
+	} catch (error) {
+		toast.add({ severity: "error", summary: "Edit Error", detail: "Failed to fetch post", life: 3000 });
+	}
+}
+
+async function handleDeletePost() {
+	try {
+		await postApi.delete(selectedPostId.value);
+		await loadPosts();
+		toast.add({ severity: "success", summary: "Delete", detail: "Successfully deleted post", life: 3000 });
+	} catch (error) {
+		toast.add({ severity: "error", summary: "Delete Error", detail: "Failed to delete post", life: 3000 });
+	}
+}
 </script>
 <style lang="scss" scoped>
 .main-container {
@@ -669,5 +712,9 @@ header.header {
 
 .price-input {
 	width: 1%;
+}
+
+.more-button {
+	margin-left: auto;
 }
 </style>
