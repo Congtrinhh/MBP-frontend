@@ -227,7 +227,7 @@ const handleNotificationClick = async (notification: Notification) => {
 	} else if (notification.type === NotificationType.Review) {
 		if (true || notification.additionalInfo) {
 			// const { contractId } = JSON.parse(notification.additionalInfo);
-			let contractId = 3;
+			let contractId = 14;
 			router.push({
 				name: "user-review",
 				params: {

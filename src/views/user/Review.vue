@@ -23,7 +23,7 @@
 			<div class="underline cursor-pointer view-contract-button" @click="viewContract">Xem hợp đồng</div>
 		</div>
 		<div class="review-form">
-			<Form :resolver="reviewFormResolver" @submit="onSubmit">
+			<Form :resolver="reviewFormResolver" @submit="onSubmit" :initialValues="review">
 				<div class="form-body flex flex-column gap-4">
 					<FormField v-slot="$field" name="overallPoint" class="flex flex-col gap-1">
 						<label for="overallPoint" class="form-label">Đánh giá</label>
@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { contractApi } from "@/apis/contractApi";
 import { clientReviewMcApi } from "@/apis/clientReviewMcApi";
@@ -91,6 +91,9 @@ const router = useRouter();
 const toast = useToast();
 const isMc = computed(() => authStore.user?.isMc == "True");
 
+/**
+ * sang màn hình chi tiết hợp đồng
+ */
 const viewContract = () => {
 	router.push({ name: "user-contract-detail", params: { id: contractId } });
 };
@@ -98,7 +101,7 @@ const viewContract = () => {
 //#region State
 const route = useRoute();
 const contractId = Number(route.params.contractId);
-const review = reactive({
+const review = ref({
 	overallPoint: 5,
 	proPoint: 5,
 	attitudePoint: 5,
@@ -111,10 +114,10 @@ const review = reactive({
 //#region Form Resolver
 const reviewFormResolver = zodResolver(
 	z.object({
-		overallPoint: z.nullable(z.number().gte(1).lte(5)),
-		proPoint: z.nullable(z.number().gte(1).lte(5)),
-		attitudePoint: z.nullable(z.number().gte(1).lte(5)),
-		reliablePoint: z.nullable(z.number().gte(1).lte(5)),
+		overallPoint: z.number().gte(1).lte(5),
+		proPoint: z.number().gte(1).lte(5),
+		attitudePoint: z.number().gte(1).lte(5),
+		reliablePoint: z.number().gte(1).lte(5),
 		shortDescription: z.string().max(255).optional(),
 		detailDescription: z.string().optional(),
 	})
@@ -123,7 +126,7 @@ const reviewFormResolver = zodResolver(
 
 //#region Fetch Contract
 const contract = ref<Contract>();
-const fetchContract = async (): Promise<Contract | null> => {
+const getContract = async (): Promise<Contract | null> => {
 	try {
 		const contract = await contractApi.getById(contractId);
 		return contract;
@@ -162,7 +165,7 @@ const onSubmit = async (formInfo: any) => {
 
 //#region On Mounted
 onMounted(async () => {
-	contract.value = await fetchContract();
+	contract.value = await getContract();
 });
 //#endregion
 </script>
