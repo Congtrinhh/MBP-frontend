@@ -2,6 +2,6 @@ export enum NotificationType {
 	SendOffer = 1,
 	OfferRejected = 2,
 	OfferApproved = 3,
-	Review = 4,
+	ReviewReminder = 4,
 	ContractCanceled = 5,
 }

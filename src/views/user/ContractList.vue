@@ -61,6 +61,11 @@
 									severity="danger"
 									:value="getContractStatusText(contract.status)"
 								/>
+								<Tag
+									v-if="contract.status === ContractStatus.Completed"
+									severity="info"
+									:value="getContractStatusText(contract.status)"
+								/>
 							</div>
 						</div>
 					</div>

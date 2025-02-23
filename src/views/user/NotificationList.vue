@@ -224,10 +224,9 @@ const handleNotificationClick = async (notification: Notification) => {
 				},
 			});
 		}
-	} else if (notification.type === NotificationType.Review) {
-		if (true || notification.additionalInfo) {
-			// const { contractId } = JSON.parse(notification.additionalInfo);
-			let contractId = 14;
+	} else if (notification.type === NotificationType.ReviewReminder) {
+		if (notification.additionalInfo) {
+			const { contractId } = JSON.parse(notification.additionalInfo);
 			router.push({
 				name: "user-review",
 				params: {

@@ -2,6 +2,7 @@
 export enum ContractStatus {
 	InEffect = 1,
 	Canceled = 2,
+	Completed = 3,
 }
 
 export function getContractStatusText(status: ContractStatus): string {
@@ -10,6 +11,8 @@ export function getContractStatusText(status: ContractStatus): string {
 			return "Có hiệu lực";
 		case ContractStatus.Canceled:
 			return "Bị hủy";
+		case ContractStatus.Completed:
+			return "Hoàn thành";
 		default:
 			return "";
 	}

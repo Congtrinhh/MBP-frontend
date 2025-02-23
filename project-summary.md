@@ -77,3 +77,17 @@ the database is mysql version 8.0.41.
 naming convention for table is snake case with singular form. eg: 'school_student' is table for student of school, 'home_pet' is table for pet information.
 naming convention for table's fields are the same as naming convention for table.
 when creating new tables, try to add comment for table and its fields if there is information to infer from to generate the comments.
+
+nghiệp vụ nhắc nhở đánh giá:
+check nếu thỏa mãn tất cả điều kiện sau:
+ngày kết thúc sự kiện (event_end) nhỏ hơn hoặc bằng hiện tại
+hợp đồng chưa được gửi nhắc nhở (is_remind = 0) (trường is_remind chưa được tạo trong bảng contract, tạo trường này với kiểu bit, mặc định = 0, comment tiếng việt )
+
+gửi thông báo đến mc/client cần đánh giá sự kiện này
+update trạng thái hợp đồng thành đã hoàn thành
+update trạng thái gửi thông báo hợp đồng thành đã gửi (is_remind=1).
+
+nghiệp vụ validate backend:
+khi thêm/sửa bất kỳ entity nào, cần check entity đó có thỏa mãn các ràng buộc không. nếu có thì mới cho thực hiện, nếu không thì báo lỗi. ở frontend đã thực hiện validate entity với zod.js, nhưng backend thì chưa validate.
+làm điều này 1 cách tổng quát (base)
+ví dụ: 1 bài post cần có event_start nhỏ hơn event_end, tên sự kiện không rỗng, mức giá từ phải nhỏ hơn hoặc bằng mức giá đến, địa điểm không được rỗng, post_group không được rỗng.
