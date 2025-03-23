@@ -3,7 +3,7 @@
 		<div id="sidebarToggle" class="sidebar-toggle" @click="isSidebarVisible = true">
 			<i class="pi pi-align-justify" style="font-size: 1.5rem"></i>
 		</div>
-		<div class="logo-wrapper">MBP</div>
+		<div class="logo-wrapper">{{ appName }}</div>
 		<div class="functional-buttons">
 			<div class="mc-group-button" @click="toggleMCGroupMenu" aria-haspopup="true" aria-controls="mcGroupMenu">
 				<i class="pi pi-users" style="font-size: 1.5rem"></i>
@@ -53,8 +53,11 @@
 </template>
 
 <script setup lang="ts">
+import { useAppStore } from "@/stores/appStore";
 import { ref } from "vue";
 
+const appStore = useAppStore();
+const appName = appStore.appName;
 //#endregion Sidebar
 const isSidebarVisible = ref(false);
 //#endregion

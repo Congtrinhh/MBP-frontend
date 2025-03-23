@@ -103,6 +103,8 @@ import type { McReviewClient } from "@/entities/mcReviewClient";
 import { useToast } from "primevue/usetoast";
 import type { Contract } from "@/entities/contract";
 import { useAuthStore } from "@/stores/authStore";
+import { NotificationStatus } from "@/enums/notificationStatus";
+import { notificationApi } from "@/apis/notificationApi";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -119,6 +121,7 @@ const viewContract = () => {
 //#region State
 const route = useRoute();
 const contractId = Number(route.params.contractId);
+const notificationId = Number(route.params.notificationId); // Receive notification ID
 const review = ref({
 	overallPoint: 5,
 	proPoint: 5,
@@ -177,7 +180,6 @@ const getContract = async (): Promise<Contract | null> => {
 
 //#region On Submit
 const onSubmit = async (formInfo: any) => {
-	debugger;
 	const { valid, values } = formInfo;
 	if (valid) {
 		try {
@@ -199,6 +201,22 @@ const onSubmit = async (formInfo: any) => {
 					mcId: contract.value?.mcId,
 				};
 				await clientReviewMcApi.create(clientReview);
+			}
+
+			// Update notification status after successful review submission
+			try {
+				await notificationApi.update(notificationId, {
+					id: notificationId,
+					status: NotificationStatus.NotEditable,
+				});
+			} catch (error) {
+				console.error("Không thể cập nhật trạng thái thông báo", error);
+				toast.add({
+					severity: "error",
+					summary: "Failed to update notification status",
+					detail: "There was an error updating the notification status",
+					life: 3000,
+				});
 			}
 
 			router.push({ name: "user-notification-list" });

@@ -66,10 +66,9 @@ const router = createRouter({
 					component: () => import("@/views/user/ContractList.vue"),
 				},
 				{
-					path: "review/:contractId",
+					path: "review/:contractId/:notificationId",
 					name: "user-review",
 					component: () => import("@/views/user/Review.vue"),
-					props: true,
 				},
 				{
 					path: "contracts/:id",

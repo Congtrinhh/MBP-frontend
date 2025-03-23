@@ -1,7 +1,7 @@
 <template>
 	<main class="main-container" @scroll="handleScroll" style="overflow-y: auto; max-height: 99vh">
 		<header class="header">
-			<div class="logo">MBP</div>
+			<div class="logo">{{ appName }}</div>
 			<InputText
 				v-model="searchText"
 				placeholder="Tìm kiếm MC"
@@ -135,7 +135,6 @@
 
 <script setup lang="ts">
 import { userApi } from "@/apis/userApi";
-import MMCItem from "@/components/MMcItem.vue";
 import type { User } from "@/entities/user/user";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { useToast } from "primevue/usetoast";
@@ -151,11 +150,15 @@ import { debounce } from "lodash";
 import type { UserPagedRequest } from "@/entities/user/paging/UserPagedRequest";
 import { useAuthStore } from "@/stores/authStore";
 import { isEqual } from "lodash";
+import { useAppStore } from "@/stores/appStore";
 
 const isVisibleFilterDialog = ref(false);
 const showFilterDialog = () => {
 	isVisibleFilterDialog.value = true;
 };
+
+const appStore = useAppStore();
+const appName = appStore.appName;
 
 //#region Form
 const toast = useToast();
@@ -337,7 +340,7 @@ const redirectToMC = (id: number) => {
 
 	.search-input {
 		flex: 1;
-		margin: 0 12px;
+		margin: 0 24px;
 		padding: 8px;
 		border: 1px solid #ccc;
 		border-radius: 4px;

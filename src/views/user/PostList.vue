@@ -1,7 +1,7 @@
 <template>
 	<main class="main-container" @scroll="handleScroll" style="overflow-y: auto; max-height: 99vh">
 		<header class="header">
-			<div class="logo">MBP</div>
+			<div class="logo">{{ appName }}</div>
 			<div class="tabs">
 				<Chip
 					v-for="group in groups"
@@ -251,6 +251,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { useRedirect } from "@/composables/useRedirect";
 import { useToast } from "primevue/usetoast";
 import { useRouter } from "vue-router";
+import { useAppStore } from "@/stores/appStore";
 
 const router = useRouter();
 
@@ -266,6 +267,8 @@ const { redirectToProfile } = useRedirect();
 
 const toast = useToast();
 
+const appStore = useAppStore();
+const appName = appStore.appName;
 //#region Form Data
 /**
  * The defaultPost object represents a template for a Post with default values.

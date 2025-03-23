@@ -95,6 +95,7 @@ import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "primevue/usetoast";
 import { useAppStore } from "@/stores/appStore";
+import { NotificationStatus } from "@/enums/notificationStatus";
 
 //#region State
 const notifications = ref<Notification[]>([]);
@@ -182,6 +183,17 @@ const handleNotificationClick = async (notification: Notification) => {
 			console.error("Không thể cập nhật trạng thái thông báo", error);
 		}
 	}
+
+	if (notification.status === NotificationStatus.NotEditable) {
+		toast.add({
+			severity: "info",
+			summary: "Thông báo",
+			detail: "Thao tác không khả dụng",
+			life: 3000,
+		});
+		return;
+	}
+
 	// Perform actions based on notification type
 	if (notification.type === NotificationType.SendOffer) {
 		router.push({
@@ -231,6 +243,7 @@ const handleNotificationClick = async (notification: Notification) => {
 				name: "user-review",
 				params: {
 					contractId,
+					notificationId: notification.id, // Pass the notification ID
 				},
 			});
 		}
@@ -245,7 +258,6 @@ const handleNotificationClick = async (notification: Notification) => {
 			});
 		}
 	}
-	// Add more conditions based on other notification types
 };
 //#endregion
 

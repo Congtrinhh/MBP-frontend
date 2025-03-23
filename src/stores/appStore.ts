@@ -7,6 +7,7 @@ import { useAuthStore } from "./authStore";
 
 export const useAppStore = defineStore("app", {
 	state: () => ({
+		appName: "MBP",
 		// số lượng thông báo chưa đọc
 		unreadNotificationCount: 0,
 	}),
