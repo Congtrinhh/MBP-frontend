@@ -39,20 +39,36 @@
 							$field.error?.message
 						}}</Message>
 					</FormField>
-					<FormField v-slot="$field" name="proPoint" class="flex flex-col gap-1 mt-3">
-						<label for="proPoint" class="form-label">Điểm chuyên nghiệp</label>
-						<Rating name="proPoint" v-model="review.proPoint" />
-						<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
-							$field.error?.message
-						}}</Message>
-					</FormField>
-					<FormField v-slot="$field" name="attitudePoint" class="flex flex-col gap-1">
-						<label for="attitudePoint" class="form-label">Điểm thái độ</label>
-						<Rating name="attitudePoint" v-model="review.attitudePoint" />
-						<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
-							$field.error?.message
-						}}</Message>
-					</FormField>
+
+					<!-- Fields for Client reviewing MC -->
+					<template v-if="!isMc">
+						<FormField v-slot="$field" name="proPoint" class="flex flex-col gap-1 mt-3">
+							<label for="proPoint" class="form-label">Điểm chuyên nghiệp</label>
+							<Rating name="proPoint" v-model="review.proPoint" />
+							<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+								$field.error?.message
+							}}</Message>
+						</FormField>
+						<FormField v-slot="$field" name="attitudePoint" class="flex flex-col gap-1">
+							<label for="attitudePoint" class="form-label">Điểm thái độ</label>
+							<Rating name="attitudePoint" v-model="review.attitudePoint" />
+							<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+								$field.error?.message
+							}}</Message>
+						</FormField>
+					</template>
+
+					<!-- Fields for MC reviewing Client -->
+					<template v-else>
+						<FormField v-slot="$field" name="paymentPunctualPoint" class="flex flex-col gap-1 mt-3">
+							<label for="paymentPunctualPoint" class="form-label">Điểm thanh toán đúng hạn</label>
+							<Rating name="paymentPunctualPoint" v-model="review.paymentPunctualPoint" />
+							<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+								$field.error?.message
+							}}</Message>
+						</FormField>
+					</template>
+
 					<FormField v-slot="$field" name="reliablePoint" class="flex flex-col gap-1">
 						<label for="reliablePoint" class="form-label">Điểm tin cậy</label>
 						<Rating name="reliablePoint" v-model="review.reliablePoint" />
@@ -75,13 +91,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { contractApi } from "@/apis/contractApi";
 import { clientReviewMcApi } from "@/apis/clientReviewMcApi";
+import { mcReviewClientApi } from "@/apis/mcReviewClientApi";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
 import type { ClientReviewMc } from "@/entities/clientReviewMc";
+import type { McReviewClient } from "@/entities/mcReviewClient";
 import { useToast } from "primevue/usetoast";
 import type { Contract } from "@/entities/contract";
 import { useAuthStore } from "@/stores/authStore";
@@ -105,6 +123,7 @@ const review = ref({
 	overallPoint: 5,
 	proPoint: 5,
 	attitudePoint: 5,
+	paymentPunctualPoint: 5,
 	reliablePoint: 5,
 	shortDescription: "",
 	detailDescription: "",
@@ -112,16 +131,35 @@ const review = ref({
 //#endregion
 
 //#region Form Resolver
-const reviewFormResolver = zodResolver(
-	z.object({
+const reviewFormResolver = computed(() => {
+	// Base schema with common fields
+	const baseSchema = {
 		overallPoint: z.number().gte(1).lte(5),
-		proPoint: z.number().gte(1).lte(5),
-		attitudePoint: z.number().gte(1).lte(5),
 		reliablePoint: z.number().gte(1).lte(5),
 		shortDescription: z.string().max(255).optional(),
 		detailDescription: z.string().optional(),
-	})
-);
+	};
+
+	// Add specific fields based on user type
+	if (isMc.value) {
+		// MC reviewing client
+		return zodResolver(
+			z.object({
+				...baseSchema,
+				paymentPunctualPoint: z.number().gte(1).lte(5),
+			})
+		);
+	} else {
+		// Client reviewing MC
+		return zodResolver(
+			z.object({
+				...baseSchema,
+				proPoint: z.number().gte(1).lte(5),
+				attitudePoint: z.number().gte(1).lte(5),
+			})
+		);
+	}
+});
 //#endregion
 
 //#region Fetch Contract
@@ -130,7 +168,6 @@ const getContract = async (): Promise<Contract | null> => {
 	try {
 		const contract = await contractApi.getById(contractId);
 		return contract;
-		// Use contract data if needed
 	} catch (error) {
 		console.error("Không thể tải hợp đồng", error);
 		return null;
@@ -140,15 +177,30 @@ const getContract = async (): Promise<Contract | null> => {
 
 //#region On Submit
 const onSubmit = async (formInfo: any) => {
+	debugger;
 	const { valid, values } = formInfo;
 	if (valid) {
 		try {
-			const review: ClientReviewMc = {
-				...values,
-				contractId: contractId,
-				mcId: 58,
-			};
-			await clientReviewMcApi.create(review);
+			if (isMc.value) {
+				// MC reviewing Client
+				const mcReview: McReviewClient = {
+					...values,
+					contractId: contractId,
+					mcId: authStore.user?.id,
+					clientId: contract.value?.clientId,
+				};
+				await mcReviewClientApi.create(mcReview);
+			} else {
+				// Client reviewing MC
+				const clientReview: ClientReviewMc = {
+					...values,
+					contractId: contractId,
+					clientId: authStore.user?.id,
+					mcId: contract.value?.mcId,
+				};
+				await clientReviewMcApi.create(clientReview);
+			}
+
 			router.push({ name: "user-notification-list" });
 			toast.add({
 				severity: "success",
@@ -158,6 +210,12 @@ const onSubmit = async (formInfo: any) => {
 			});
 		} catch (error) {
 			console.error("Không thể gửi đánh giá", error);
+			toast.add({
+				severity: "error",
+				summary: "Submission Failed",
+				detail: "There was an error submitting your review",
+				life: 3000,
+			});
 		}
 	}
 };

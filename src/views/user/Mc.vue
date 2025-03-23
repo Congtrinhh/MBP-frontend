@@ -44,6 +44,7 @@
 						>Thông tin</Tab
 					>
 					<Tab
+						v-if="user.isMc"
 						value="1"
 						:pt="{
 							root: {
@@ -53,6 +54,7 @@
 						>Ảnh</Tab
 					>
 					<Tab
+						v-if="user.isMc"
 						value="2"
 						:pt="{
 							root: {
@@ -74,17 +76,17 @@
 				<TabPanels>
 					<TabPanel value="0">
 						<div class="tab-content-wrapper">
+							<!-- MC editing form - keeps all original fields -->
 							<Form
-								v-if="editingMode == EditingMode.Update"
+								v-if="editingMode == EditingMode.Update && user.isMc"
 								class="flex flex-col gap-4 w-full sm:w-56"
-								:resolver="formResolver"
+								:resolver="mcFormResolver"
 								:initialValues="formInitialValues"
 								@submit="onFormSubmit"
 							>
 								<div class="top">
 									<Button
 										type="button"
-										label="Gửi offer"
 										severity="secondary"
 										v-if="editingMode == EditingMode.Update"
 										@click="cancelEditGeneralInfo"
@@ -94,6 +96,7 @@
 									</Button>
 									<Button v-if="editingMode == EditingMode.Update" type="submit"> Lưu </Button>
 								</div>
+
 								<FormField name="nickName" class="flex flex-col gap-1" v-slot="$field">
 									<label for="nickName" class="form-label">Nghệ danh</label>
 									<InputText type="text" placeholder="Nhập nghệ danh" />
@@ -210,71 +213,155 @@
 								</FormField>
 							</Form>
 
-							<div v-else class="general-info-wrapper">
-								<div class="info-item">
-									<i class="icon pi pi-user-edit"></i>
-									<div class="label">Nghệ danh</div>
-									<div class="value line-clamp-3">{{ user.nickName }}</div>
+							<!-- Guest booking MC editing form -->
+							<Form
+								v-if="editingMode == EditingMode.Update && !user.isMc"
+								class="flex flex-col gap-4 w-full sm:w-56"
+								:resolver="guestFormResolver"
+								:initialValues="formInitialValues"
+								@submit="onFormSubmit"
+							>
+								<div class="top">
+									<Button
+										type="button"
+										severity="secondary"
+										v-if="editingMode == EditingMode.Update"
+										@click="cancelEditGeneralInfo"
+										width="80px"
+									>
+										Hủy
+									</Button>
+									<Button v-if="editingMode == EditingMode.Update" type="submit"> Lưu </Button>
 								</div>
-								<div class="info-item">
-									<i class="icon pi pi-align-center"></i>
-									<div class="label">Loại MC</div>
-									<div class="value line-clamp-3">{{ mcTypesText }}</div>
-								</div>
-								<div class="info-item">
-									<i class="icon pi pi-sparkles"></i>
-									<div class="label">Phong cách dẫn</div>
-									<div class="value line-clamp-3">{{ hostingStylesText }}</div>
-								</div>
-								<div class="info-item">
-									<i class="icon pi pi-pen-to-square"></i>
-									<div class="label">Mô tả về bản thân</div>
-									<div class="value line-clamp-3">{{ user.description }}</div>
-								</div>
-								<div class="info-item">
-									<i class="icon pi pi-mars"></i>
-									<div class="label">Giới tính</div>
-									<div class="value line-clamp-3">{{ getGenderText(user.gender) }}</div>
-								</div>
-								<div class="info-item">
-									<i class="icon pi pi-clock"></i>
-									<div class="label">Tuổi</div>
-									<div class="value line-clamp-3">{{ user.age }}</div>
-								</div>
-								<div class="info-item">
-									<i class="icon pi pi-map-marker"></i>
-									<div class="label">Khu vực hoạt động</div>
-									<div class="value line-clamp-3">{{ areasText }}</div>
-								</div>
-								<div class="info-item">
-									<i class="icon pi pi-facebook"></i>
-									<div class="label">Facebook</div>
-									<div class="value line-clamp-3">
-										<a :href="user.facebook" class="underline" target="_blank">{{
-											user.facebook
-										}}</a>
+
+								<FormField name="fullName" class="flex flex-col gap-1" v-slot="$field">
+									<label for="fullName" class="form-label">Họ và tên</label>
+									<InputText type="text" placeholder="Nhập họ và tên" />
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
+								</FormField>
+
+								<FormField name="description" class="flex flex-col gap-1" v-slot="$field">
+									<label for="description" class="form-label">Mô tả về bản thân</label>
+									<Textarea rows="5" cols="30" placeholder="Nhập mô tả về bản thân" />
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
+								</FormField>
+
+								<FormField name="facebook" class="flex flex-col gap-1" v-slot="$field">
+									<label for="facebook" class="form-label">Facebook</label>
+									<InputText type="text" placeholder="Nhập link facebook" />
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
+								</FormField>
+
+								<FormField name="zalo" class="flex flex-col gap-1" v-slot="$field">
+									<label for="zalo" class="form-label">Zalo</label>
+									<InputText type="text" placeholder="Nhập số zalo" />
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
+								</FormField>
+							</Form>
+
+							<div v-if="editingMode == EditingMode.None" class="general-info-wrapper">
+								<!-- Show different fields based on whether user is MC or Guest -->
+								<template v-if="user.isMc">
+									<div class="info-item">
+										<i class="icon pi pi-user-edit"></i>
+										<div class="label">Nghệ danh</div>
+										<div class="value line-clamp-3">{{ user.nickName }}</div>
 									</div>
-								</div>
-								<div class="info-item">
-									<i class="icon pi pi-link"></i>
-									<div class="label">Zalo</div>
-									<div class="value line-clamp-3">{{ user.zalo }}</div>
-								</div>
-								<div class="info-item">
-									<i class="icon pi pi-graduation-cap"></i>
-									<div class="label">Học vấn</div>
-									<div class="value line-clamp-3">{{ user.education }}</div>
-								</div>
-								<div class="info-item">
-									<i class="icon pi pi-angle-double-up"></i>
-									<div class="label">Chiều cao</div>
-									<div class="value line-clamp-3">{{ user.height }}</div>
-								</div>
-								<div class="info-item">
-									<i class="icon pi pi-gauge"></i>
-									<div class="label">Cân nặng</div>
-									<div class="value line-clamp-3">{{ user.weight }}</div>
-								</div>
+									<div class="info-item">
+										<i class="icon pi pi-align-center"></i>
+										<div class="label">Loại MC</div>
+										<div class="value line-clamp-3">{{ mcTypesText }}</div>
+									</div>
+									<div class="info-item">
+										<i class="icon pi pi-sparkles"></i>
+										<div class="label">Phong cách dẫn</div>
+										<div class="value line-clamp-3">{{ hostingStylesText }}</div>
+									</div>
+									<div class="info-item">
+										<i class="icon pi pi-pen-to-square"></i>
+										<div class="label">Mô tả về bản thân</div>
+										<div class="value line-clamp-3">{{ user.description }}</div>
+									</div>
+									<div class="info-item">
+										<i class="icon pi pi-mars"></i>
+										<div class="label">Giới tính</div>
+										<div class="value line-clamp-3">{{ getGenderText(user.gender) }}</div>
+									</div>
+									<div class="info-item">
+										<i class="icon pi pi-clock"></i>
+										<div class="label">Tuổi</div>
+										<div class="value line-clamp-3">{{ user.age }}</div>
+									</div>
+									<div class="info-item">
+										<i class="icon pi pi-map-marker"></i>
+										<div class="label">Khu vực hoạt động</div>
+										<div class="value line-clamp-3">{{ areasText }}</div>
+									</div>
+									<div class="info-item">
+										<i class="icon pi pi-facebook"></i>
+										<div class="label">Facebook</div>
+										<div class="value line-clamp-3">
+											<a :href="user.facebook" class="underline" target="_blank">{{
+												user.facebook
+											}}</a>
+										</div>
+									</div>
+									<div class="info-item">
+										<i class="icon pi pi-link"></i>
+										<div class="label">Zalo</div>
+										<div class="value line-clamp-3">{{ user.zalo }}</div>
+									</div>
+									<div class="info-item">
+										<i class="icon pi pi-graduation-cap"></i>
+										<div class="label">Học vấn</div>
+										<div class="value line-clamp-3">{{ user.education }}</div>
+									</div>
+									<div class="info-item">
+										<i class="icon pi pi-angle-double-up"></i>
+										<div class="label">Chiều cao</div>
+										<div class="value line-clamp-3">{{ user.height }}</div>
+									</div>
+									<div class="info-item">
+										<i class="icon pi pi-gauge"></i>
+										<div class="label">Cân nặng</div>
+										<div class="value line-clamp-3">{{ user.weight }}</div>
+									</div>
+								</template>
+								<!-- Guest booking MC display -->
+								<template v-else>
+									<div class="info-item">
+										<i class="icon pi pi-user"></i>
+										<div class="label">Họ và tên</div>
+										<div class="value line-clamp-3">{{ user.fullName }}</div>
+									</div>
+									<div class="info-item">
+										<i class="icon pi pi-pen-to-square"></i>
+										<div class="label">Mô tả về bản thân</div>
+										<div class="value line-clamp-3">{{ user.description }}</div>
+									</div>
+									<div class="info-item">
+										<i class="icon pi pi-facebook"></i>
+										<div class="label">Facebook</div>
+										<div class="value line-clamp-3">
+											<a :href="user.facebook" class="underline" target="_blank">{{
+												user.facebook
+											}}</a>
+										</div>
+									</div>
+									<div class="info-item">
+										<i class="icon pi pi-link"></i>
+										<div class="label">Zalo</div>
+										<div class="value line-clamp-3">{{ user.zalo }}</div>
+									</div>
+								</template>
 							</div>
 						</div>
 					</TabPanel>
@@ -384,17 +471,37 @@
 								<Card>
 									<template #header>
 										<div class="review-header">
-											<img
-												:src="review.client?.avatarUrl"
-												alt="client avatar"
-												class="client-avatar"
-											/>
-											<div class="client-info">
-												<div class="client-name">
-													{{ review.client?.fullName ?? "Hoàng Văn Khách" }}
+											<!-- Display MC info if it's McReviewClient, otherwise display Client info -->
+											<template v-if="isMcReviewClient(review)">
+												<img
+													:src="review.mc?.avatarUrl"
+													alt="mc avatar"
+													class="client-avatar"
+												/>
+												<div class="client-info">
+													<div class="client-name">
+														{{ review.mc?.nickName || review.mc?.fullName || "Unknown MC" }}
+													</div>
+													<div class="review-date" v-format-date="review.createdAt"></div>
 												</div>
-												<div class="review-date" v-format-date="review.createdAt"></div>
-											</div>
+											</template>
+											<template v-else>
+												<img
+													:src="review.client?.avatarUrl"
+													alt="client avatar"
+													class="client-avatar"
+												/>
+												<div class="client-info">
+													<div class="client-name">
+														{{
+															review.client?.fullName ||
+															review.client?.nickName ||
+															"Unknown Client"
+														}}
+													</div>
+													<div class="review-date" v-format-date="review.createdAt"></div>
+												</div>
+											</template>
 										</div>
 									</template>
 									<template #content>
@@ -403,15 +510,27 @@
 											<div class="event-name">{{ review.contract?.eventName }}</div>
 											<div class="short-description mb-3">{{ review.shortDescription }}</div>
 
-											<div class="pro-point-wrapper flex align-center justify-between">
-												<div class="label">Kỹ năng chuyên môn</div>
-												<Rating v-model="review.proPoint" readonly></Rating>
-											</div>
+											<!-- Display paymentPunctualPoint if it's McReviewClient -->
+											<template v-if="isMcReviewClient(review)">
+												<div
+													class="payment-punctual-point-wrapper flex align-center justify-between"
+												>
+													<div class="label">Thanh toán đúng hạn</div>
+													<Rating v-model="review.paymentPunctualPoint" readonly></Rating>
+												</div>
+											</template>
+											<!-- Display proPoint and attitudePoint if it's ClientReviewMc -->
+											<template v-else>
+												<div class="pro-point-wrapper flex align-center justify-between">
+													<div class="label">Kỹ năng chuyên môn</div>
+													<Rating v-model="review.proPoint" readonly></Rating>
+												</div>
 
-											<div class="attitude-point-wrapper flex align-center justify-between">
-												<div class="label">Tinh thần thái độ</div>
-												<Rating v-model="review.attitudePoint" readonly></Rating>
-											</div>
+												<div class="attitude-point-wrapper flex align-center justify-between">
+													<div class="label">Tinh thần thái độ</div>
+													<Rating v-model="review.attitudePoint" readonly></Rating>
+												</div>
+											</template>
 
 											<div class="reliable-point-wrapper flex align-center justify-between">
 												<div class="label">Độ tin cậy</div>
@@ -553,12 +672,15 @@ import type { ClientReviewMc } from "@/entities/clientReviewMc";
 import type { ClientReviewMcPagedRequest } from "@/entities/user/paging/clientReviewMcPagedRequest";
 import MMediaViewer from "@/components/MMediaViewer.vue";
 import draggable from "vuedraggable";
+import type { McReviewClient } from "@/entities/mcReviewClient";
+import type { McReviewClientPagedRequest } from "@/entities/user/paging/mcReviewClientPagedRequest";
+import { mcReviewClientApi } from "@/apis/mcReviewClientApi";
 
 const toast = useToast();
 const route = useRoute();
 const userId = Number(route.params.id);
 
-const user = ref<User>({});
+const user = ref<User>({ isMc: true });
 
 // có thể sửa profile hay ko
 const hasEditPermission = computed(() => authStore.user!! && authStore.user.id == userId);
@@ -566,23 +688,31 @@ const hasEditPermission = computed(() => authStore.user!! && authStore.user.id =
 // có phải người đang login và người trong profile này là cùng 1 người hay ko
 const isLoggedUser = computed(() => authStore.user!! && authStore.user.id == userId);
 
-const formResolver = ref(
-	zodResolver(
-		z.object({
-			age: z.number().optional(),
-			nickName: z.string().min(1, { message: "Không được bỏ trống" }),
-			gender: z.number(),
-			description: z.string().optional(),
-			education: z.string().optional(),
-			height: z.any().optional(),
-			weight: z.any().optional(),
-			mcTypes: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
-			provinces: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
-			hostingStyles: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
-			facebook: z.string().max(255, { message: "Không được vượt quá 255 ký tự" }).optional(),
-			zalo: z.string().max(255, { message: "Không được vượt quá 255 ký tự" }).optional(),
-		})
-	)
+// Split form resolvers for MC and guest users
+const mcFormResolver = zodResolver(
+	z.object({
+		age: z.number().optional(),
+		nickName: z.string().min(1, { message: "Không được bỏ trống" }),
+		gender: z.number(),
+		description: z.string().optional(),
+		education: z.string().optional(),
+		height: z.any().optional(),
+		weight: z.any().optional(),
+		mcTypes: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
+		provinces: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
+		hostingStyles: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
+		facebook: z.string().max(255, { message: "Không được vượt quá 255 ký tự" }).optional(),
+		zalo: z.string().max(255, { message: "Không được vượt quá 255 ký tự" }).optional(),
+	})
+);
+
+const guestFormResolver = zodResolver(
+	z.object({
+		fullName: z.string().min(1, { message: "Không được bỏ trống" }),
+		description: z.string().optional(),
+		facebook: z.string().max(255, { message: "Không được vượt quá 255 ký tự" }).optional(),
+		zalo: z.string().max(255, { message: "Không được vượt quá 255 ký tự" }).optional(),
+	})
 );
 
 const hostingStyleStore = useHostingStyleStore();
@@ -614,15 +744,18 @@ const formInitialValues = ref({
 	...user.value,
 });
 
-const handleSaveGeneralInfo = async (user: User) => {
-	user.id = userId;
-	// Handle details' entity state
-	user.mcTypes = updateEntityState(user.mcTypes, formInitialValues.value.mcTypes);
-	user.hostingStyles = updateEntityState(user.hostingStyles, formInitialValues.value.hostingStyles);
-	user.provinces = updateEntityState(user.provinces, formInitialValues.value.provinces);
+const handleSaveGeneralInfo = async (userSave: User) => {
+	userSave.id = userId;
 
-	// Save user logic here...
-	const response = await userApi.update(userId, user);
+	// Handle details' entity state
+	if (authStore.user?.isMc == "True") {
+		userSave.mcTypes = updateEntityState(userSave.mcTypes, formInitialValues.value.mcTypes);
+		userSave.hostingStyles = updateEntityState(userSave.hostingStyles, formInitialValues.value.hostingStyles);
+		userSave.provinces = updateEntityState(userSave.provinces, formInitialValues.value.provinces);
+	}
+
+	await userApi.update(userId, userSave);
+
 	editingMode.value = EditingMode.None;
 	toast.add({
 		severity: "success",
@@ -630,6 +763,8 @@ const handleSaveGeneralInfo = async (user: User) => {
 		detail: "Your general information has been saved",
 		life: 3000,
 	});
+
+	await setUser();
 };
 
 const cancelEditGeneralInfo = () => {
@@ -795,7 +930,7 @@ const onAddVideoClick = () => {
 //#endregion
 
 //#region Review Tab Panel Logic
-const reviews = ref<ClientReviewMc[]>([]);
+const reviews = ref<ClientReviewMc[] | McReviewClient[]>([]);
 const reviewPage = ref(0);
 const reviewPageSize = 10;
 const hasMoreReviews = ref(true);
@@ -806,39 +941,58 @@ const fetchReviews = async () => {
 
 	isLoadingReviews.value = true;
 
-	const pagedRequest: ClientReviewMcPagedRequest = {
-		pageIndex: reviewPage.value,
-		pageSize: reviewPageSize,
-		mcId: userId,
-		isUseProc: true,
-		isGetContract: true,
-		isGetMc: true,
-		isGetClient: true,
-	};
+	let response;
+	if (user.value.isMc) {
+		const pagedRequest: ClientReviewMcPagedRequest = {
+			pageIndex: reviewPage.value,
+			pageSize: reviewPageSize,
+			mcId: userId,
+			isUseProc: true,
+			isGetContract: true,
+			isGetMc: true,
+			isGetClient: true,
+		};
+		response = await clientReviewMcApi.getPaged(pagedRequest);
+	} else {
+		const pagedRequest: McReviewClientPagedRequest = {
+			pageIndex: reviewPage.value,
+			pageSize: reviewPageSize,
+			clientId: userId,
+			isUseProc: true,
+			isGetContract: true,
+			isGetMc: true,
+			isGetClient: true,
+		};
+		response = await mcReviewClientApi.getPaged(pagedRequest);
+	}
 
-	const response = await clientReviewMcApi.getPaged(pagedRequest);
 	if (response.items.length < reviewPageSize) {
 		hasMoreReviews.value = false;
 	}
-	reviews.value.push(...response.items.map((item) => ({ ...item, collapsed: true })));
+
+	if (user.value.isMc) {
+		reviews.value = reviews.value.concat(
+			response.items.map((item: ClientReviewMc) => ({ ...item, collapsed: true }))
+		);
+	} else {
+		reviews.value = reviews.value.concat(
+			response.items.map((item: McReviewClient) => ({ ...item, collapsed: true }))
+		);
+	}
+
 	reviewPage.value++;
 	isLoadingReviews.value = false;
 };
-
-const handleScroll = async (event) => {
-	const bottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
-	if (bottom) {
-		await fetchReviews();
-	}
-};
 //#endregion
-
-onMounted(async () => {
+const setUser = async () => {
 	const userFromApi = await userApi.getById(userId);
 	user.value = userFromApi;
 	formInitialValues.value = {
 		...userFromApi,
 	};
+};
+onMounted(async () => {
+	await setUser();
 });
 
 const onFormSubmit = (e) => {
@@ -850,7 +1004,6 @@ const onFormSubmit = (e) => {
 	// e.reset: A function that resets the form to its initial state.
 	if (e.valid) {
 		handleSaveGeneralInfo(e.values);
-		toast.add({ severity: "success", summary: "Form is submitted.", life: 3000 });
 	}
 };
 
@@ -864,10 +1017,16 @@ enum TabType {
 const activeTab = ref("0");
 
 const handleTabChange = async (value: number) => {
+	editingMode.value = EditingMode.None;
+
 	activeTab.value = value.toString();
-	if (value == TabType.Image) {
+	if (value == TabType.GeneralInfo) {
+		await setUser();
+	}
+	// Only load images & videos if us.review-header .client-avatar[data-v-423f3bc4]er is MC
+	else if (value == TabType.Image && user.value.isMc) {
 		await fetchImages();
-	} else if (value == TabType.Video) {
+	} else if (value == TabType.Video && user.value.isMc) {
 		await fetchVideos();
 	} else if (value == TabType.Review) {
 		await fetchReviews();
@@ -1019,6 +1178,10 @@ const openVideoViewer = (index: number) => {
 	isVideoViewerVisible.value = true;
 };
 // #endregion
+
+const isMcReviewClient = (review: any): boolean => {
+	return "paymentPunctualPoint" in review;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -1270,6 +1433,7 @@ section.top {
 		height: 40px;
 		border-radius: 50%;
 		margin-right: 12px;
+		object-fit: cover;
 	}
 
 	.client-info {

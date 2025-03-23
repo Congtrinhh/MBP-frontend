@@ -116,7 +116,7 @@ const handleTabClick = (item) => {
 
 .unread-notification-count-wrapper {
 	position: absolute;
-	top: 2px;
+	top: 0px;
 	left: 50%;
 	transform: translateX(calc(-50% + 11px));
 
@@ -125,11 +125,17 @@ const handleTabClick = (item) => {
 	justify-content: center;
 
 	border-radius: 50%;
-	width: 16px;
-	height: 16px;
+	width: 18px;
+	height: 18px;
 
 	background: #333;
 	color: #fff;
 	font-size: 0.85rem;
+}
+
+.unread-notification-count {
+	font-weight: 600;
+	width: 10px;
+	text-align: center;
 }
 </style>

@@ -334,7 +334,7 @@ const formResolver = zodResolver(
 
 const onFormSubmit = async (formInfo: any) => {
 	const { valid, values } = formInfo;
-	console.log(formInfo);
+
 	if (valid) {
 		values.userId = userId;
 		values.postGroup = activeGroup.value;
@@ -409,14 +409,26 @@ const closePostDialog = async (isSave: boolean = false) => {
 
 //#region Post Management
 const savePost = async (post: Post) => {
-	await postApi.create(post);
+	if (editingMode.value == EditingMode.Update) {
+		post.id = selectedPostId.value;
+		await postApi.update(selectedPostId.value, post);
+		toast.add({
+			severity: "success",
+			summary: "Post Created",
+			detail: "Your post has been updated successfully",
+			life: 3000,
+		});
+	} else if (editingMode.value == EditingMode.Create) {
+		await postApi.create(post);
+		toast.add({
+			severity: "success",
+			summary: "Post Created",
+			detail: "Your post has been created successfully",
+			life: 3000,
+		});
+	}
+
 	await closePostDialog(true);
-	toast.add({
-		severity: "success",
-		summary: "Post Created",
-		detail: "Your post has been created successfully",
-		life: 3000,
-	});
 };
 //#endregion
 
