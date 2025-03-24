@@ -603,12 +603,15 @@ async function handleDeletePost() {
 header.header {
 	background: #fff;
 	padding: 8px 16px;
+	border-bottom: 1px solid #ddd;
+
 	display: flex;
 	flex-direction: column;
+	align-items: flex-start;
+
 	position: sticky;
 	top: 0;
 	z-index: 1;
-	border-bottom: 1px solid #ddd;
 
 	.logo {
 		font-weight: bold;

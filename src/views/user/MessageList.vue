@@ -99,69 +99,9 @@
 					</div>
 					<div class="info-container">
 						<div class="name">Trịnh Quý Công</div>
-						<div class="message-preview">abc</div>
-						<div class="time-ago">1 giờ trước</div>
-					</div>
-				</div>
-				<div class="message-item">
-					<div class="avatar">
-						<img src="https://picsum.photos/200" alt="" />
-					</div>
-					<div class="info-container">
-						<div class="name">Trịnh Quý Công</div>
-						<div class="message-preview">abc</div>
-						<div class="time-ago">1 giờ trước</div>
-					</div>
-				</div>
-				<div class="message-item">
-					<div class="avatar">
-						<img src="https://picsum.photos/200" alt="" />
-					</div>
-					<div class="info-container">
-						<div class="name">Trịnh Quý Công</div>
 						<div class="message-preview line-clamp-1">
 							abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc
 						</div>
-						<div class="time-ago">1 giờ trước</div>
-					</div>
-				</div>
-				<div class="message-item">
-					<div class="avatar">
-						<img src="https://picsum.photos/200" alt="" />
-					</div>
-					<div class="info-container">
-						<div class="name">Trịnh Quý Công</div>
-						<div class="message-preview">abc</div>
-						<div class="time-ago">1 giờ trước</div>
-					</div>
-				</div>
-				<div class="message-item">
-					<div class="avatar">
-						<img src="https://picsum.photos/200" alt="" />
-					</div>
-					<div class="info-container">
-						<div class="name">Trịnh Quý Công</div>
-						<div class="message-preview">abc</div>
-						<div class="time-ago">1 giờ trước</div>
-					</div>
-				</div>
-				<div class="message-item">
-					<div class="avatar">
-						<img src="https://picsum.photos/200" alt="" />
-					</div>
-					<div class="info-container">
-						<div class="name">Trịnh Quý Công</div>
-						<div class="message-preview">abc</div>
-						<div class="time-ago">1 giờ trước</div>
-					</div>
-				</div>
-				<div class="message-item">
-					<div class="avatar">
-						<img src="https://picsum.photos/200" alt="" />
-					</div>
-					<div class="info-container">
-						<div class="name">Trịnh Quý Công</div>
-						<div class="message-preview">abc</div>
 						<div class="time-ago">1 giờ trước</div>
 					</div>
 				</div>
