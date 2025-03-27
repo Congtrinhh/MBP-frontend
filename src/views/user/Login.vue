@@ -1,7 +1,7 @@
 <template>
-	<div>
+	<main class="main-container">
 		<GoogleSignInButton @success="handleLoginSuccess" @error="handleLoginError"></GoogleSignInButton>
-	</div>
+	</main>
 </template>
 
 <script setup lang="ts">
@@ -34,11 +34,8 @@ const handleLoginSuccess = async (response: CredentialResponse) => {
 	const createUserResponse = await authApi.loginWithGoogle(credential, false, false);
 
 	if (createUserResponse.data.isNewUser === true) {
-		setTimeout(async () => {
-			const isMc = true;
-			const createUserAgainResponse = await authApi.loginWithGoogle(credential, true, isMc);
-			console.log("createUserAgainResponse", createUserAgainResponse);
-		}, 2000);
+		// Redirect to the choose user type screen and pass credential
+		router.push({ name: "user-choose-type", query: { credential } });
 	} else {
 		authStore.login(createUserResponse.data.accessToken);
 

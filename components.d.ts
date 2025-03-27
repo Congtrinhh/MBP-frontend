@@ -39,6 +39,7 @@ declare module 'vue' {
     MMediaViewer: typeof import('./src/components/MMediaViewer.vue')['default']
     MultiSelect: typeof import('primevue/multiselect')['default']
     NotificationList: typeof import('./src/components/NotificationList.vue')['default']
+    RadioButton: typeof import('primevue/radiobutton')['default']
     Rating: typeof import('primevue/rating')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

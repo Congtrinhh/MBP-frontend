@@ -96,6 +96,7 @@ const logout = async () => {
 	display: flex;
 	flex-direction: column;
 	padding-top: 16px;
+	flex: 1;
 }
 .option-item {
 	display: flex;
