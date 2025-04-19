@@ -1,13 +1,13 @@
 <template>
 	<main class="main-container p-4">
 		<!-- Step Progress -->
-		<div class="steps-container mb-8">
+		<div v-if="!isVerified" class="steps-container mb-8">
 			<div class="flex justify-between items-center">
 				<div v-for="(step, index) in steps" :key="index" class="step-item flex-1 text-center">
 					<div
 						:class="[
 							'step-number mx-auto mb-2 rounded-full w-8 h-8 flex items-center justify-center',
-							currentStep >= index ? 'bg-primary text-white' : 'bg-gray-200',
+							currentStep == index ? 'active' : 'bg-gray-200',
 						]"
 					>
 						{{ index + 1 }}
@@ -57,8 +57,10 @@
 
 			<!-- Information Confirmation Step -->
 			<information-verification-step
-				v-if="currentStep === 4 && idInfo"
+				v-if="(currentStep === 4 && idInfo) || (isVerified && idInfo)"
 				:id-info="idInfo"
+				:is-verified="isVerified"
+				:verified-at="status?.verifiedAt"
 				@confirm="handleInfoConfirmed"
 				@back="currentStep--"
 			/>
@@ -77,7 +79,7 @@ import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import Button from "primevue/button";
 import { idVerificationApi } from "@/apis/idVerificationApi";
-import type { IdInfo } from "@/entities/idVerification";
+import type { IdInfo, UserIdVerification } from "@/entities/idVerification";
 import FaceCaptureStep from "@/components/identity-verification/FaceCaptureStep.vue";
 import IdCardCaptureStep from "@/components/identity-verification/IdCardCaptureStep.vue";
 import InformationVerificationStep from "@/components/identity-verification/InformationVerificationStep.vue";
@@ -86,10 +88,12 @@ const router = useRouter();
 const toast = useToast();
 const currentStep = ref(0);
 const idInfo = ref<IdInfo | null>(null);
+const isVerified = ref(false);
+const status = ref<UserIdVerification | null>(null);
 
 const steps = [
 	{
-		label: "Tổng quan",
+		label: `Các bước thực hiện`,
 		description: "Xem tổng quan các bước xác minh danh tính",
 	},
 	{
@@ -181,9 +185,24 @@ const handleInfoConfirmed = async () => {
 
 onMounted(async () => {
 	try {
-		const status = await idVerificationApi.getStatus();
-		if (status.currentStep) {
-			currentStep.value = status.currentStep;
+		status.value = await idVerificationApi.getStatus();
+
+		if (!status.value) {
+			throw new Error("Failed to load verification status");
+		}
+
+		isVerified.value = status.value.status === 1;
+
+		// If verified, load ID info directly
+		if (isVerified.value) {
+			const info = await idVerificationApi.getIdInfo();
+			if (!info) {
+				throw new Error("Failed to load ID information");
+			}
+			idInfo.value = info;
+			currentStep.value = 4; // Show information step
+		} else if (status.value.currentStep) {
+			currentStep.value = status.value.currentStep;
 		}
 	} catch (error) {
 		toast.add({
@@ -213,5 +232,14 @@ onMounted(async () => {
 
 .step-item:not(:last-child).active::after {
 	background-color: var(--primary-color);
+}
+
+.step-number {
+	z-index: 1;
+	position: relative;
+}
+.step-number.active {
+	background-color: #333;
+	color: #fff;
 }
 </style>

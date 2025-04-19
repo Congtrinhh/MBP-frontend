@@ -1,9 +1,18 @@
 <template>
 	<div class="information-verification-step">
-		<h2 class="text-xl font-semibold mb-4 text-center">Xác nhận thông tin</h2>
+		<h2 class="text-xl font-semibold mb-4 text-center">
+			{{ props.isVerified ? "Thông tin xác minh danh tính" : "Xác nhận thông tin" }}
+		</h2>
 
-		<div class="bg-gray-50 p-4 rounded-lg">
-			<p class="text-sm text-gray-600 mb-4">Vui lòng kiểm tra kỹ thông tin được trích xuất từ CCCD của bạn</p>
+		<div v-if="props.isVerified" class="p-3 pt-0">
+			<span>Xác thực vào: </span>
+			<span v-format-date="props.verifiedAt"></span>
+		</div>
+
+		<div class="bg-gray-50 rounded-lg">
+			<p v-if="!props.isVerified" class="text-sm text-gray-600 mb-4 px-4 pt-4">
+				Vui lòng kiểm tra kỹ thông tin được trích xuất từ CCCD của bạn
+			</p>
 
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<!-- Basic Information -->
@@ -100,7 +109,7 @@
 			</div>
 
 			<!-- Action Buttons -->
-			<div class="flex justify-between mt-6">
+			<div v-if="!props.isVerified" class="flex justify-between mt-6">
 				<Button @click="$emit('back')" severity="secondary" label="Quay lại" />
 				<div class="flex gap-2">
 					<!-- <Button v-if="!isEditing" @click="startEditing" severity="secondary" label="Chỉnh sửa" /> -->
@@ -126,6 +135,8 @@ import type { IdInfo } from "@/entities/idVerification";
 
 const props = defineProps<{
 	idInfo: IdInfo;
+	verifiedAt?: Date;
+	isVerified?: boolean;
 }>();
 
 const emit = defineEmits<{
