@@ -66,6 +66,11 @@ const router = createRouter({
 					component: () => import("@/views/user/ContractList.vue"),
 				},
 				{
+					path: "user-identity-verification",
+					name: "user-identity-verification",
+					component: () => import("@/views/IdentityVerification/IdentityVerificationView.vue"),
+				},
+				{
 					path: "review/:contractId/:notificationId",
 					name: "user-review",
 					component: () => import("@/views/user/Review.vue"),

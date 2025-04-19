@@ -116,10 +116,6 @@ img {
 }
 
 main.main-container {
-	/* margin-bottom: 60px; */
 	height: calc(100vh - 60px);
-}
-
-.p-button {
-	/* min-width: 68px; */
+	overflow: auto;
 }

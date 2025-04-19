@@ -6,5 +6,5 @@ export interface BaseEntity {
 	modifiedAt?: Date;
 	createdBy?: number;
 	modifiedBy?: number;
-	entityState?: EntityState;
+	entityState: EntityState;
 }

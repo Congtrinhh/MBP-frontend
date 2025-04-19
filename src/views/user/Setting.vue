@@ -16,7 +16,7 @@
 				<div class="icon pi pi-book"></div>
 				<div class="text">Hợp đồng</div>
 			</div>
-			<div class="option-item">
+			<div class="option-item" @click="redirectToIdVerification">
 				<div class="icon pi pi-lock-open"></div>
 				<div class="text">Xác minh danh tính</div>
 			</div>
@@ -51,6 +51,10 @@ const redirectToLogin = () => {
 
 const redirectToContracts = () => {
 	router.push({ name: "user-contract-list" });
+};
+
+const redirectToIdVerification = () => {
+	router.push({ name: "user-identity-verification" });
 };
 
 const logout = async () => {
