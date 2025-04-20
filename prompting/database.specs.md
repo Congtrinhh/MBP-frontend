@@ -21,9 +21,11 @@ MySQL version 8.0.40
 # Don't
 
 -   add index (except foreign key index)
+-   read Db/ folder
 
 # Do
 
+-   use mcp_server_mysql mcp server to interact with the database
 -   foreign key restrict on delete, update
 -   use english concise comment for tables, fields. if comment on fields with value such as 1, 2,3, try to comment clearly which value means what.
 -   care about default value if specified

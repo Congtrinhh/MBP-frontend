@@ -21,9 +21,11 @@ class BaseApi<T> {
 			this.baseUrl = this.defaultBaseUrl;
 		}
 
-		BaseApi.axiosInstance = axios.create({
-			baseURL: this.baseUrl,
-		});
+		if (!BaseApi.axiosInstance) {
+			BaseApi.axiosInstance = axios.create({
+				baseURL: this.baseUrl,
+			});
+		}
 	}
 
 	/**

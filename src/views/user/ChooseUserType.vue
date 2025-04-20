@@ -36,7 +36,6 @@ const goBack = () => {
 };
 
 const submitUserType = async () => {
-	debugger;
 	if (!credential) {
 		toast.add({ severity: "error", summary: "Error", detail: "Missing credential", life: 3000 });
 		return;
