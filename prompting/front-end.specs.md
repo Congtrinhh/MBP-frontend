@@ -75,7 +75,7 @@ D:/\_\_\_Đồ án/MBP/Frontend
 
 ## Note
 
--   Use PrimeVue as UI library: for form validation, components,..
+-   Use PrimeVue as UI library: for form validation, components,..: https://primevue.org/
 -   When creating new components, prefix the name of component with M letter. for example MImageViewer, MMcItem,.. to differentiate between components from MBP and other libraries.
 -   This app is MBP (MC Booking Platform) running mostly in browser of mobile devices (iphone, android phones), so the UI should be mobile user-friendly with actions like touch, swipe up, swipe down, scroll,..
 -   Most of the users (80%) use iphone, so the ux should be mobile-friendly for iphone users.

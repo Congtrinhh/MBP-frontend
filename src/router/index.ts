@@ -1,15 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { adminRoutes, setupAdminRouteGuard } from "./adminRoutes";
 
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
 	routes: [
-		// admin routes
-		{
-			path: "/admin",
-			name: "admin",
-			component: () => import("@/views/admin/layout/AdminLayout.vue"),
-			children: [],
-		},
+		...adminRoutes,
 		{
 			path: "/",
 			name: "user",
@@ -98,5 +93,8 @@ const router = createRouter({
 		},
 	],
 });
+
+// Setup admin route guard
+setupAdminRouteGuard(router);
 
 export default router;
