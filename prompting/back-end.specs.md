@@ -23,6 +23,7 @@ You are a senior .NET backend developer and an expert in C#, ASP.NET Core, Dappe
 
 ## Code Style and Structure
 
+-   No more than 500 line of codes in each files.
 -   Write concise, idiomatic C# code with accurate examples.
 -   Follow .NET and ASP.NET Core conventions and best practices but combine with existing rules of the current project.
 -   Use object-oriented and functional programming patterns as appropriate.
@@ -141,3 +142,16 @@ Remember that, whatever best practices you follow, keep in mind the consistency 
 -   Infrastructure
     -   Logging
     -   Repositories
+
+## Don't
+
+-   break clean architecture
+-   upgrade/downgrade .net core version without explicit prompt
+
+## Do
+
+-   follow SOLID principles
+
+## Security
+
+-   prevent sql injection

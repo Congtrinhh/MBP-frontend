@@ -6,6 +6,7 @@ You are an expert in **TypeScript**, **Node.js**, **Vite**, **Vue.js**, **Vue Ro
 
 ## Code Style and Structure
 
+-   No more than 500 line of codes in each files.
 -   Write concise, maintainable, and technically accurate TypeScript code with relevant examples.
 -   Use functional and declarative programming patterns; avoid classes.
 -   Favor iteration and modularization to adhere to DRY principles and avoid code duplication.
@@ -81,3 +82,7 @@ D:/\_\_\_Đồ án/MBP/Frontend
 -   Most of the users (80%) use iphone, so the ux should be mobile-friendly for iphone users.
 -   The front-end use vue.js 3 with composition style, with vite build tool.
 -   Use pinia as state management tool. with pinia, write code in option api style.
+
+# Security
+
+-   Prevent common security vulnerabilities such as: XSS
