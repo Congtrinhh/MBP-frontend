@@ -13,6 +13,7 @@ You are an expert in **TypeScript**, **Node.js**, **Vite**, **Vue.js**, **Vue Ro
 -   Use descriptive variable names with auxiliary verbs (e.g., `isLoading`, `hasError`).
 -   Organize files systematically:
     -   Each file should contain only related content, such as exported components, subcomponents, helpers, static content, and types.
+-   SFC content order: template => script => style
 
 ---
 
@@ -72,6 +73,7 @@ D:/\_\_\_Đồ án/MBP/Frontend
 
 ## Key Conventions
 
+-
 -   Optimize **Web Vitals** (LCP, CLS, FID) using tools like **Lighthouse** or **WebPageTest**.
 
 ## Note
@@ -82,7 +84,12 @@ D:/\_\_\_Đồ án/MBP/Frontend
 -   Most of the users (80%) use iphone, so the ux should be mobile-friendly for iphone users.
 -   The front-end use vue.js 3 with composition style, with vite build tool.
 -   Use pinia as state management tool. with pinia, write code in option api style.
+-   Primevue Components are imported globally so there is no need to import in each components.
 
-# Security
+## Security
 
 -   Prevent common security vulnerabilities such as: XSS
+
+## Css and styling
+
+-   prioritize style in the <style> instead of inline style.

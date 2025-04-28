@@ -1,10 +1,41 @@
+<template>
+	<div class="h-full flex flex-col">
+		<h1 class="text-2xl font-semibold mb-4">MC Management</h1>
+
+		<BaseList
+			class="flex-1"
+			:columns="columns"
+			:actions="actions"
+			:permissions="permissions"
+			:loading="loading"
+			:default-sort="{ field: 'modifiedAt', order: 'desc' }"
+			:search-fields="['fullName', 'nickName', 'email']"
+			:onLoad="handleLoadData"
+			@row-dblclick="handleRowDblClick"
+		>
+			<!-- Status template -->
+			<template #status="{ data }">
+				<span
+					:class="{
+						'px-2 py-1 rounded text-sm font-medium': true,
+						'bg-green-100 text-green-800': data.isVerified,
+						'bg-yellow-100 text-yellow-800': !data.isVerified && data.isNewbie,
+						'bg-red-100 text-red-800': !data.isVerified && !data.isNewbie,
+					}"
+				>
+					{{ data.isVerified ? "Verified" : "Unverified" }}
+				</span>
+			</template>
+		</BaseList>
+	</div>
+</template>
+
 <script setup lang="ts">
 import { ref } from "vue";
 import BaseList from "@/components/admin/BaseList.vue";
 import type { ColumnDef, ActionConfig, ListParams } from "@/components/admin/types";
 import { mcManagementApi, type McUser } from "@/apis/mcManagementApi";
 import { useToast } from "primevue/usetoast";
-import type { Gender } from "@/enums/gender";
 
 const toast = useToast();
 const loading = ref(false);
@@ -27,14 +58,14 @@ const actions: ActionConfig[] = [
 		icon: "pi pi-eye",
 		tooltip: "View Details",
 		permission: "mc:view",
-		handler: (row: McUser) => handleView(row),
+		handler: (row) => handleView(row as McUser),
 	},
 	{
 		type: "edit",
 		icon: "pi pi-pencil",
 		tooltip: "Edit MC",
 		permission: "mc:edit",
-		handler: (row: McUser) => handleEdit(row),
+		handler: (row) => handleEdit(row as McUser),
 	},
 	{
 		type: "delete",
@@ -42,7 +73,7 @@ const actions: ActionConfig[] = [
 		tooltip: "Delete MC",
 		permission: "mc:delete",
 		confirmMessage: "Are you sure you want to delete this MC?",
-		handler: (row: McUser) => handleDelete(row),
+		handler: (row) => handleDelete(row as McUser),
 	},
 ];
 
@@ -50,7 +81,7 @@ const actions: ActionConfig[] = [
 const handleLoadData = async (params: ListParams) => {
 	loading.value = true;
 	try {
-		return await mcManagementApi.getList(params);
+		return await mcManagementApi.getPaged(params);
 	} catch (error) {
 		toast.add({
 			severity: "error",
@@ -73,6 +104,15 @@ const handleView = async (row: McUser) => {
 const handleEdit = async (row: McUser) => {
 	console.log("Edit MC:", row);
 	// Implement edit logic
+};
+
+// Handle double-click event
+const handleRowDblClick = (row: McUser) => {
+	if (permissions.canEdit()) {
+		handleEdit(row);
+	} else if (permissions.canView()) {
+		handleView(row);
+	}
 };
 
 const handleDelete = async (row: McUser) => {
@@ -102,33 +142,3 @@ const permissions = {
 	hasPermission: (permission: string) => true,
 };
 </script>
-
-<template>
-	<div class="p-4">
-		<h1 class="text-2xl font-semibold mb-4">MC Management</h1>
-
-		<BaseList
-			:columns="columns"
-			:actions="actions"
-			:permissions="permissions"
-			:loading="loading"
-			:default-sort="{ field: 'modified_at', order: 'desc' }"
-			:search-fields="['fullName', 'nickName', 'email', 'phoneNumber']"
-			:onLoad="handleLoadData"
-		>
-			<!-- Status template -->
-			<template #status="{ data }">
-				<span
-					:class="{
-						'px-2 py-1 rounded text-sm font-medium': true,
-						'bg-green-100 text-green-800': data.isVerified,
-						'bg-yellow-100 text-yellow-800': !data.isVerified && data.isNewbie,
-						'bg-red-100 text-red-800': !data.isVerified && !data.isNewbie,
-					}"
-				>
-					{{ data.isVerified ? "Verified" : "Unverified" }}
-				</span>
-			</template>
-		</BaseList>
-	</div>
-</template>

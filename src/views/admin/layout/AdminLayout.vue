@@ -20,7 +20,7 @@
 				class="transition-all duration-300 min-h-[calc(100vh-56px)] overflow-auto"
 				:class="[sidebarCollapsed ? 'ml-0' : 'ml-[280px]']"
 			>
-				<div class="p-6">
+				<div class="admin-main-content-container">
 					<router-view v-slot="{ Component }">
 						<Suspense>
 							<component :is="Component" />
@@ -74,5 +74,12 @@ onMounted(async () => {
 :deep(.p-progressspinner) {
 	width: 50px;
 	height: 50px;
+}
+
+.admin-main-content-container {
+	display: flex;
+	flex-direction: column;
+	padding: 16px;
+	height: 100%;
 }
 </style>

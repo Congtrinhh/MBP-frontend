@@ -23,7 +23,7 @@ const props = withDefaults(
 			hasPermission: (permission: string) => boolean;
 		};
 		loading?: boolean;
-		onLoad?: (params: ListParams) => Promise<ListResponse<BaseEntity>>;
+		onLoad?: (params: ListParams) => Promise<ListResponse<BaseEntity>>; // will call getPaged method of AdminBaseApi
 	}>(),
 	{
 		pageSize: 50,
@@ -34,6 +34,7 @@ const props = withDefaults(
 const emit = defineEmits<{
 	"update:modelValue": [value: BaseEntity[]];
 	"row-click": [row: BaseEntity];
+	"row-dblclick": [row: BaseEntity];
 	error: [error: Error];
 }>();
 
@@ -42,6 +43,7 @@ const data = ref<BaseEntity[]>([]);
 const totalRecords = ref(0);
 const first = ref(0);
 const rows = ref(props.pageSize);
+const rowsPerPageOptions = [5, 10, 20, 50, 100];
 const sortField = ref(props.defaultSort?.field);
 const sortOrder = ref<1 | -1>(props.defaultSort?.order === "desc" ? -1 : 1);
 const searchTerm = ref("");
@@ -59,7 +61,7 @@ const loadData = async () => {
 
 	try {
 		const params: ListParams = {
-			page: Math.floor(first.value / rows.value) + 1,
+			pageIndex: Math.floor(first.value / rows.value),
 			pageSize: rows.value,
 			sortField: sortField.value,
 			sortOrder: sortOrder.value === 1 ? "asc" : "desc",
@@ -69,7 +71,7 @@ const loadData = async () => {
 
 		const result = await props.onLoad(params);
 		data.value = result.items;
-		totalRecords.value = result.total;
+		totalRecords.value = result.totalCount;
 	} catch (error) {
 		emit("error", error as Error);
 		toast.add({
@@ -102,14 +104,35 @@ const handlePageChange = (event: { first: number; rows: number }) => {
 	loadData();
 };
 
-const handleSearch = () => {
+// Debounce utility
+const debounce = <T extends (...args: any[]) => any>(fn: T, delay: number) => {
+	let timeoutId: ReturnType<typeof setTimeout>;
+	return (...args: Parameters<T>) => {
+		clearTimeout(timeoutId);
+		timeoutId = setTimeout(() => fn(...args), delay);
+	};
+};
+
+const handleSearch = debounce(() => {
 	first.value = 0;
+	loadData();
+}, 500);
+
+const handleRefresh = () => {
+	first.value = 0;
+	rows.value = props.pageSize;
 	loadData();
 };
 
 const handleRowClick = (event: { data: BaseEntity }) => {
 	if (props.permissions?.canView?.()) {
 		emit("row-click", event.data);
+	}
+};
+
+const handleRowDblClick = (event: { data: BaseEntity }) => {
+	if (props.permissions?.canView?.() || props.permissions?.canEdit?.()) {
+		emit("row-dblclick", event.data);
 	}
 };
 
@@ -146,31 +169,53 @@ onMounted(() => {
 </script>
 
 <template>
-	<div class="base-list">
+	<div class="base-list flex flex-col h-full">
 		<!-- Search Box -->
-		<div class="mb-3 flex">
-			<span class="p-input-icon-left flex-grow">
-				<i class="pi pi-search" />
-				<InputText v-model="searchTerm" placeholder="Search..." class="w-full" @input="handleSearch" />
-			</span>
+		<div class="mb-3 toolbar">
+			<div class="w-1/4 search-container">
+				<IconField>
+					<InputIcon class="pi pi-search" />
+					<InputText
+						v-model="searchTerm"
+						placeholder="Search..."
+						class="w-full"
+						@update:modelValue="handleSearch"
+					/>
+				</IconField>
+			</div>
+			<div class="right-buttons">
+				<Button icon="pi pi-refresh" tooltip="Refresh" @click="handleRefresh" />
+			</div>
 		</div>
 
 		<!-- Data Table -->
 		<DataTable
+			class="flex-1"
 			:value="data"
 			:loading="isLoading"
 			:paginator="true"
 			:rows="rows"
+			:rows-per-page-options="rowsPerPageOptions"
 			:first="first"
 			:total-records="totalRecords"
 			:lazy="true"
 			:sortField="sortField"
 			:sortOrder="sortOrder"
+			:pt="{
+				pcPaginator: {
+					root: {
+						style: 'justify-content: flex-start;',
+					},
+				},
+			}"
 			responsive-layout="scroll"
 			striped-rows
+			scrollable
+			scrollHeight="flex"
 			@page="handlePageChange"
 			@sort="handleSort"
 			@row-click="handleRowClick"
+			@row-dblclick="handleRowDblClick"
 		>
 			<!-- Dynamic Columns -->
 			<Column
@@ -208,6 +253,34 @@ onMounted(() => {
 
 <style scoped>
 .base-list {
-	@apply p-4;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	max-height: calc(
+		100vh - 137px
+	); /* Account for app header (56px) + page padding (32px) + page title (28px) + margin (21px) */
+	overflow: hidden;
+}
+
+.base-list :deep(.p-datatable) {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0; /* Important for Firefox */
+}
+
+.base-list :deep(.p-datatable-wrapper) {
+	flex: 1;
+	min-height: 0; /* Important for Firefox */
+}
+
+.search-container {
+	min-width: 250px;
+}
+
+.toolbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 </style>

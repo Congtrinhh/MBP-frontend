@@ -22,17 +22,17 @@ export interface ActionConfig {
 }
 
 export interface ListParams {
-	page: number;
-	pageSize: number;
-	sortField?: string;
+	pageIndex: number; //start from 0
+	pageSize: number; // default 50, can be of set 5, 10, 20, 50, 100
+	sortField?: string; //backend need to make field name snake_case for db search
 	sortOrder?: "asc" | "desc";
-	search?: string;
-	searchFields?: string[];
+	search?: string; //search term
+	searchFields?: string[]; //backend need to make field names snake_case for db search
 }
 
 export interface ListResponse<T extends BaseEntity> {
 	items: T[];
-	total: number;
+	totalCount: number;
 	page: number;
 	pageSize: number;
 	totalPages: number;
