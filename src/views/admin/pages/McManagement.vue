@@ -34,11 +34,14 @@
 import { ref } from "vue";
 import BaseList from "@/components/admin/BaseList.vue";
 import type { ColumnDef, ActionConfig, ListParams } from "@/components/admin/types";
-import { mcManagementApi, type McUser } from "@/apis/mcManagementApi";
+import { mcManagementApi } from "@/apis/mcManagementApi";
 import { useToast } from "primevue/usetoast";
+import type { User } from "@/entities/user/user";
 
 const toast = useToast();
 const loading = ref(false);
+
+// #region List
 
 // Column definitions
 const columns: ColumnDef[] = [
@@ -58,14 +61,14 @@ const actions: ActionConfig[] = [
 		icon: "pi pi-eye",
 		tooltip: "View Details",
 		permission: "mc:view",
-		handler: (row) => handleView(row as McUser),
+		handler: (row: any) => handleView(row as User),
 	},
 	{
 		type: "edit",
 		icon: "pi pi-pencil",
 		tooltip: "Edit MC",
 		permission: "mc:edit",
-		handler: (row) => handleEdit(row as McUser),
+		handler: (row: any) => handleEdit(row as User),
 	},
 	{
 		type: "delete",
@@ -73,7 +76,7 @@ const actions: ActionConfig[] = [
 		tooltip: "Delete MC",
 		permission: "mc:delete",
 		confirmMessage: "Are you sure you want to delete this MC?",
-		handler: (row) => handleDelete(row as McUser),
+		handler: (row: any) => handleDelete(row as User),
 	},
 ];
 
@@ -83,12 +86,6 @@ const handleLoadData = async (params: ListParams) => {
 	try {
 		return await mcManagementApi.getPaged(params);
 	} catch (error) {
-		toast.add({
-			severity: "error",
-			summary: "Error",
-			detail: "Failed to load MC data",
-			life: 3000,
-		});
 		throw error;
 	} finally {
 		loading.value = false;
@@ -96,18 +93,18 @@ const handleLoadData = async (params: ListParams) => {
 };
 
 // Action handlers
-const handleView = async (row: McUser) => {
+const handleView = async (row: User) => {
 	console.log("View MC:", row);
 	// Implement view logic
 };
 
-const handleEdit = async (row: McUser) => {
+const handleEdit = async (row: User) => {
 	console.log("Edit MC:", row);
 	// Implement edit logic
 };
 
 // Handle double-click event
-const handleRowDblClick = (row: McUser) => {
+const handleRowDblClick = (row: User) => {
 	if (permissions.canEdit()) {
 		handleEdit(row);
 	} else if (permissions.canView()) {
@@ -115,7 +112,7 @@ const handleRowDblClick = (row: McUser) => {
 	}
 };
 
-const handleDelete = async (row: McUser) => {
+const handleDelete = async (row: User) => {
 	try {
 		await mcManagementApi.delete(row.id);
 		toast.add({
@@ -141,4 +138,13 @@ const permissions = {
 	canDelete: () => true,
 	hasPermission: (permission: string) => true,
 };
+
+// #endregion
+
+// #region form
+/**
+ * build form with js config.
+ * validate form with zod
+ */
+//#endregion
 </script>

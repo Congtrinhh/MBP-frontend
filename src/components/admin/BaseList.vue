@@ -1,11 +1,91 @@
+<template>
+	<div class="base-list flex flex-col h-full">
+		<!-- Search Box -->
+		<div class="mb-3 toolbar">
+			<div class="w-1/4 search-container">
+				<IconField>
+					<InputIcon class="pi pi-search" />
+					<InputText
+						v-model="searchTerm"
+						placeholder="Search..."
+						class="w-full"
+						@update:modelValue="handleSearch"
+					/>
+				</IconField>
+			</div>
+			<div class="right-buttons">
+				<Button icon="pi pi-refresh" tooltip="Refresh" @click="handleRefresh" />
+			</div>
+		</div>
+
+		<!-- Data Table -->
+		<DataTable
+			class="flex-1"
+			:value="data"
+			:loading="isLoading"
+			:paginator="true"
+			:rows="rows"
+			:rows-per-page-options="rowsPerPageOptions"
+			:first="first"
+			:total-records="totalRecords"
+			:lazy="true"
+			:sortField="sortField"
+			:sortOrder="sortOrder"
+			:pt="{
+				pcPaginator: {
+					root: {
+						style: 'justify-content: flex-start;',
+					},
+				},
+			}"
+			responsive-layout="scroll"
+			striped-rows
+			scrollable
+			scrollHeight="flex"
+			@page="handlePageChange"
+			@sort="handleSort"
+			@row-click="handleRowClick"
+			@row-dblclick="handleRowDblClick"
+		>
+			<!-- Dynamic Columns -->
+			<Column
+				v-for="col in columns"
+				:key="col.field"
+				:field="col.field"
+				:header="col.header"
+				:sortable="col.sortable !== false"
+				:style="col.width ? { width: col.width } : undefined"
+			>
+				<template #body="slotProps" v-if="col.template">
+					<slot :name="col.template" :data="slotProps.data" />
+				</template>
+			</Column>
+
+			<!-- Actions Column -->
+			<Column v-if="actions?.length" header="Actions" :style="{ width: '120px' }" :exportable="false">
+				<template #body="slotProps">
+					<div class="flex gap-2">
+						<Button
+							v-for="action in actions"
+							:key="action.type"
+							:icon="action.icon"
+							:tooltip="action.tooltip"
+							:disabled="!!(action.permission && !permissions?.hasPermission(action.permission))"
+							link
+							@click="handleAction(action, slotProps.data)"
+						/>
+					</div>
+				</template>
+			</Column>
+		</DataTable>
+	</div>
+</template>
+
 <script setup lang="ts">
 import { ref, onMounted, watchEffect } from "vue";
 import type { BaseEntity, ColumnDef, ActionConfig, ListParams, ListResponse } from "./types";
-import DataTable from "primevue/datatable";
 import type { DataTableSortEvent } from "primevue/datatable";
 import Column from "primevue/column";
-import Button from "primevue/button";
-import InputText from "primevue/inputtext";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 
@@ -155,6 +235,10 @@ const handleAction = (action: ActionConfig, row: BaseEntity) => {
 	}
 };
 
+const initDefault = () => {
+	//init default actions column with view, edit and delete
+};
+
 // Watch for loading prop changes
 watchEffect(() => {
 	if (props.loading !== undefined) {
@@ -164,92 +248,11 @@ watchEffect(() => {
 
 // Initial load
 onMounted(() => {
+	initDefault();
+
 	loadData();
 });
 </script>
-
-<template>
-	<div class="base-list flex flex-col h-full">
-		<!-- Search Box -->
-		<div class="mb-3 toolbar">
-			<div class="w-1/4 search-container">
-				<IconField>
-					<InputIcon class="pi pi-search" />
-					<InputText
-						v-model="searchTerm"
-						placeholder="Search..."
-						class="w-full"
-						@update:modelValue="handleSearch"
-					/>
-				</IconField>
-			</div>
-			<div class="right-buttons">
-				<Button icon="pi pi-refresh" tooltip="Refresh" @click="handleRefresh" />
-			</div>
-		</div>
-
-		<!-- Data Table -->
-		<DataTable
-			class="flex-1"
-			:value="data"
-			:loading="isLoading"
-			:paginator="true"
-			:rows="rows"
-			:rows-per-page-options="rowsPerPageOptions"
-			:first="first"
-			:total-records="totalRecords"
-			:lazy="true"
-			:sortField="sortField"
-			:sortOrder="sortOrder"
-			:pt="{
-				pcPaginator: {
-					root: {
-						style: 'justify-content: flex-start;',
-					},
-				},
-			}"
-			responsive-layout="scroll"
-			striped-rows
-			scrollable
-			scrollHeight="flex"
-			@page="handlePageChange"
-			@sort="handleSort"
-			@row-click="handleRowClick"
-			@row-dblclick="handleRowDblClick"
-		>
-			<!-- Dynamic Columns -->
-			<Column
-				v-for="col in columns"
-				:key="col.field"
-				:field="col.field"
-				:header="col.header"
-				:sortable="col.sortable !== false"
-				:style="col.width ? { width: col.width } : undefined"
-			>
-				<template #body="slotProps" v-if="col.template">
-					<slot :name="col.template" :data="slotProps.data" />
-				</template>
-			</Column>
-
-			<!-- Actions Column -->
-			<Column v-if="actions?.length" header="Actions" :style="{ width: '120px' }" :exportable="false">
-				<template #body="slotProps">
-					<div class="flex gap-2">
-						<Button
-							v-for="action in actions"
-							:key="action.type"
-							:icon="action.icon"
-							:tooltip="action.tooltip"
-							:disabled="!!(action.permission && !permissions?.hasPermission(action.permission))"
-							link
-							@click="handleAction(action, slotProps.data)"
-						/>
-					</div>
-				</template>
-			</Column>
-		</DataTable>
-	</div>
-</template>
 
 <style scoped>
 .base-list {
