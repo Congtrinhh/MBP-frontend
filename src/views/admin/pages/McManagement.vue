@@ -1,3 +1,4 @@
+<!-- MC Management Page - Created by AI Assistant 30/04/2025 -->
 <template>
 	<div class="h-full flex flex-col">
 		<h1 class="text-2xl font-semibold mb-4">MC Management</h1>
@@ -27,19 +28,37 @@
 				</span>
 			</template>
 		</BaseList>
+
+		<!-- Form Dialog -->
+		<MBaseForm
+			v-model="showForm"
+			:mode="formMode"
+			:config="formConfig"
+			:form-data="selectedMc"
+			@update:form-data="selectedMc = $event"
+			@submitted="handleFormSubmitted"
+		/>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import BaseList from "@/components/admin/BaseList.vue";
 import type { ColumnDef, ActionConfig, ListParams } from "@/components/admin/types";
 import { mcManagementApi } from "@/apis/mcManagementApi";
 import { useToast } from "primevue/usetoast";
 import type { User } from "@/entities/user/user";
+import { z } from "zod";
+import MBaseForm from "@/components/admin/MBaseForm.vue";
+import type { FormConfig } from "@/components/admin/MBaseForm.types";
+import { formUtils } from "@/components/admin/MBaseForm.types";
+import { EditingMode } from "@/enums/editingMode";
 
 const toast = useToast();
 const loading = ref(false);
+const showForm = ref(false);
+const selectedMc = ref<Record<string, any>>({});
+const formMode = ref(EditingMode.View);
 
 // #region List
 
@@ -94,13 +113,15 @@ const handleLoadData = async (params: ListParams) => {
 
 // Action handlers
 const handleView = async (row: User) => {
-	console.log("View MC:", row);
-	// Implement view logic
+	selectedMc.value = row;
+	formMode.value = EditingMode.View;
+	showForm.value = true;
 };
 
 const handleEdit = async (row: User) => {
-	console.log("Edit MC:", row);
-	// Implement edit logic
+	selectedMc.value = row;
+	formMode.value = EditingMode.Edit;
+	showForm.value = true;
 };
 
 // Handle double-click event
@@ -141,10 +162,91 @@ const permissions = {
 
 // #endregion
 
-// #region form
-/**
- * build form with js config.
- * validate form with zod
- */
-//#endregion
+// #region Form
+const formConfig = computed<FormConfig>(() => ({
+	fields: [
+		formUtils.createField("email", z.string().email("Email không hợp lệ"), {
+			label: "Email",
+			type: "InputText",
+			order: 1,
+		}),
+		formUtils.createField("fullName", z.string().min(1, "Trường này là bắt buộc"), {
+			label: "Họ tên",
+			type: "InputText",
+			order: 2,
+		}),
+		formUtils.createField("phoneNumber", z.string().min(1, "Trường này là bắt buộc"), {
+			label: "Số điện thoại",
+			type: "InputText",
+			order: 3,
+		}),
+		formUtils.createField("facebook", z.string().optional(), {
+			label: "Facebook",
+			type: "InputText",
+			order: 4,
+		}),
+		formUtils.createField("zalo", z.string().optional(), {
+			label: "Zalo",
+			type: "InputText",
+			order: 5,
+		}),
+		formUtils.createField("gender", z.number().int(), {
+			label: "Giới tính",
+			type: "Dropdown",
+			props: {
+				options: [
+					{ label: "Nam", value: 0 },
+					{ label: "Nữ", value: 1 },
+				],
+			},
+			order: 6,
+		}),
+		formUtils.createField("is_verified", z.boolean(), {
+			label: "Đã xác thực",
+			type: "Checkbox",
+			disabled: true,
+			order: 7,
+		}),
+		formUtils.createField("description", z.string().optional(), {
+			label: "Mô tả",
+			type: "Textarea",
+			props: {
+				rows: 3,
+				autoResize: true,
+			},
+			order: 8,
+		}),
+	],
+	api: mcManagementApi,
+	modes: {
+		view: {
+			email: { disabled: true },
+			fullName: { disabled: true },
+			phoneNumber: { disabled: true },
+			facebook: { disabled: true },
+			zalo: { disabled: true },
+			gender: { disabled: true },
+			description: { disabled: true },
+		},
+	},
+}));
+
+function handleFormSubmitted() {
+	toast.add({
+		severity: "success",
+		summary: "Success",
+		detail: "Thao tác thành công",
+		life: 3000,
+	});
+	showForm.value = false;
+
+	// Refresh list
+	handleLoadData({
+		pageIndex: 0,
+		pageSize: 50,
+		sortField: "modifiedAt",
+		sortOrder: "desc",
+	});
+}
+// #endregion
 </script>
