@@ -1,6 +1,7 @@
 <!-- MC Management Page - Created by AI Assistant 30/04/2025 -->
 <template>
 	<div class="h-full flex flex-col">
+		<ConfirmDialog />
 		<h1 class="text-2xl font-semibold mb-4">MC Management</h1>
 
 		<BaseList
@@ -43,6 +44,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { getGenderDataSource } from "@/enums/gender";
+import ConfirmDialog from "primevue/confirmdialog";
 import BaseList from "@/components/admin/BaseList.vue";
 import type { ColumnDef, ActionConfig, ListParams } from "@/components/admin/types";
 import { mcManagementApi } from "@/apis/mcManagementApi";
@@ -58,7 +61,7 @@ const toast = useToast();
 const loading = ref(false);
 const showForm = ref(false);
 const selectedMc = ref<Record<string, any>>({});
-const formMode = ref(EditingMode.View);
+const formMode = ref(EditingMode.None);
 
 // #region List
 
@@ -114,13 +117,13 @@ const handleLoadData = async (params: ListParams) => {
 // Action handlers
 const handleView = async (row: User) => {
 	selectedMc.value = row;
-	formMode.value = EditingMode.View;
+	formMode.value = EditingMode.None;
 	showForm.value = true;
 };
 
 const handleEdit = async (row: User) => {
 	selectedMc.value = row;
-	formMode.value = EditingMode.Edit;
+	formMode.value = EditingMode.Update;
 	showForm.value = true;
 };
 
@@ -180,34 +183,28 @@ const formConfig = computed<FormConfig>(() => ({
 			type: "InputText",
 			order: 3,
 		}),
-		formUtils.createField("facebook", z.string().optional(), {
+		formUtils.createField("facebook", z.string().nullable().optional(), {
 			label: "Facebook",
 			type: "InputText",
 			order: 4,
 		}),
-		formUtils.createField("zalo", z.string().optional(), {
+		formUtils.createField("zalo", z.string().nullable().optional(), {
 			label: "Zalo",
 			type: "InputText",
 			order: 5,
 		}),
 		formUtils.createField("gender", z.number().int(), {
 			label: "Giới tính",
-			type: "Dropdown",
+			type: "Select",
 			props: {
-				options: [
-					{ label: "Nam", value: 0 },
-					{ label: "Nữ", value: 1 },
-				],
+				options: getGenderDataSource(),
+				optionLabel: "name",
+				optionValue: "code",
+				placeholder: "Chọn giới tính",
 			},
 			order: 6,
 		}),
-		formUtils.createField("is_verified", z.boolean(), {
-			label: "Đã xác thực",
-			type: "Checkbox",
-			disabled: true,
-			order: 7,
-		}),
-		formUtils.createField("description", z.string().optional(), {
+		formUtils.createField("description", z.string().nullable().optional(), {
 			label: "Mô tả",
 			type: "Textarea",
 			props: {
@@ -220,13 +217,13 @@ const formConfig = computed<FormConfig>(() => ({
 	api: mcManagementApi,
 	modes: {
 		view: {
-			email: { disabled: true },
-			fullName: { disabled: true },
-			phoneNumber: { disabled: true },
-			facebook: { disabled: true },
-			zalo: { disabled: true },
-			gender: { disabled: true },
-			description: { disabled: true },
+			email: { readonly: true },
+			fullName: { readonly: true },
+			phoneNumber: { readonly: true },
+			facebook: { readonly: true },
+			zalo: { readonly: true },
+			gender: { readonly: true },
+			description: { readonly: true },
 		},
 	},
 }));

@@ -7,14 +7,8 @@
 		:modal="true"
 		:closable="true"
 		:closeOnEscape="true"
+		:header="formTitle"
 	>
-		<!-- Header -->
-		<template #header>
-			<div class="flex items-center">
-				<span class="font-semibold">{{ formTitle }}</span>
-			</div>
-		</template>
-
 		<!-- Content -->
 		<div class="relative">
 			<!-- Loading Overlay -->
@@ -25,12 +19,12 @@
 			<!-- Form Content -->
 			<Form
 				v-slot="$form"
+				:key="formData?.id || modelValue"
 				:initialValues="formData"
 				:resolver="resolver"
 				:validateOnBlur="true"
 				:validateOnMount="false"
 				@submit="handleSubmit"
-				class="p-6"
 			>
 				<div class="space-y-4">
 					<div
@@ -49,40 +43,33 @@
 							v-if="getEffectiveUIConfig(field).type === 'InputText'"
 							:name="field.key"
 							fluid
-							:class="[
-								'w-full',
-								{ 'p-invalid': $form[field.key]?.invalid },
-								{ 'opacity-50': isDisabled || getEffectiveUIConfig(field).disabled },
-								{ 'bg-gray-50': mode === EditingMode.View },
-							]"
-							:disabled="isDisabled || getEffectiveUIConfig(field).disabled || mode === EditingMode.View"
+							v-model="formData[field.key]"
+							:class="['w-full', { 'p-invalid': $form[field.key]?.invalid }]"
+							:disabled="isDisabled || getEffectiveUIConfig(field).disabled"
+							:readonly="mode === EditingMode.None || getEffectiveUIConfig(field).readonly"
 						/>
 
-						<!-- Dropdown -->
-						<Dropdown
-							v-else-if="getEffectiveUIConfig(field).type === 'Dropdown'"
+						<!-- Select -->
+						<Select
+							v-else-if="getEffectiveUIConfig(field).type === 'Select'"
 							:name="field.key"
-							fluid
-							v-bind="getEffectiveUIConfig(field).props || {}"
-							:class="[
-								'w-full',
-								{ 'p-invalid': $form[field.key]?.invalid },
-								{ 'opacity-50': isDisabled || getEffectiveUIConfig(field).disabled },
-								{ 'bg-gray-50': mode === EditingMode.View },
-							]"
-							:disabled="isDisabled || getEffectiveUIConfig(field).disabled || mode === EditingMode.View"
+							v-model="formData[field.key]"
+							:options="getEffectiveUIConfig(field).props?.options"
+							:optionValue="getEffectiveUIConfig(field).props?.optionValue || 'code'"
+							:optionLabel="getEffectiveUIConfig(field).props?.optionLabel || 'name'"
+							:placeholder="getEffectiveUIConfig(field).props?.placeholder"
+							:class="['w-full', { 'p-invalid': $form[field.key]?.invalid }]"
+							:disabled="isDisabled || getEffectiveUIConfig(field).disabled || mode === EditingMode.None"
 						/>
 
 						<!-- Checkbox -->
 						<Checkbox
 							v-else-if="getEffectiveUIConfig(field).type === 'Checkbox'"
 							:name="field.key"
+							v-model="formData[field.key]"
 							:binary="true"
-							:class="[
-								{ 'p-invalid': $form[field.key]?.invalid },
-								{ 'opacity-50': isDisabled || getEffectiveUIConfig(field).disabled },
-							]"
-							:disabled="isDisabled || getEffectiveUIConfig(field).disabled || mode === EditingMode.View"
+							:class="[{ 'p-invalid': $form[field.key]?.invalid }]"
+							:disabled="isDisabled || getEffectiveUIConfig(field).disabled || mode === EditingMode.None"
 						/>
 
 						<!-- Textarea -->
@@ -90,14 +77,11 @@
 							v-else-if="getEffectiveUIConfig(field).type === 'Textarea'"
 							:name="field.key"
 							fluid
+							v-model="formData[field.key]"
 							v-bind="getEffectiveUIConfig(field).props || {}"
-							:class="[
-								'w-full',
-								{ 'p-invalid': $form[field.key]?.invalid },
-								{ 'opacity-50': isDisabled || getEffectiveUIConfig(field).disabled },
-								{ 'bg-gray-50': mode === EditingMode.View },
-							]"
-							:disabled="isDisabled || getEffectiveUIConfig(field).disabled || mode === EditingMode.View"
+							:class="['w-full', { 'p-invalid': $form[field.key]?.invalid }]"
+							:disabled="isDisabled || getEffectiveUIConfig(field).disabled"
+							:readonly="mode === EditingMode.None || getEffectiveUIConfig(field).readonly"
 						/>
 
 						<Message v-if="$form[field.key]?.invalid" severity="error" size="small" variant="simple">
@@ -109,7 +93,7 @@
 				<!-- Footer -->
 				<div class="flex justify-end gap-2 mt-4">
 					<Button
-						v-if="mode === EditingMode.View"
+						v-if="mode === EditingMode.None"
 						label="Đóng"
 						severity="secondary"
 						@click="handleClose"
@@ -125,7 +109,7 @@
 							type="button"
 						/>
 						<Button
-							:label="mode === EditingMode.Add ? 'Tạo mới' : 'Cập nhật'"
+							:label="mode === EditingMode.Create ? 'Tạo mới' : 'Cập nhật'"
 							severity="primary"
 							:disabled="isDisabled || !$form.valid"
 							type="submit"
@@ -143,6 +127,7 @@ import { useToast } from "primevue/usetoast";
 import type { FormConfig, FieldConfig, FieldUIConfig } from "./MBaseForm.types";
 import { formUtils } from "./MBaseForm.types";
 import { EditingMode } from "../../enums/editingMode";
+import { zodResolver } from "@primevue/forms/resolvers/zod"; // just type check error, ignore it
 
 const toast = useToast();
 
@@ -163,31 +148,18 @@ const emit = defineEmits<{
 const isLoading = ref(false);
 const isDisabled = ref(false);
 
-// Form resolver
-const resolver = (formData: Record<string, any>) => {
-	const schema = formUtils.createSchema(props.config.fields);
-	try {
-		schema.parse(formData);
-		return { values: formData, errors: {} };
-	} catch (error: any) {
-		const errors: Record<string, any> = {};
-		error.errors?.forEach((err: any) => {
-			if (err.path?.[0]) {
-				errors[err.path[0]] = [{ message: err.message }];
-			}
-		});
-		return { values: formData, errors };
-	}
-};
+// Form resolver using zodResolver
+const schema = formUtils.createSchema(props.config.fields);
+const resolver = zodResolver(schema);
 
 // Computed
 const formTitle = computed(() => {
 	switch (props.mode) {
-		case EditingMode.Add:
+		case EditingMode.Create:
 			return "Thêm mới";
-		case EditingMode.Edit:
+		case EditingMode.Update:
 			return "Cập nhật";
-		case EditingMode.View:
+		case EditingMode.None:
 			return "Chi tiết";
 		default:
 			return "";
@@ -204,7 +176,7 @@ const sortedFields = computed(() => {
 
 // Methods
 function getEffectiveUIConfig(field: FieldConfig): FieldUIConfig {
-	const modeKey = props.mode === EditingMode.View ? "view" : props.mode === EditingMode.Edit ? "edit" : "add";
+	const modeKey = props.mode === EditingMode.None ? "view" : props.mode === EditingMode.Update ? "edit" : "add";
 	const modeOverrides = props.config.modes?.[modeKey]?.[field.key];
 	return { ...field.ui, ...(modeOverrides || {}) };
 }
@@ -214,7 +186,7 @@ function isRequired(field: FieldConfig): boolean {
 }
 
 async function handleSubmit({ valid, values }: { valid: boolean; values: Record<string, any> }) {
-	if (props.mode === EditingMode.View || !valid) {
+	if (props.mode === EditingMode.None || !valid) {
 		return;
 	}
 
@@ -222,7 +194,7 @@ async function handleSubmit({ valid, values }: { valid: boolean; values: Record<
 		isDisabled.value = true;
 		isLoading.value = true;
 
-		if (props.mode === EditingMode.Add) {
+		if (props.mode === EditingMode.Create) {
 			await props.config.api.add(values);
 		} else if (props.formData?.id) {
 			await props.config.api.update(props.formData.id, values);
@@ -231,7 +203,7 @@ async function handleSubmit({ valid, values }: { valid: boolean; values: Record<
 		toast.add({
 			severity: "success",
 			summary: "Success",
-			detail: props.mode === EditingMode.Add ? "Thêm mới thành công" : "Cập nhật thành công",
+			detail: props.mode === EditingMode.Create ? "Thêm mới thành công" : "Cập nhật thành công",
 			life: 3000,
 		});
 
@@ -258,7 +230,7 @@ function handleClose() {
 watch(
 	() => props.modelValue,
 	async (newVal) => {
-		if (newVal && props.mode !== EditingMode.Add && props.formData?.id) {
+		if (newVal && props.mode !== EditingMode.Create && props.formData?.id) {
 			try {
 				isLoading.value = true;
 				const data = await props.config.api.getById(props.formData.id);

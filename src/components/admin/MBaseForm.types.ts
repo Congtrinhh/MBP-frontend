@@ -14,6 +14,7 @@ export interface FieldUIConfig {
 	order?: number; // Display order in form
 	props?: Record<string, any>; // PrimeVue component props
 	disabled?: boolean; // Field disabled state
+	readonly?: boolean; // Field readonly state
 	hidden?: boolean; // Hide field in this mode
 }
 
