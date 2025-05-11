@@ -26,3 +26,4 @@ The project has user and admin side which affect front-end and back-end project 
 # Note
 
 -   While implementing features, don't break the existing flow, don't remove code that should not be removed
+-   do not be lazy, don't omit code

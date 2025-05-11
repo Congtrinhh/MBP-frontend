@@ -6,11 +6,22 @@
 				<RadioButton inputId="mc" v-model="isMc" :value="true" />
 				<label for="mc">MC</label>
 			</div>
+			<div v-if="isMc" class="sub-options">
+				<div class="radio-item">
+					<RadioButton inputId="experienced" v-model="isNewbie" :value="false" />
+					<label for="experienced">MC có kinh nghiệm</label>
+				</div>
+				<div class="radio-item">
+					<RadioButton inputId="newbie" v-model="isNewbie" :value="true" />
+					<label for="newbie">MC mới</label>
+				</div>
+			</div>
 			<div class="radio-item">
 				<RadioButton inputId="guest" v-model="isMc" :value="false" />
 				<label for="guest">Khách booking MC</label>
 			</div>
 		</div>
+
 		<div class="button-group">
 			<Button @click="goBack" severity="secondary">Quay lại</Button>
 			<Button @click="submitUserType" severity="contrast">Tiếp tục</Button>
@@ -29,6 +40,7 @@ const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const isMc = ref(true); // default option
+const isNewbie = ref<boolean>(false); // default option
 const credential = route.query.credential;
 
 const goBack = () => {
@@ -44,7 +56,7 @@ const submitUserType = async () => {
 	try {
 		showLoading();
 
-		const response = await authApi.loginWithGoogle(credential, true, isMc.value);
+		const response = await authApi.loginWithGoogle(credential, true, isMc.value, isNewbie.value);
 		if (response.data.accessToken) {
 			const authStore = useAuthStore();
 			authStore.login(response.data.accessToken);
@@ -104,5 +116,20 @@ const submitUserType = async () => {
 	display: flex;
 	justify-content: flex-end;
 	gap: 16px;
+}
+.newbie-section {
+	margin-top: 24px;
+	margin-left: 70px;
+}
+.newbie-title {
+	font-size: 1.2rem;
+	margin-bottom: 16px;
+}
+
+.sub-options {
+	padding-left: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 }
 </style>

@@ -123,7 +123,7 @@ Remember that, whatever best practices you follow, keep in mind the consistency 
     -   Middlewares
     -   Properties
 
--   Application (Applcation - because of spelling error, but keep that Applcation for now)
+-   Application
     -   Dtos
         -   Notification
         -   User (for user side)

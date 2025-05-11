@@ -15,11 +15,17 @@ class AuthApi extends BaseApi<any> {
 	}
 
 	//write login with google function accepting access token and a boolean parameter called isSignUp
-	public loginWithGoogle = async (accessToken: string, isCreateUser: boolean, isMc: boolean): Promise<any> => {
+	public loginWithGoogle = async (
+		accessToken: string,
+		isCreateUser: boolean,
+		isMc: boolean,
+		isNewbie: boolean | null
+	): Promise<any> => {
 		return await BaseApi.axiosInstance.post(`/${this.baseEndpoint}/google-login`, {
 			accessToken,
 			isCreateUser,
 			isMc,
+			isNewbie,
 		});
 	};
 

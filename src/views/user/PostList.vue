@@ -206,7 +206,6 @@
 								name="priceFrom"
 								placeholder="Nhập giá từ"
 								v-model="post.priceFrom"
-								:inputStyle="{ width: '1%' }"
 							/>
 							<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
 								$field.error?.message
@@ -221,7 +220,6 @@
 								name="priceTo"
 								placeholder="Nhập giá đến"
 								v-model="post.priceTo"
-								:inputStyle="{ width: '1%' }"
 							/>
 							<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
 								$field.error?.message
@@ -308,8 +306,8 @@ const formResolver = zodResolver(
 			eventEnd: z.any().optional(),
 			place: z.string().min(1, { message: "Vui lòng nhập địa điểm" }),
 			mcRequirement: z.string().min(1, { message: "Vui lòng nhập yêu cầu cho MC" }),
-			priceFrom: z.any().optional(),
-			priceTo: z.any().optional(),
+			priceFrom: z.number().optional().nullable(),
+			priceTo: z.number().optional().nullable(),
 		})
 		.refine(
 			(data) => {

@@ -129,6 +129,14 @@
 									}}</Message>
 								</FormField>
 
+								<FormField name="isNewbie" class="flex flex-col gap-1" v-slot="$field">
+									<label for="isNewbie" class="form-label">MC mới</label>
+									<Checkbox inputId="isNewbie" name="isNewbie" binary />
+									<Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+										$field.error?.message
+									}}</Message>
+								</FormField>
+
 								<FormField name="description" class="flex flex-col gap-1" v-slot="$field">
 									<label for="description" class="form-label">Mô tả về bản thân</label>
 									<Textarea rows="5" cols="30" placeholder="Nhập mô tả về bản thân" />
@@ -284,6 +292,10 @@
 										<i class="icon pi pi-sparkles"></i>
 										<div class="label">Phong cách dẫn</div>
 										<div class="value line-clamp-3">{{ hostingStylesText }}</div>
+									</div>
+									<div v-if="user.isNewbie" class="info-item">
+										<i class="icon pi pi-star"></i>
+										<div class="label">MC mới</div>
 									</div>
 									<div class="info-item">
 										<i class="icon pi pi-pen-to-square"></i>
@@ -695,7 +707,7 @@ const mcFormResolver = zodResolver(
 		nickName: z.string().min(1, { message: "Không được bỏ trống" }),
 		gender: z.number(),
 		description: z.string().optional(),
-		education: z.string().optional(),
+		education: z.string().nullable(),
 		height: z.any().optional(),
 		weight: z.any().optional(),
 		mcTypes: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
@@ -703,6 +715,7 @@ const mcFormResolver = zodResolver(
 		hostingStyles: z.array(z.any()).min(1, { message: "Cần chọn ít nhất 1 giá trị" }),
 		facebook: z.string().max(255, { message: "Không được vượt quá 255 ký tự" }).optional(),
 		zalo: z.string().max(255, { message: "Không được vượt quá 255 ký tự" }).optional(),
+		isNewbie: z.boolean().nullable(),
 	})
 );
 
