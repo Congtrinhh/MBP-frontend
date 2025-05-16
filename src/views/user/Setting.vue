@@ -60,7 +60,7 @@ const redirectToIdVerification = () => {
 const logout = async () => {
 	await authStore.logout();
 	router.push({ name: "user-post-list" });
-	toast.add({ severity: "success", summary: "Logged Out", detail: "You have been logged out", life: 3000 });
+	toast.add({ severity: "success", summary: "Đã đăng xuất", detail: "Bạn đã đăng xuất khỏi hệ thống", life: 3000 });
 };
 </script>
 

@@ -45,13 +45,18 @@
 		<ConfirmDialog></ConfirmDialog>
 
 		<!-- Time Conflict Dialog -->
-		<Dialog v-model="showTimeConflictDialog" modal :closable="false" :style="{ width: '90vw', maxWidth: '400px' }">
+		<Dialog
+			v-model:visible="showTimeConflictDialog"
+			modal
+			:closable="false"
+			:style="{ width: '90vw', maxWidth: '400px' }"
+		>
 			<template #header>
 				<span class="font-bold">Xung đột thời gian</span>
 			</template>
 			<div>{{ conflictMessage }}</div>
 			<div class="mt-4">
-				<a href="#" class="text-primary hover:underline" @click.prevent="goToConflictingContract">
+				<a href="#" class="text-primary underline" @click.prevent="goToConflictingContract">
 					{{ conflictEventName }}
 				</a>
 			</div>
@@ -67,12 +72,10 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
-
 import { notificationApi } from "@/apis/notificationApi";
 import { contractApi } from "@/apis/contractApi";
 import { useRedirect } from "@/composables/useRedirect";
 import { useAuthStore } from "@/stores/authStore";
-
 import type { Notification } from "@/entities/notification";
 import type { Contract } from "@/entities/contract";
 import type { SendOfferAdditionalInfo } from "@/entities/notification/additionalInfo/sendOfferAdditionalInfo";
@@ -223,6 +226,7 @@ const handleApprove = async () => {
 				conflictEventName.value = conflictEvent.eventName;
 				conflictContractId.value = conflictEvent.contractId;
 				showTimeConflictDialog.value = true;
+
 				return;
 			}
 
@@ -237,6 +241,7 @@ const handleApprove = async () => {
 					rejectClass: "p-button-secondary",
 					accept: async () => {
 						try {
+							contract.isIgnoreBufferCheck = true;
 							const newContract = await contractApi.create(contract);
 							await notificationApi.create({
 								id: 0,

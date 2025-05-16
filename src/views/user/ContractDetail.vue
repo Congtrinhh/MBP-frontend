@@ -101,7 +101,7 @@
 				</template>
 				<!-- buttons -->
 				<div v-if="contract?.status === ContractStatus.InEffect" class="buttons">
-					<Button label="Cancel Contract" severity="danger" @click="onCancelContract" />
+					<Button label="Hủy hợp đồng" severity="danger" @click="onCancelContract" />
 				</div>
 			</div>
 		</template>
@@ -122,7 +122,7 @@ const route = useRoute();
 const contract = ref<Contract | null>(null);
 const authStore = useAuthStore();
 
-const isMc = computed(() => authStore.user?.isMc == "True");
+const isMc = computed(() => authStore.user?.isMc == "true");
 
 const fetchContract = async (id: number) => {
 	try {
@@ -151,8 +151,8 @@ const onCancelContract = async () => {
 		await contractApi.update(contract.value.id, updatedContract);
 		toast.add({
 			severity: "success",
-			summary: "Contract Canceled",
-			detail: "The contract has been canceled successfully",
+			summary: "Đã hủy hợp đồng",
+			detail: "Hợp đồng đã được hủy thành công",
 			life: 3000,
 		});
 		await fetchContract(contract.value.id);
@@ -173,13 +173,6 @@ onMounted(() => {
 	display: flex;
 	flex-direction: column;
 	padding: 16px;
-}
-
-.center-header {
-	font-size: 1.5rem;
-	font-weight: bold;
-	text-align: center;
-	margin-bottom: 16px;
 }
 
 .info-container {

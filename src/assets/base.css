@@ -96,6 +96,7 @@ img {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	flex-shrink: 0;
 
 	font-weight: bold;
 	font-size: 1.2rem;
@@ -118,4 +119,10 @@ img {
 main.main-container {
 	height: calc(100vh - 60px);
 	overflow: auto;
+}
+
+.background-1 {
+	background-image: url(/src/assets/user-theme-1.png);
+	background-repeat: repeat;
+	background-size: contain;
 }

@@ -64,6 +64,7 @@ const provinces = computed(() => props.user.provinces.map((province: Province) =
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
+	background: #fff;
 
 	.m-desc-container {
 		padding: 10px 8px;

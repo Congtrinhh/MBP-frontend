@@ -16,7 +16,7 @@
 			<div class="login-button underline" @click="handleLoginClick" v-if="!authStore.user">Đăng nhập</div>
 		</header>
 
-		<div class="row gy-3">
+		<div class="row gy-3 background-1">
 			<div class="col-6" v-for="user in users" :key="user.id">
 				<MMcItem :user="user" @click="redirectToMC(user.id)"></MMcItem>
 			</div>
@@ -184,7 +184,7 @@ const onFormSubmit = (formInfo) => {
 		clearUsers();
 		rebuildPagedRequest();
 		loadMoreUsers();
-		toast.add({ severity: "success", summary: "Form is submitted.", life: 3000 });
+		toast.add({ severity: "success", summary: "Đã áp dụng bộ lọc", life: 3000 });
 		isVisibleFilterDialog.value = false;
 	}
 };

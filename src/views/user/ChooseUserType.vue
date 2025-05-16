@@ -1,23 +1,23 @@
 <template>
-	<main class="main-container">
+	<main class="main-container background-1">
 		<h1 class="title">Bạn là ai?</h1>
 		<div class="radio-group">
 			<div class="radio-item">
-				<RadioButton inputId="mc" v-model="isMc" :value="true" />
+				<RadioButton size="large" inputId="mc" v-model="isMc" :value="true" />
 				<label for="mc">MC</label>
 			</div>
 			<div v-if="isMc" class="sub-options">
 				<div class="radio-item">
-					<RadioButton inputId="experienced" v-model="isNewbie" :value="false" />
+					<RadioButton size="large" inputId="experienced" v-model="isNewbie" :value="false" />
 					<label for="experienced">MC có kinh nghiệm</label>
 				</div>
 				<div class="radio-item">
-					<RadioButton inputId="newbie" v-model="isNewbie" :value="true" />
+					<RadioButton size="large" inputId="newbie" v-model="isNewbie" :value="true" />
 					<label for="newbie">MC mới</label>
 				</div>
 			</div>
 			<div class="radio-item">
-				<RadioButton inputId="guest" v-model="isMc" :value="false" />
+				<RadioButton size="large" inputId="guest" v-model="isMc" :value="false" />
 				<label for="guest">Khách booking MC</label>
 			</div>
 		</div>
@@ -39,8 +39,8 @@ import { hideLoading, showLoading } from "@/composables/useLoading";
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
-const isMc = ref(true); // default option
-const isNewbie = ref<boolean>(false); // default option
+const isMc = ref(true);
+const isNewbie = ref<boolean>(false);
 const credential = route.query.credential;
 
 const goBack = () => {
@@ -49,7 +49,7 @@ const goBack = () => {
 
 const submitUserType = async () => {
 	if (!credential) {
-		toast.add({ severity: "error", summary: "Error", detail: "Missing credential", life: 3000 });
+		toast.add({ severity: "error", summary: "Lỗi", detail: "Thiếu thông tin xác thực", life: 3000 });
 		return;
 	}
 
@@ -62,7 +62,7 @@ const submitUserType = async () => {
 			authStore.login(response.data.accessToken);
 			toast.add({
 				severity: "success",
-				summary: "Success",
+				summary: "Thành công",
 				detail: "Tài khoản đã được tạo thành công",
 				life: 3000,
 			});
@@ -70,7 +70,7 @@ const submitUserType = async () => {
 		} else {
 			toast.add({
 				severity: "error",
-				summary: "Error",
+				summary: "Lỗi",
 				detail: "Tạo tài khoản thất bại",
 				life: 3000,
 			});
@@ -94,6 +94,7 @@ const submitUserType = async () => {
 	text-align: center;
 	font-size: 2rem;
 	margin-bottom: 54px;
+	font-weight: 700;
 }
 .info {
 	text-align: center;
@@ -131,5 +132,10 @@ const submitUserType = async () => {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
+}
+
+label {
+	font-size: 1.05rem;
+	font-weight: 600;
 }
 </style>

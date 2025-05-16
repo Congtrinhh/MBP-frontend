@@ -1,8 +1,9 @@
 <template>
 	<div class="navbar" id="navbar">
-		<template v-for="item in items" :key="item.name">
+		<template v-for="item in items">
 			<router-link
 				v-if="item.shouldShow()"
+				:key="item.name"
 				class="nav-item"
 				@click="handleTabClick(item)"
 				:class="{ active: item.route === currentRoute.path }"
@@ -38,7 +39,7 @@ const unreadNotificationCount = computed(() => appStore.unreadNotificationCount)
 
 const items = ref([
 	{ name: "posts", route: "/posts", label: "", icon: "pi pi-home", shouldShow: () => true },
-	{ name: "messages", route: "/messages", label: "", icon: "pi pi-comment", shouldShow: () => authStore.user!! },
+	// { name: "messages", route: "/messages", label: "", icon: "pi pi-comment", shouldShow: () => authStore.user!! },
 	{ name: "mcs", route: "/mcs", label: "MC", shouldShow: () => true },
 	{
 		name: "notifications",

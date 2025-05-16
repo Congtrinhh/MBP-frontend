@@ -100,7 +100,7 @@ import { NotificationStatus } from "@/enums/notificationStatus";
 //#region State
 const notifications = ref<Notification[]>([]);
 const page = ref(0);
-const pageSize = 10;
+const pageSize = 20;
 const loading = ref(false);
 const showResendOfferDialog = ref(false);
 const resendOffer = reactive({
@@ -285,8 +285,8 @@ const onResendOfferSubmit = async (formInfo: any) => {
 			showResendOfferDialog.value = false;
 			toast.add({
 				severity: "success",
-				summary: "Offer Resent",
-				detail: "The offer has been resent successfully",
+				summary: "Đã gửi lại offer",
+				detail: "Offer đã được gửi lại thành công",
 				life: 3000,
 			});
 		} catch (error) {
@@ -327,7 +327,6 @@ onMounted(() => {
 	display: flex;
 	flex-direction: column;
 	overflow-y: auto;
-	height: 100vh; /* Adjust as needed */
 }
 
 .notification-item {

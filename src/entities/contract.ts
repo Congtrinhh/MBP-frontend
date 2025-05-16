@@ -16,6 +16,7 @@ export interface Contract extends BaseEntity {
 	clientCancelReason?: string | null;
 	isActive?: boolean;
 	status?: ContractStatus;
+	isIgnoreBufferCheck?: boolean;
 
 	client?: User;
 	mc?: User;

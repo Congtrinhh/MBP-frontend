@@ -109,7 +109,7 @@ import { notificationApi } from "@/apis/notificationApi";
 const authStore = useAuthStore();
 const router = useRouter();
 const toast = useToast();
-const isMc = computed(() => authStore.user?.isMc == "True");
+const isMc = computed(() => authStore.user?.isMc == "true");
 
 /**
  * sang màn hình chi tiết hợp đồng
@@ -213,8 +213,8 @@ const onSubmit = async (formInfo: any) => {
 				console.error("Không thể cập nhật trạng thái thông báo", error);
 				toast.add({
 					severity: "error",
-					summary: "Failed to update notification status",
-					detail: "There was an error updating the notification status",
+					summary: "Cập nhật trạng thái thông báo thất bại",
+					detail: "Có lỗi khi cập nhật trạng thái thông báo",
 					life: 3000,
 				});
 			}
@@ -222,16 +222,16 @@ const onSubmit = async (formInfo: any) => {
 			router.push({ name: "user-notification-list" });
 			toast.add({
 				severity: "success",
-				summary: "Review Submitted",
-				detail: "Your review has been submitted successfully",
+				summary: "Đã gửi đánh giá",
+				detail: "Đánh giá của bạn đã được gửi thành công",
 				life: 3000,
 			});
 		} catch (error) {
 			console.error("Không thể gửi đánh giá", error);
 			toast.add({
 				severity: "error",
-				summary: "Submission Failed",
-				detail: "There was an error submitting your review",
+				summary: "Gửi đánh giá thất bại",
+				detail: "Có lỗi khi gửi đánh giá của bạn",
 				life: 3000,
 			});
 		}

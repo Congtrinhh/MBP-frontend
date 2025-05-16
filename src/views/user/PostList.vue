@@ -103,7 +103,7 @@
 										: 'pi-thumbs-up',
 								]"
 							></i>
-							<span class="text">Like</span>
+							<span class="text">Thích</span>
 						</div>
 						<div class="reaction-button chat-button">
 							<i class="icon pi pi-comment"></i>
@@ -415,16 +415,16 @@ const savePost = async (post: Post) => {
 		await postApi.update(selectedPostId.value, post);
 		toast.add({
 			severity: "success",
-			summary: "Post Created",
-			detail: "Your post has been updated successfully",
+			summary: "Đã tạo bài viết",
+			detail: "Bài viết của bạn đã được cập nhật thành công",
 			life: 3000,
 		});
 	} else if (editingMode.value == EditingMode.Create) {
 		await postApi.create(post);
 		toast.add({
 			severity: "success",
-			summary: "Post Created",
-			detail: "Your post has been created successfully",
+			summary: "Đã tạo bài viết",
+			detail: "Bài viết của bạn đã được tạo thành công",
 			life: 3000,
 		});
 	}
@@ -559,8 +559,8 @@ const handleLoginClick = () => {
 const postMenu = ref(null);
 const selectedPostId = ref<number>(0);
 const postMenuItems = [
-	{ label: "Edit", icon: "pi pi-pencil", command: () => handleEditPost() },
-	{ label: "Delete", icon: "pi pi-trash", command: () => handleDeletePost() },
+	{ label: "Chỉnh sửa", icon: "pi pi-pencil", command: () => handleEditPost() },
+	{ label: "Xóa", icon: "pi pi-trash", command: () => handleDeletePost() },
 ];
 
 function handleShowPostMenu(event: Event, postId: number) {

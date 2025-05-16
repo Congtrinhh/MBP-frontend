@@ -20,7 +20,11 @@
 				<div class="info">
 					<div class="name-wrapper">
 						<div class="name">{{ user.nickName }}</div>
-						<span v-if="user.isVerified" class="pi pi-verified"></span>
+						<span
+							v-if="user.isVerified"
+							class="pi pi-verified"
+							style="font-size: 1.5rem; color: green"
+						></span>
 						<div v-else-if="hasEditPermission" class="verify-identity underline">Xác thực danh tính</div>
 					</div>
 					<div class="credit-point"><Badge :value="user.credit"></Badge></div>
@@ -761,7 +765,7 @@ const handleSaveGeneralInfo = async (userSave: User) => {
 	userSave.id = userId;
 
 	// Handle details' entity state
-	if (authStore.user?.isMc == "True") {
+	if (authStore.user?.isMc == "true") {
 		userSave.mcTypes = updateEntityState(userSave.mcTypes, formInitialValues.value.mcTypes);
 		userSave.hostingStyles = updateEntityState(userSave.hostingStyles, formInitialValues.value.hostingStyles);
 		userSave.provinces = updateEntityState(userSave.provinces, formInitialValues.value.provinces);
@@ -772,8 +776,8 @@ const handleSaveGeneralInfo = async (userSave: User) => {
 	editingMode.value = EditingMode.None;
 	toast.add({
 		severity: "success",
-		summary: "Info Saved",
-		detail: "Your general information has been saved",
+		summary: "Đã lưu thông tin",
+		detail: "Thông tin chung của bạn đã được lưu",
 		life: 3000,
 	});
 
@@ -798,7 +802,7 @@ const deleteImage = async (index: number) => {
 	const imageToDelete = images.value[index];
 	images.value.splice(index, 1);
 	await mediaApi.delete(imageToDelete.id);
-	toast.add({ severity: "success", summary: "Image deleted successfully.", life: 3000 });
+	toast.add({ severity: "success", summary: "Đã xóa ảnh thành công", life: 3000 });
 };
 
 const handleDragEnd = async () => {
@@ -818,7 +822,7 @@ const handleDragEnd = async () => {
 
 	// Update in backend
 	await userApi.update(userId, payload);
-	toast.add({ severity: "success", summary: "Images reordered successfully.", life: 3000 });
+	toast.add({ severity: "success", summary: "Đã sắp xếp lại ảnh thành công", life: 3000 });
 };
 
 const cancelEditImages = () => {
@@ -876,7 +880,7 @@ const deleteVideo = async (index: number) => {
 	const videoToDelete = videos.value[index];
 	videos.value.splice(index, 1);
 	await mediaApi.delete(videoToDelete.id);
-	toast.add({ severity: "success", summary: "Video deleted successfully.", life: 3000 });
+	toast.add({ severity: "success", summary: "Đã xóa video thành công", life: 3000 });
 };
 
 const handleVideoDragEnd = async () => {
@@ -896,7 +900,7 @@ const handleVideoDragEnd = async () => {
 
 	// Update in backend
 	await userApi.update(userId, payload);
-	toast.add({ severity: "success", summary: "Videos reordered successfully.", life: 3000 });
+	toast.add({ severity: "success", summary: "Đã sắp xếp lại video thành công", life: 3000 });
 };
 
 const cancelEditVideos = () => {
@@ -1113,8 +1117,8 @@ const onOfferFormSubmit = async (formInfo: any) => {
 		closeOfferDialog(true);
 		toast.add({
 			severity: "success",
-			summary: "Offer Sent",
-			detail: "The offer has been sent successfully",
+			summary: "Đã gửi offer",
+			detail: "Offer của bạn đã được gửi thành công",
 			life: 3000,
 		});
 	}

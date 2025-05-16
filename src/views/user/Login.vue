@@ -1,6 +1,8 @@
 <template>
-	<main class="main-container">
-		<GoogleSignInButton @success="handleLoginSuccess" @error="handleLoginError"></GoogleSignInButton>
+	<main class="main-container background-1">
+		<div class="login-with-google-wrapper">
+			<GoogleSignInButton @success="handleLoginSuccess" @error="handleLoginError"></GoogleSignInButton>
+		</div>
 	</main>
 </template>
 
@@ -41,8 +43,8 @@ const handleLoginSuccess = async (response: CredentialResponse) => {
 
 		toast.add({
 			severity: "success",
-			summary: "Login Successful",
-			detail: "You have logged in successfully",
+			summary: "Đăng nhập thành công",
+			detail: "Bạn đã đăng nhập thành công",
 			life: 3000,
 		});
 
@@ -56,9 +58,17 @@ const handleLoginSuccess = async (response: CredentialResponse) => {
 const handleLoginError = () => {
 	toast.add({
 		severity: "error",
-		summary: "Login failed",
-		detail: "Fail to login",
+		summary: "Đăng nhập thất bại",
+		detail: "Không thể đăng nhập",
 		life: 3000,
 	});
 };
 </script>
+<style scoped lang="scss">
+.main-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+}
+</style>

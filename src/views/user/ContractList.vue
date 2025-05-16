@@ -23,33 +23,11 @@
 					<div class="info-container">
 						<div class="info-item">
 							<label>Sự kiện:</label>
-							<div class="value">{{ contract.eventName }}</div>
-						</div>
-						<div class="info-item">
-							<label>Bắt đầu:</label>
-							<div class="value" v-format-date="contract.eventStart"></div>
-						</div>
-						<div class="info-item">
-							<label>Kết thúc:</label>
-							<div class="value" v-format-date="contract.eventEnd"></div>
-						</div>
-						<div class="info-item">
-							<label>Địa điểm:</label>
-							<div class="value">{{ contract.place }}</div>
-						</div>
-						<div class="info-item">
-							<label>Mô tả:</label>
-							<div class="value">{{ contract.description }}</div>
+							<div class="value line-clamp-2">{{ contract.eventName }}</div>
 						</div>
 					</div>
-					<hr />
 					<div class="additional-info">
 						<div class="info-item">
-							<label>Ngày tạo:</label>
-							<div class="value" v-format-date="contract.createdAt"></div>
-						</div>
-						<div class="info-item">
-							<label>Trạng thái:</label>
 							<div class="value">
 								<Tag
 									v-if="contract.status === ContractStatus.InEffect"
@@ -92,7 +70,7 @@ const loading = ref(false);
 const authStore = useAuthStore();
 const { redirectToProfile } = useRedirect();
 const router = useRouter();
-const isMc = computed(() => authStore.user?.isMc == "True");
+const isMc = computed(() => authStore.user?.isMc == "true");
 
 const fetchContracts = async () => {
 	if (loading.value) return;
@@ -189,7 +167,6 @@ onMounted(() => {
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
-	margin-bottom: 20px;
 }
 
 .info-item {
@@ -206,6 +183,10 @@ onMounted(() => {
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
-	margin-top: 20px;
+	margin-top: 12px;
+
+	.value {
+		margin-left: auto;
+	}
 }
 </style>
